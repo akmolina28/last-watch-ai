@@ -2,49 +2,20 @@
     <div class="component-container">
         <div class="columns">
             <div class="column is-one-third">
-                <h1 class="heading">Predictions</h1>
-                <h1 class="heading">Predictions</h1>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>Class</th>
-                            <th>Confidence</th>
-                            <th>Relevance</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(prediction, index) in event.ai_predictions"
-                            @click="highlightPrediction(prediction)"
-                            :class="prediction.highlight ? 'is-selected' : ''">
-                            <td>{{ index + 1 }}</td>
-                            <td>{{ prediction.object_class }}</td>
-                            <td>{{ prediction.confidence }}</td>
-                            <td>
-                                <i v-if="prediction.detection_profiles.length > 0" class="fas fa-check"></i>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <ul class="menu-list">
+                    <li v-for="profile in profiles" @click="selectProfile(profile)">
+                        <a :class="profile.id === selectedProfile.id ? 'is-active' : ''">
+                            <h6 class="heading is-size-6">{{ profile.name }}</h6>
+                            <p class="is-italic">{{ profile.file_pattern }}</p>
+                            <ul>
+                                <li v-for="prediction in getPredictions(profile)">{{ prediction.object_class }}</li>
+                            </ul>
+                        </a>
+                    </li>
+                </ul>
             </div>
             <div class="column is-two-thirds">
                 <canvas id="event-snapshot" ref="event-snapshot" height="480" width="640"></canvas>
-                <div v-for="profile in highlightedProfiles">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Relevant Profile</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>{{ profile.name }}</td>
-                                <td><button v-if="profile.use_mask" class="button">Show Mask</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
             </div>
         </div>
     </div>
@@ -60,7 +31,10 @@
 
         data() {
             return {
-                event: {}
+                event: {},
+                predictions: [],
+                profiles: [],
+                selectedProfile: {}
             }
         },
 
@@ -68,30 +42,47 @@
             this.getData();
         },
 
-        computed: {
-            highlightedProfiles() {
-                let profiles = []
-                if (this.event && this.event.ai_predictions) {
-                    profiles = this.event.ai_predictions.filter(p => p.highlight);
-                }
-                return profiles;
-            }
-        },
-
         methods: {
             getData() {
                 axios.get(`/api/events/${this.id}`)
                     .then(response => {
                         this.event = response.data.data;
+
+                        this.event.ai_predictions.forEach(ap => {
+                            ap.detection_profiles.forEach(dp => {
+                                this.profiles.push(dp);
+                            });
+                        });
+
+                        this.profiles = _.uniqBy(this.profiles, function(p) {
+                            return p.id;
+                        });
+
                         this.draw(this.event.ai_predictions);
                     });
             },
 
-            highlightPrediction(prediction) {
-                this.event.ai_predictions.forEach(p => p.highlight = false);
-                prediction.highlight = true;
+            getPredictions(profile) {
+                let predictions = [];
 
-                this.draw([prediction]);
+                for (let i = 0; i < this.event.ai_predictions.length; i++) {
+                    let prediction = this.event.ai_predictions[i];
+                    for (let j = 0; j < prediction.detection_profiles.length; j++) {
+                        if (prediction.detection_profiles[j].id === profile.id) {
+                            predictions.push(prediction);
+                            break;
+                        }
+                    }
+                }
+
+                return predictions;
+            },
+
+            selectProfile(profile) {
+                this.selectedProfile = profile;
+
+                let predictions = this.getPredictions(profile);
+                this.draw(predictions, profile.use_mask ? profile.slug + '.png' : null);
             },
 
             draw(predictions, mask_name) {
@@ -105,7 +96,7 @@
                     });
 
                 let mask = null;
-                if (typeof mask_name !== 'undefined') {
+                if (mask_name) {
                     mask = new Facade.Image('/storage/masks/' + mask_name, {
                         x: stage.width() / 2,
                         y: stage.height() / 2,

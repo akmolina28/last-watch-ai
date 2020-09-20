@@ -10,7 +10,7 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - app:/var/www/app
+      - ./src:/var/www/app
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - php
@@ -48,7 +48,7 @@ services:
     ports:
       - "9000:9000"
     volumes:
-      - app:/var/www/app
+      - ./src:/var/www/app
     networks:
       - laravel
 
@@ -60,7 +60,7 @@ services:
     environment:
       QUEUE_CONNECTION: database
     volumes:
-      - app:/var/www/app
+      - ./src:/var/www/app
     networks:
       - laravel
 
@@ -68,7 +68,7 @@ services:
     image: composer:latest
     container_name: composer
     volumes:
-      - app:/var/www/app
+      - ./src:/var/www/app
     working_dir: /var/www/app
     depends_on:
       - php
@@ -80,7 +80,7 @@ services:
     image: node:13.7
     container_name: npm
     volumes:
-      - app:/var/www/app
+      - ./src:/var/www/app
     working_dir: /var/www/app
     entrypoint: ['npm']
 
@@ -90,7 +90,7 @@ services:
       dockerfile: php.dockerfile
     container_name: artisan
     volumes:
-      - app:/var/www/app
+      - ./src:/var/www/app
     depends_on:
       - mysql
     working_dir: /var/www/app
@@ -113,7 +113,7 @@ services:
   watcher:
     image: akmolina28/webhook-folder-watcher
     volumes:
-      - app:/var/www/app
+      - ./src:/var/www/app
     restart: always
     environment:
       - WATCH_FOLDER=/var/www/app/storage/app/public
@@ -141,7 +141,7 @@ services:
       dockerfile: php.dockerfile
     container_name: phpunit
     volumes:
-      - app:/var/www/app
+      - ./src:/var/www/app
     depends_on:
       - mysql_testing
     working_dir: /var/www/app
@@ -149,4 +149,3 @@ services:
 
 volumes:
   localstorage:
-  app:

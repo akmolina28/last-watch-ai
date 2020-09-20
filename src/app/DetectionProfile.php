@@ -42,6 +42,16 @@ class DetectionProfile extends Model
         return $this->belongsToMany('App\AiPrediction');
     }
 
+    public function telegramConfigs()
+    {
+        return $this->belongsToMany('App\TelegramConfig');
+    }
+
+    public function folderCopyConfigs()
+    {
+        return $this->belongsToMany('App\FolderCopyConfig');
+    }
+
     public function setNameAttribute($value)
     {
         $this->attributes['name'] = $value;

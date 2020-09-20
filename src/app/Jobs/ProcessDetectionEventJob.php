@@ -81,6 +81,11 @@ class ProcessDetectionEventJob implements ShouldQueue
 
                 if ($profileMatch) {
                     $profile->aiPredictions()->attach($aiPrediction->id);
+
+                    $profile->load(['telegramConfigs']);
+                    foreach ($profile->telegramConfigs as $config) {
+                        ProcessTelegramJob::dispatch($this->event, $config);
+                    }
                 }
             }
         }

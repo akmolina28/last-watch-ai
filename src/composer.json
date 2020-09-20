@@ -18,7 +18,8 @@
         "laravel/tinker": "^2.0",
         "laravelcollective/html": "^6.2",
         "spatie/laravel-webhook-client": "^2.7",
-        "staudenmeir/eloquent-has-many-deep": "^1.7"
+        "staudenmeir/eloquent-has-many-deep": "^1.7",
+        "ext-curl": "*"
     },
     "require-dev": {
         "facade/ignition": "^2.0",

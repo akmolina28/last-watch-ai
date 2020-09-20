@@ -1,5 +1,6 @@
 <?php
 
+use App\DetectionEvent;
 use Illuminate\Database\Seeder;
 
 class DetectionEventSeeder extends Seeder
@@ -11,6 +12,6 @@ class DetectionEventSeeder extends Seeder
      */
     public function run()
     {
-        //
+        factory(DetectionEvent::class, 10)->create();
     }
 }
