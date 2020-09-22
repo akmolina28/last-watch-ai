@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\AiPrediction;
 use App\DetectionEvent;
 use App\DetectionProfile;
+use App\FolderCopyConfig;
 use App\TelegramConfig;
 use App\WebRequestConfig;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -198,6 +199,47 @@ class ApiTest extends TestCase
     /**
      * @test
      */
+    public function api_can_get_folder_copy_configs()
+    {
+        factory(FolderCopyConfig::class, 5)->create();
+
+        $this->get('/api/folderCopy')
+            ->assertStatus(200)
+            ->assertJsonStructure([
+                'data' =>
+                    [0 => [
+                        'id',
+                        'name',
+                        'copy_to',
+                        'overwrite'
+                    ]]
+            ])
+            ->assertJsonCount(5, 'data');
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_create_a_folder_copy_config()
+    {
+        $response = $this->post('/api/folderCopy', [
+            'name' => 'Folder Copy Test',
+            'copy_to' => '/mnt/test',
+            'overwrite' => true
+        ])
+            ->assertStatus(201)
+            ->assertJson([
+                'data' => [
+                    'name' => 'Folder Copy Test',
+                    'copy_to' => '/mnt/test',
+                    'overwrite' => true
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     */
     public function api_can_attach_a_telegram_subscription() {
         $profile = factory(DetectionProfile::class)->create();
 
@@ -344,5 +386,60 @@ class ApiTest extends TestCase
         $profile->load(['webRequestConfigs']);
 
         $this->assertCount(0, $profile->webRequestConfigs);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_attach_a_folder_copy_subscription_multiple_times()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+
+        $config = factory(FolderCopyConfig::class)->create();
+
+        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/subscriptions', [
+            'type' => 'folderCopy',
+            'id' => $config->id,
+            'value' => true
+        ])
+            ->assertStatus(200);
+
+        $profile->load(['folderCopyConfigs']);
+
+        $this->assertCount(1, $profile->folderCopyConfigs);
+        $this->assertEquals($config->name, $profile->folderCopyConfigs()->first()->name);
+
+        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/subscriptions', [
+            'type' => 'folderCopy',
+            'id' => $config->id,
+            'value' => true
+        ]);
+
+        $profile->load(['folderCopyConfigs']);
+
+        $this->assertCount(1, $profile->folderCopyConfigs);
+        $this->assertEquals($config->name, $profile->folderCopyConfigs()->first()->name);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_detach_a_folder_copy_subscription() {
+        $profile = factory(DetectionProfile::class)->create();
+
+        $config = factory(FolderCopyConfig::class)->create();
+
+        $profile->folderCopyConfigs()->attach($config->id);
+
+        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/subscriptions', [
+            'type' => 'folderCopy',
+            'id' => $config->id,
+            'value' => false
+        ])
+            ->assertStatus(200);
+
+        $profile->load(['folderCopyConfigs']);
+
+        $this->assertCount(0, $profile->folderCopyConfigs);
     }
 }

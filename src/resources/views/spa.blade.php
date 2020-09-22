@@ -34,10 +34,10 @@
                         Automation
                     </p>
                     <ul class="menu-list">
-                        <li><a>Network Path</a></li>
-                        <li><a>MQTT</a></li>
+                        <li><router-link to="/folderCopy">Folder Copy</router-link></li>
                         <li><router-link to="/webRequest">Web Request</router-link></li>
                         <li><router-link to="/telegram">Telegram</router-link></li>
+                        <li><a>MQTT (coming soon)</a></li>
                     </ul>
                     <p class="menu-label">
                         Configuration

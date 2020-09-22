@@ -90,6 +90,10 @@ class ProcessDetectionEventJob implements ShouldQueue
                     foreach ($profile->webRequestConfigs as $config) {
                         ProcessWebRequestJob::dispatch($this->event, $config);
                     }
+
+                    foreach($profile->folderCopyConfigs as $config) {
+                        ProcessFolderCopyJob::dispatch($this->event, $config, $profile);
+                    }
                 }
             }
         }

@@ -31,6 +31,11 @@ let routes = [
         props: true
     },
     {
+        path: '/folderCopy/',
+        component: require('./components/FolderCopyConfigs').default,
+        props: true
+    },
+    {
         path: '/telegram/',
         component: require('./components/TelegramConfigs').default,
         props: true

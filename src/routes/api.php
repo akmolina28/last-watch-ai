@@ -2,8 +2,10 @@
 
 use App\DetectionEvent;
 use App\DetectionProfile;
+use App\FolderCopyConfig;
 use App\Resources\DetectionEventResource;
 use App\Resources\DetectionProfileResource;
+use App\Resources\FolderCopyConfigResource;
 use App\Resources\TelegramConfigResource;
 use App\Resources\WebRequestConfigResource;
 use App\TelegramConfig;
@@ -83,6 +85,14 @@ Route::post('/profiles/{profile}/subscriptions', function(DetectionProfile $prof
             $profile->webRequestConfigs()->detach($id);
         }
     }
+    else if ($type == 'folderCopy') {
+        if ($value == 'true') {
+            $profile->folderCopyConfigs()->sync([$id], false);
+        }
+        else {
+            $profile->folderCopyConfigs()->detach($id);
+        }
+    }
     else {
         throw new Exception('Invalid type '.$type);
     }
@@ -147,4 +157,25 @@ Route::post('/webRequest', function(Request $request) {
     ]);
 
     return WebRequestConfigResource::make($config);
+});
+
+Route::get('/folderCopy', function() {
+    return FolderCopyConfigResource::collection(
+        FolderCopyConfig::with(['detectionProfiles'])->orderByDesc('created_at')->get()
+    );
+});
+
+Route::post('/folderCopy', function(Request $request) {
+    $request->validate([
+        'name' => 'required|unique:folder_copy_configs',
+        'copy_to' => 'required'
+    ]);
+
+    $config = FolderCopyConfig::create([
+        'name' => $request->get('name'),
+        'copy_to' => $request->get('copy_to'),
+        'overwrite' => $request->get('overwrite', false)
+    ]);
+
+    return FolderCopyConfigResource::make($config);
 });

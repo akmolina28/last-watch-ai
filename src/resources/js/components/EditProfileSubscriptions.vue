@@ -6,10 +6,12 @@
 
         <div class="columns">
             <div class="column is-one-third">
+
                 <div v-if="subscriptionSuccess" class="notification is-primary">
                     <button class="delete" @click="subscriptionSuccess = false"></button>
                     Subscription updated!
                 </div>
+
                 <div v-if="webRequestConfigs.length > 0" class="box">
                     <p class="subtitle">Web Request</p>
                     <table class="table">
@@ -22,6 +24,24 @@
                         <tbody>
                         <tr v-for="config in webRequestConfigs">
                             <td><input :checked="isSubscribed(config)" type="checkbox" @change="updateSubscription($event, config.id, 'webRequest')"></td>
+                            <td>{{ config.name }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div v-if="folderCopyConfigs.length > 0" class="box">
+                    <p class="subtitle">Folder Copy</p>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Subscribe</th>
+                            <th>Name</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="config in folderCopyConfigs">
+                            <td><input :checked="isSubscribed(config)" type="checkbox" @change="updateSubscription($event, config.id, 'folderCopy')"></td>
                             <td>{{ config.name }}</td>
                         </tr>
                         </tbody>
@@ -81,6 +101,7 @@
                 axios.get(`/api/profiles/${this.id}`).then(response => this.profile = response.data.data);
                 axios.get('/api/telegram').then(response => this.telegramConfigs = response.data.data);
                 axios.get('/api/webRequest').then(response => this.webRequestConfigs = response.data.data);
+                axios.get('/api/folderCopy').then(response => this.folderCopyConfigs = response.data.data);
             },
 
             isSubscribed(config) {

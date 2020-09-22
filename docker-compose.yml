@@ -55,14 +55,16 @@ services:
       - laravel
 
   queue:
-    image: ipunktbs/laravel-queue-worker
+    image: akmolina28/laravel-queue-worker
     container_name: queue
     restart: unless-stopped
     tty: true
     environment:
       QUEUE_CONNECTION: database
+      NUMPROCS: 8
     volumes:
       - ./src:/var/www/app
+      - c:/test:/mnt/hass
     networks:
       - laravel
 

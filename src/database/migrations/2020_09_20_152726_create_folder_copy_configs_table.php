@@ -15,7 +15,9 @@ class CreateFolderCopyConfigsTable extends Migration
     {
         Schema::create('folder_copy_configs', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
             $table->string('copy_to');
+            $table->boolean('overwrite')->default(false);
             $table->timestamps();
         });
     }
