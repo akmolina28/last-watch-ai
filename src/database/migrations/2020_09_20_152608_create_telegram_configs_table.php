@@ -15,7 +15,7 @@ class CreateTelegramConfigsTable extends Migration
     {
         Schema::create('telegram_configs', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name')->unique();
             $table->string('token');
             $table->string('chat_id');
             $table->timestamps();

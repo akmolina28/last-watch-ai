@@ -103,12 +103,14 @@
                 mask: {},
                 objectClasses: [],
                 errors: [],
-                allObjectClasses: []
+                allObjectClasses: [],
+                telegramConfigs: []
             }
         },
 
-        async created() {
-            await axios.get('/api/objectClasses').then(({data}) => this.allObjectClasses = data);
+        created() {
+            axios.get('/api/objectClasses').then(({data}) => this.allObjectClasses = data);
+            axios.get('/api/telegram').then(({data}) => this.telegramConfigs = data);
         },
 
         methods:{

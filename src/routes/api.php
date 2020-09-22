@@ -4,6 +4,10 @@ use App\DetectionEvent;
 use App\DetectionProfile;
 use App\Resources\DetectionEventResource;
 use App\Resources\DetectionProfileResource;
+use App\Resources\TelegramConfigResource;
+use App\Resources\WebRequestConfigResource;
+use App\TelegramConfig;
+use App\WebRequestConfig;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -52,6 +56,40 @@ Route::post('/profiles', function(Request $request) {
     return DetectionProfileResource::make($profile);
 });
 
+Route::get('/profiles/{profile}', function(DetectionProfile $profile) {
+    return DetectionProfileResource::make($profile);
+});
+
+Route::post('/profiles/{profile}/subscriptions', function(DetectionProfile $profile) {
+    Log::info('here');
+
+    $type = request()->get('type');
+    $id = request()->get('id');
+    $value = request()->get('value');
+
+    if ($type == 'telegram') {
+        if ($value == 'true') {
+            $profile->telegramConfigs()->sync([$id], false);
+        }
+        else {
+            $profile->telegramConfigs()->detach($id);
+        }
+    }
+    else if ($type == 'webRequest') {
+        if ($value == 'true') {
+            $profile->webRequestConfigs()->sync([$id], false);
+        }
+        else {
+            $profile->webRequestConfigs()->detach($id);
+        }
+    }
+    else {
+        throw new Exception('Invalid type '.$type);
+    }
+
+    return true;
+});
+
 Route::get('/events', function(Request $request) {
     return DetectionEventResource::collection(
         DetectionEvent::withCount(['detectionProfiles'])
@@ -67,4 +105,46 @@ Route::get('/objectClasses', function(Request $request) {
 Route::get('/events/{event}', function(DetectionEvent $event) {
     $event->load(['aiPredictions.detectionProfiles']);
     return DetectionEventResource::make($event);
+});
+
+Route::get('/telegram', function() {
+    return TelegramConfigResource::collection(
+        TelegramConfig::with(['detectionProfiles'])->orderByDesc('created_at')->get()
+    );
+});
+
+Route::post('/telegram', function(Request $request) {
+    $request->validate([
+        'name' => 'required|unique:telegram_configs',
+        'token' => 'required',
+        'chat_id' => 'required',
+    ]);
+
+    $config = TelegramConfig::create([
+        'name' => $request->get('name'),
+        'token' => $request->get('token'),
+        'chat_id' => $request->get('chat_id')
+    ]);
+
+    return TelegramConfigResource::make($config);
+});
+
+Route::get('/webRequest', function() {
+    return WebRequestConfigResource::collection(
+        WebRequestConfig::with(['detectionProfiles'])->orderByDesc('created_at')->get()
+    );
+});
+
+Route::post('/webRequest', function(Request $request) {
+    $request->validate([
+        'name' => 'required|unique:web_request_configs',
+        'url' => 'required',
+    ]);
+
+    $config = WebRequestConfig::create([
+        'name' => $request->get('name'),
+        'url' => $request->get('url'),
+    ]);
+
+    return WebRequestConfigResource::make($config);
 });

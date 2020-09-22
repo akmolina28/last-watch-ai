@@ -36,8 +36,8 @@
                     <ul class="menu-list">
                         <li><a>Network Path</a></li>
                         <li><a>MQTT</a></li>
-                        <li><a>Webhook</a></li>
-                        <li><a>Telegram</a></li>
+                        <li><router-link to="/webRequest">Web Request</router-link></li>
+                        <li><router-link to="/telegram">Telegram</router-link></li>
                     </ul>
                     <p class="menu-label">
                         Configuration

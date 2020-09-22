@@ -86,6 +86,10 @@ class ProcessDetectionEventJob implements ShouldQueue
                     foreach ($profile->telegramConfigs as $config) {
                         ProcessTelegramJob::dispatch($this->event, $config);
                     }
+
+                    foreach ($profile->webRequestConfigs as $config) {
+                        ProcessTelegramJob::dispatch($this->event, $config);
+                    }
                 }
             }
         }

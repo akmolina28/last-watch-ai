@@ -7,6 +7,7 @@ services:
   site:
     image: nginx:stable
     container_name: nginx
+    restart: unless-stopped
     ports:
       - "8080:80"
     volumes:
@@ -45,6 +46,7 @@ services:
       context: .
       dockerfile: php.dockerfile
     container_name: php
+    restart: unless-stopped
     ports:
       - "9000:9000"
     volumes:
@@ -100,7 +102,7 @@ services:
 
   deepstack:
     image: deepquestai/deepstack
-    restart: always
+    restart: unless-stopped
     volumes:
       - localstorage:/datastore
     environment:
@@ -114,7 +116,7 @@ services:
     image: akmolina28/webhook-folder-watcher
     volumes:
       - ./src:/var/www/app
-    restart: always
+    restart: unless-stopped
     environment:
       - WATCH_FOLDER=/var/www/app/storage/app/public
       - WEBHOOK_URL=http://nginx:80/webhook-receiving-url

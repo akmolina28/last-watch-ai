@@ -22,11 +22,6 @@ class DetectionProfile extends Model
         'object_classes' => 'array'
     ];
 
-    public function getRouteKeyName()
-    {
-        return "slug";
-    }
-
     public function detectionEvents()
     {
         return $this->hasManyDeep(
@@ -45,6 +40,11 @@ class DetectionProfile extends Model
     public function telegramConfigs()
     {
         return $this->belongsToMany('App\TelegramConfig');
+    }
+
+    public function webRequestConfigs()
+    {
+        return $this->belongsToMany('App\WebRequestConfig', 'detection_profile_web_request_cfg');
     }
 
     public function folderCopyConfigs()

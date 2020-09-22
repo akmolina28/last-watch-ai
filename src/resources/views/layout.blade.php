@@ -37,7 +37,7 @@
                         <li><a>Network Path</a></li>
                         <li><a>MQTT</a></li>
                         <li><a>Webhook</a></li>
-                        <li><a>Telegram</a></li>
+                        <li><a href="/telegram" class="{{ (request()->is('telegram*')) ? 'is-active' : '' }}">Telegram</a></li>
                     </ul>
                     <p class="menu-label">
                         Configuration

@@ -16,6 +16,11 @@ let routes = [
         props: true
     },
     {
+        path: '/profiles/:id/subscriptions',
+        component: require('./components/EditProfileSubscriptions').default,
+        props: true
+    },
+    {
         path: '/events/',
         component: require('./components/DetectionEvents').default,
         props: true
@@ -23,6 +28,16 @@ let routes = [
     {
         path: '/events/:id',
         component: require('./components/ShowDetectionEvent').default,
+        props: true
+    },
+    {
+        path: '/telegram/',
+        component: require('./components/TelegramConfigs').default,
+        props: true
+    },
+    {
+        path: '/webRequest/',
+        component: require('./components/WebRequestConfigs').default,
         props: true
     }
 ]
