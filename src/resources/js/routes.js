@@ -36,6 +36,11 @@ let routes = [
         props: true
     },
     {
+        path: '/smbCifsCopy/',
+        component: require('./components/SmbCifsCopyConfigs').default,
+        props: true
+    },
+    {
         path: '/telegram/',
         component: require('./components/TelegramConfigs').default,
         props: true

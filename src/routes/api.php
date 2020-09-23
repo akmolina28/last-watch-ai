@@ -6,8 +6,10 @@ use App\FolderCopyConfig;
 use App\Resources\DetectionEventResource;
 use App\Resources\DetectionProfileResource;
 use App\Resources\FolderCopyConfigResource;
+use App\Resources\SmbCifsCopyConfigResource;
 use App\Resources\TelegramConfigResource;
 use App\Resources\WebRequestConfigResource;
+use App\SmbCifsCopyConfig;
 use App\TelegramConfig;
 use App\WebRequestConfig;
 use Illuminate\Http\Request;
@@ -91,6 +93,14 @@ Route::post('/profiles/{profile}/subscriptions', function(DetectionProfile $prof
         }
         else {
             $profile->folderCopyConfigs()->detach($id);
+        }
+    }
+    else if ($type == 'smbCifsCopy') {
+        if ($value == 'true') {
+            $profile->smbCifsCopyConfigs()->sync([$id], false);
+        }
+        else {
+            $profile->smbCifsCopyConfigs()->detach($id);
         }
     }
     else {
@@ -178,4 +188,31 @@ Route::post('/folderCopy', function(Request $request) {
     ]);
 
     return FolderCopyConfigResource::make($config);
+});
+
+Route::get('/smbCifsCopy', function() {
+    return SmbCifsCopyConfigResource::collection(
+        SmbCifsCopyConfig::with(['detectionProfiles'])->orderByDesc('created_at')->get()
+    );
+});
+
+Route::post('/smbCifsCopy', function(Request $request) {
+    $request->validate([
+        'name' => 'required|unique:folder_copy_configs',
+        'servicename' => 'required',
+        'user' => 'required',
+        'password' => 'required',
+        'remote_dest' => 'required'
+    ]);
+
+    $config = SmbCifsCopyConfig::create([
+        'name' => $request->get('name'),
+        'servicename' => $request->get('servicename'),
+        'user' => $request->get('user'),
+        'password' => $request->get('password'),
+        'remote_dest' => $request->get('remote_dest'),
+        'overwrite' => $request->get('overwrite', false)
+    ]);
+
+    return SmbCifsCopyConfigResource::make($config);
 });

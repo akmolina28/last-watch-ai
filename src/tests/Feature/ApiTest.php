@@ -6,6 +6,7 @@ use App\AiPrediction;
 use App\DetectionEvent;
 use App\DetectionProfile;
 use App\FolderCopyConfig;
+use App\SmbCifsCopyConfig;
 use App\TelegramConfig;
 use App\WebRequestConfig;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -240,6 +241,56 @@ class ApiTest extends TestCase
     /**
      * @test
      */
+    public function api_can_get_smb_cifs_copy_configs()
+    {
+        factory(SmbCifsCopyConfig::class, 5)->create();
+
+        $this->get('/api/smbCifsCopy')
+            ->assertStatus(200)
+            ->assertJsonStructure([
+                'data' =>
+                    [0 => [
+                        'id',
+                        'name',
+                        'servicename',
+                        'user',
+                        'password',
+                        'remote_dest',
+                        'overwrite'
+                    ]]
+            ])
+            ->assertJsonCount(5, 'data');
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_create_a_smb_cifs_copy_config()
+    {
+        $response = $this->post('/api/smbCifsCopy', [
+            'name' => 'Test Share',
+            'servicename' => '//192.168.1.100/share',
+            'user' => 'testuser',
+            'password' => 'testpassword',
+            'remote_dest' => '/path/to/dest',
+            'overwrite' => true
+        ])
+            ->assertStatus(201)
+            ->assertJson([
+                'data' => [
+                    'name' => 'Test Share',
+                    'servicename' => '//192.168.1.100/share',
+                    'user' => 'testuser',
+                    'password' => 'testpassword',
+                    'remote_dest' => '/path/to/dest',
+                    'overwrite' => true
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     */
     public function api_can_attach_a_telegram_subscription() {
         $profile = factory(DetectionProfile::class)->create();
 
@@ -441,5 +492,60 @@ class ApiTest extends TestCase
         $profile->load(['folderCopyConfigs']);
 
         $this->assertCount(0, $profile->folderCopyConfigs);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_attach_a_smb_cifs_copy_subscription_multiple_times()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+
+        $config = factory(SmbCifsCopyConfig::class)->create();
+
+        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/subscriptions', [
+            'type' => 'smbCifsCopy',
+            'id' => $config->id,
+            'value' => true
+        ])
+            ->assertStatus(200);
+
+        $profile->load(['smbCifsCopyConfigs']);
+
+        $this->assertCount(1, $profile->smbCifsCopyConfigs);
+        $this->assertEquals($config->name, $profile->smbCifsCopyConfigs()->first()->name);
+
+        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/subscriptions', [
+            'type' => 'smbCifsCopy',
+            'id' => $config->id,
+            'value' => true
+        ]);
+
+        $profile->load(['smbCifsCopyConfigs']);
+
+        $this->assertCount(1, $profile->smbCifsCopyConfigs);
+        $this->assertEquals($config->name, $profile->smbCifsCopyConfigs()->first()->name);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_detach_a_smb_cifs_copy_subscription() {
+        $profile = factory(DetectionProfile::class)->create();
+
+        $config = factory(SmbCifsCopyConfig::class)->create();
+
+        $profile->smbCifsCopyConfigs()->attach($config->id);
+
+        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/subscriptions', [
+            'type' => 'smbCifsCopy',
+            'id' => $config->id,
+            'value' => false
+        ])
+            ->assertStatus(200);
+
+        $profile->load(['smbCifsCopyConfigs']);
+
+        $this->assertCount(0, $profile->smbCifsCopyConfigs);
     }
 }

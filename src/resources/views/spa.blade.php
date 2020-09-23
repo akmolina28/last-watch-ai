@@ -35,6 +35,7 @@
                     </p>
                     <ul class="menu-list">
                         <li><router-link to="/folderCopy">Folder Copy</router-link></li>
+                        <li><router-link to="/smbCifsCopy">SMB/CIFS Copy</router-link></li>
                         <li><router-link to="/webRequest">Web Request</router-link></li>
                         <li><router-link to="/telegram">Telegram</router-link></li>
                         <li><a>MQTT (coming soon)</a></li>

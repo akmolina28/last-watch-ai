@@ -65,6 +65,24 @@
                         </tbody>
                     </table>
                 </div>
+
+                <div v-if="smbCifsCopyConfigs.length > 0" class="box">
+                    <p class="subtitle">SMB/CIFS Copy</p>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Subscribe</th>
+                            <th>Name</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="config in smbCifsCopyConfigs">
+                            <td><input :checked="isSubscribed(config)" type="checkbox" @change="updateSubscription($event, config.id, 'smbCifsCopy')"></td>
+                            <td>{{ config.name }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -82,6 +100,7 @@
                 telegramConfigs: [],
                 webRequestConfigs: [],
                 folderCopyConfigs: [],
+                smbCifsCopyConfigs: [],
                 subscriptionSuccess: false
             }
         },
@@ -102,6 +121,7 @@
                 axios.get('/api/telegram').then(response => this.telegramConfigs = response.data.data);
                 axios.get('/api/webRequest').then(response => this.webRequestConfigs = response.data.data);
                 axios.get('/api/folderCopy').then(response => this.folderCopyConfigs = response.data.data);
+                axios.get('/api/smbCifsCopy').then(response => this.smbCifsCopyConfigs = response.data.data);
             },
 
             isSubscribed(config) {

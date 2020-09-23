@@ -47,6 +47,8 @@ class ProcessDetectionEventJob implements ShouldQueue
 
         $result = new DeepstackResult($response);
 
+        $matchedProfiles = [];
+
         foreach ($result->getPredictions() as $prediction) {
             $aiPrediction = AiPrediction::create([
                 'object_class' => $prediction->label,
@@ -80,21 +82,30 @@ class ProcessDetectionEventJob implements ShouldQueue
                 }
 
                 if ($profileMatch) {
+                    if(!in_array($profile, $matchedProfiles)) {
+                        array_push($matchedProfiles, $profile);
+                    }
                     $profile->aiPredictions()->attach($aiPrediction->id);
-
-                    $profile->load(['telegramConfigs']);
-                    foreach ($profile->telegramConfigs as $config) {
-                        ProcessTelegramJob::dispatch($this->event, $config);
-                    }
-
-                    foreach ($profile->webRequestConfigs as $config) {
-                        ProcessWebRequestJob::dispatch($this->event, $config);
-                    }
-
-                    foreach($profile->folderCopyConfigs as $config) {
-                        ProcessFolderCopyJob::dispatch($this->event, $config, $profile);
-                    }
                 }
+            }
+        }
+
+        foreach ($matchedProfiles as $profile) {
+            $profile->load(['telegramConfigs']);
+            foreach ($profile->telegramConfigs as $config) {
+                ProcessTelegramJob::dispatch($this->event, $config);
+            }
+
+            foreach ($profile->webRequestConfigs as $config) {
+                ProcessWebRequestJob::dispatch($this->event, $config);
+            }
+
+            foreach($profile->folderCopyConfigs as $config) {
+                ProcessFolderCopyJob::dispatch($this->event, $config, $profile);
+            }
+
+            foreach($profile->smbCifsCopyConfigs as $config) {
+                ProcessSmbCifsCopyJob::dispatch($this->event, $config, $profile);
             }
         }
     }

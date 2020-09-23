@@ -52,6 +52,11 @@ class DetectionProfile extends Model
         return $this->belongsToMany('App\FolderCopyConfig');
     }
 
+    public function smbCifsCopyConfigs()
+    {
+        return $this->belongsToMany('App\SmbCifsCopyConfig');
+    }
+
     public function setNameAttribute($value)
     {
         $this->attributes['name'] = $value;
