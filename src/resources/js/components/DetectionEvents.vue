@@ -10,7 +10,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="event in laravelData.data" @click="$router.push(`/events/${event.id}`)" >
+                    <tr v-for="event in laravelData.data" @click="$router.push(`/events/${event.id}`)" :key="event.id">
                         <td>{{ event.image_file_name }}</td>
                         <td>{{ event.occurred_at }}</td>
                         <td>
@@ -20,7 +20,8 @@
                 </tbody>
             </table>
 
-            <pagination :data="laravelData.meta" @pagination-change-page="getData"></pagination>
+            <pagination :data="laravelData.meta" @pagination-change-page="getData" :limit="5">
+            </pagination>
 
         </div>
     </div>
