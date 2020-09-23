@@ -64,7 +64,6 @@ services:
       NUMPROCS: 8
     volumes:
       - ./src:/var/www/app
-      - /q/www/images/ai_alerts:/mnt/hass
     networks:
       - laravel
 
