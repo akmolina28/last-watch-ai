@@ -7,7 +7,7 @@ use Faker\Generator as Faker;
 
 $factory->define(SmbCifsCopyConfig::class, function (Faker $faker) {
     return [
-        'name' => $faker->word(),
+        'name' => $faker->unique()->word(),
         'servicename' => '//'.$faker->ipv4.'/'.$faker->word,
         'user' => $faker->word(),
         'password' => $faker->word(),

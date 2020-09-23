@@ -10,7 +10,6 @@ use App\SmbCifsCopyConfig;
 use App\TelegramConfig;
 use App\WebRequestConfig;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 class ApiTest extends TestCase
@@ -115,6 +114,76 @@ class ApiTest extends TestCase
                     ]]
             ])
             ->assertJsonCount(10, 'data');
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_relevant_events()
+    {
+        factory(DetectionEvent::class, 15)
+            ->create()
+            ->each(function ($event) {
+                $event->aiPredictions()->createMany(
+                    factory(AiPrediction::class, 3)->make()->toArray()
+                );
+            });
+
+        // make 5 events relevant
+        $profile = factory(DetectionProfile::class)->create();
+        foreach (DetectionEvent::take(5)->get() as $event) {
+            $prediction = $event->aiPredictions()->first();
+            $prediction->detectionProfiles()->attach($profile->id);
+        }
+
+        $response = $this->get('/api/events?relevant');
+
+        $response
+            ->assertStatus(200)
+            ->assertJsonStructure([
+                'data' =>
+                    [0 => [
+                        'id',
+                        'image_file_name',
+                        'detection_profiles_count'
+                    ]]
+            ])
+            ->assertJsonCount(5, 'data');
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_events_by_profile()
+    {
+        factory(DetectionEvent::class, 15)
+            ->create()
+            ->each(function ($event) {
+                $event->aiPredictions()->createMany(
+                    factory(AiPrediction::class, 3)->make()->toArray()
+                );
+            });
+
+        // make 3 events relevant
+        $profile = factory(DetectionProfile::class)->create();
+        foreach (DetectionEvent::take(3)->get() as $event) {
+            $prediction = $event->aiPredictions()->first();
+            $prediction->detectionProfiles()->attach($profile->id);
+        }
+
+        $response = $this->get('/api/events?profileId='.$profile->id);
+
+        $response
+            ->assertStatus(200)
+            ->assertJsonStructure([
+                'data' =>
+                    [0 => [
+                        'id',
+                        'image_file_name',
+                        'detection_profiles_count'
+                    ]]
+            ])
+            ->assertJsonCount(3, 'data');
     }
 
     /**

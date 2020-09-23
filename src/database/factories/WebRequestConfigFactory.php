@@ -7,7 +7,7 @@ use Faker\Generator as Faker;
 
 $factory->define(WebRequestConfig::class, function (Faker $faker) {
     return [
-        'name' => $faker->word(),
+        'name' => $faker->unique()->word(),
         'url' => $faker->url
     ];
 });

@@ -65,8 +65,6 @@ Route::get('/profiles/{profile}', function(DetectionProfile $profile) {
 });
 
 Route::post('/profiles/{profile}/subscriptions', function(DetectionProfile $profile) {
-    Log::info('here');
-
     $type = request()->get('type');
     $id = request()->get('id');
     $value = request()->get('value');
@@ -111,8 +109,27 @@ Route::post('/profiles/{profile}/subscriptions', function(DetectionProfile $prof
 });
 
 Route::get('/events', function(Request $request) {
+    $query = DetectionEvent::query();
+
+    if ($request->has('profileId')) {
+
+        $profileId = $request->get('profileId');
+
+        $query->whereHas('detectionProfiles', function ($q) use ($profileId) {
+            return $q->where('detection_profile_id', $profileId);
+        });
+    }
+    else if ($request->has('relevant')) {
+
+        $query->has('detectionProfiles', '>', 0);
+    }
+
+//    $query->withCount(['detectionProfiles'])
+//        ->orderByDesc('occurred_at')
+//        ->paginate(10);
+
     return DetectionEventResource::collection(
-        DetectionEvent::withCount(['detectionProfiles'])
+        $query->withCount(['detectionProfiles'])
             ->orderByDesc('occurred_at')
             ->paginate(10)
     );
