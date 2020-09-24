@@ -15,7 +15,7 @@
                 </ul>
             </div>
             <div class="column is-two-thirds">
-                <canvas id="event-snapshot" ref="event-snapshot" height="480" width="640"></canvas>
+                <canvas id="event-snapshot" ref="event-snapshot" style="width: 640px; height: 480px"></canvas>
             </div>
         </div>
     </div>
@@ -40,6 +40,21 @@
 
         mounted () {
             this.getData();
+        },
+
+        computed: {
+            imageWidth() {
+                if (this.event && this.event.image_dimensions) {
+                    return parseInt(this.event.image_dimensions.substring(0, this.event.image_dimensions.indexOf('x')));
+                }
+                return 0;
+            },
+            imageHeight() {
+                if (this.event && this.event.image_dimensions) {
+                    return parseInt(this.event.image_dimensions.substring(this.event.image_dimensions.indexOf('x') + 1));
+                }
+                return 0;
+            }
         },
 
         methods: {
@@ -86,22 +101,26 @@
             },
 
             draw(predictions, mask_name) {
+                let canvas = document.getElementById('event-snapshot');
+                canvas.width = this.imageWidth;
+                canvas.height = this.imageHeight;
+
                 let stage = new Facade(document.querySelector('#event-snapshot')),
                     image = new Facade.Image('/storage/' + this.event.image_file_name, {
-                        x: stage.width() / 2,
-                        y: stage.height() / 2,
-                        height: 480,
-                        width: 640,
+                        x: this.imageWidth / 2,
+                        y: this.imageHeight / 2,
+                        height: this.imageHeight,
+                        width: this.imageWidth,
                         anchor: 'center'
                     });
 
                 let mask = null;
                 if (mask_name) {
                     mask = new Facade.Image('/storage/masks/' + mask_name, {
-                        x: stage.width() / 2,
-                        y: stage.height() / 2,
-                        height: 480,
-                        width: 640,
+                        x: this.imageWidth / 2,
+                        y: this.imageHeight / 2,
+                        height: this.imageHeight,
+                        width: this.imageWidth,
                         anchor: 'center'
                     });
                 }
@@ -119,22 +138,17 @@
                     }));
                 });
 
-                // stage.resizeForHDPI();
+                stage.clear();
 
-                // stage.context.webkitImageSmoothingEnabled = false;
+                stage.addToStage(image);
 
-                stage.draw(function () {
+                if (mask) stage.addToStage(mask);
 
-                    this.clear();
+                for (let i = 0; i < rects.length; i++) {
+                    stage.addToStage(rects[i]);
+                }
 
-                    this.addToStage(image);
 
-                    if (mask) this.addToStage(mask);
-
-                    for (let i = 0; i < rects.length; i++) {
-                        this.addToStage(rects[i]);
-                    }
-                });
             }
         }
     }

@@ -19,7 +19,7 @@ class ProcessDetectionEventJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $event;
+    public $event;
 
     /**
      * Create a new job instance.

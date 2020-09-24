@@ -110,7 +110,9 @@ class ApiTest extends TestCase
                     [0 => [
                         'id',
                         'image_file_name',
+                        'image_dimensions',
                         'detection_profiles_count'
+
                     ]]
             ])
             ->assertJsonCount(10, 'data');
@@ -145,6 +147,7 @@ class ApiTest extends TestCase
                     [0 => [
                         'id',
                         'image_file_name',
+                        'image_dimensions',
                         'detection_profiles_count'
                     ]]
             ])
@@ -180,6 +183,7 @@ class ApiTest extends TestCase
                     [0 => [
                         'id',
                         'image_file_name',
+                        'image_dimensions',
                         'detection_profiles_count'
                     ]]
             ])
