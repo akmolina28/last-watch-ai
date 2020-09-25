@@ -140,16 +140,27 @@
                     }));
                 });
 
-                stage.clear();
+                stage.draw(function () {
+                    this.clear();
 
-                stage.addToStage(image);
-                image.load(imageFile);
+                    this.addToStage(image);
 
-                if (mask) stage.addToStage(mask);
+                    if (mask) this.addToStage(mask);
 
-                for (let i = 0; i < rects.length; i++) {
-                    stage.addToStage(rects[i]);
-                }
+                    for (let i = 0; i < rects.length; i++) {
+                        this.addToStage(rects[i]);
+                    }
+                });
+                // stage.clear();
+                //
+                // stage.addToStage(image);
+                // image.load(imageFile);
+                //
+                // if (mask) stage.addToStage(mask);
+                //
+                // for (let i = 0; i < rects.length; i++) {
+                //     stage.addToStage(rects[i]);
+                // }
 
 
             }
