@@ -76,7 +76,7 @@ class WebHookTest extends TestCase
     /**
      * @test
      */
-    public function webhook_can_create_a_matched_detection_event() {
+    public function webhook_can_create_a_detection_event_with_one_match() {
         // create some dummy profiles
         factory(DetectionProfile::class, 5)->create();
 
@@ -94,6 +94,33 @@ class WebHookTest extends TestCase
         $this->assertEquals('events/testimage.jpg', $event->image_file_name);
         $this->assertEquals('640x480', $event->image_dimensions);
         $this->assertCount(1, $event->patternMatchedProfiles);
+
+        Queue::assertPushed(ProcessDetectionEventJob::class, function ($job) {
+            return $job->event->image_file_name === 'events/testimage.jpg';
+        });
+    }
+
+    /**
+     * @test
+     */
+    public function webhook_can_create_a_detection_event_with_many_matches() {
+        // create some dummy profiles
+        factory(DetectionProfile::class, 5)->create();
+
+        // create some profile to match the event
+        $profile = factory(DetectionProfile::class, 3)->create([
+            'file_pattern' => 'testimage',
+            'use_regex' => false
+        ]);
+
+        // hit the webhook
+        $this->handleWebhookJob();
+
+        // see that detection event was generated
+        $event = DetectionEvent::first();
+        $this->assertEquals('events/testimage.jpg', $event->image_file_name);
+        $this->assertEquals('640x480', $event->image_dimensions);
+        $this->assertCount(3, $event->patternMatchedProfiles);
 
         Queue::assertPushed(ProcessDetectionEventJob::class, function ($job) {
             return $job->event->image_file_name === 'events/testimage.jpg';

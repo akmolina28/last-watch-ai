@@ -197,6 +197,53 @@ class ApiTest extends TestCase
     /**
      * @test
      */
+    public function api_can_get_a_detection_event_with_no_matches()
+    {
+        $event = factory(DetectionEvent::class)->create();
+
+        $response = $this->get('/api/events/'.$event->id)
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'image_file_name' => $event->image_file_name,
+                    'image_dimensions' => $event->image_dimensions,
+                    'detection_profiles_count' => 0
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_a_detection_event_with_matches()
+    {
+        $profiles = factory(DetectionProfile::class, 3)->create();
+        $profile_ids = $profiles->pluck(['id']);
+
+        $event = factory(DetectionEvent::class)->create();
+        $event->patternMatchedProfiles()->attach($profile_ids);
+
+        $response = $this->get('/api/events/'.$event->id)
+            ->assertStatus(200)
+            ->assertJsonStructure([
+                'data' => [
+                    'image_file_name',
+                    'image_dimensions',
+                    'detection_profiles_count',
+                    'pattern_matched_profiles' => [
+                        2 => [
+                            'name',
+                            'file_pattern',
+                            'object_classes'
+                        ]
+                    ]
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     */
     public function api_can_get_a_detection_event_with_valid_image_url()
     {
         Storage::fake('public');

@@ -22,7 +22,8 @@ class DetectionEventResource extends JsonResource
             'image_dimensions' => $this->image_dimensions,
             'occurred_at' => $this->occurred_at,
             'ai_predictions' => AiPredictionResource::collection($this->whenLoaded('aiPredictions')),
-            'detection_profiles_count' => $this->detection_profiles_count
+            'detection_profiles_count' => $this->detection_profiles_count,
+            'pattern_matched_profiles' => DetectionProfileResource::collection($this->whenLoaded('patternMatchedProfiles'))
         ];
     }
 }

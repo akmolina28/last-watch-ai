@@ -27,13 +27,9 @@ class ProcessWebhookJob extends SpatieProcessWebhookJob
         $match = false;
 
         foreach($activeProfiles as $profile) {
-
             if ($profile->pattern_match($base_name)) {
                 $match = true;
-
                 $event->patternMatchedProfiles()->attach($profile->id);
-
-                break;
             }
         }
 

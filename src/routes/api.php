@@ -124,10 +124,6 @@ Route::get('/events', function(Request $request) {
         $query->has('detectionProfiles', '>', 0);
     }
 
-//    $query->withCount(['detectionProfiles'])
-//        ->orderByDesc('occurred_at')
-//        ->paginate(10);
-
     return DetectionEventResource::collection(
         $query->withCount(['detectionProfiles'])
             ->orderByDesc('occurred_at')
@@ -140,7 +136,7 @@ Route::get('/objectClasses', function(Request $request) {
 });
 
 Route::get('/events/{event}', function(DetectionEvent $event) {
-    $event->load(['aiPredictions.detectionProfiles']);
+    $event->load(['aiPredictions.detectionProfiles', 'patternMatchedProfiles']);
     return DetectionEventResource::make($event);
 });
 

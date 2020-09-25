@@ -1,15 +1,20 @@
 <template>
     <div class="component-container">
+        <p class="title">Detection Event</p>
+        <p class="subtitle">{{ event.image_file_name }}</p>
         <div class="columns">
             <div class="column is-one-third">
                 <ul class="menu-list">
-                    <li v-for="profile in profiles" @click="selectProfile(profile)">
+                    <li v-for="profile in event.pattern_matched_profiles" @click="toggleActiveProfile(profile)" class="mb-5">
                         <a :class="profile.id === selectedProfile.id ? 'is-active' : ''">
                             <h6 class="heading is-size-6">{{ profile.name }}</h6>
                             <p class="is-italic">{{ profile.file_pattern }}</p>
                             <ul>
                                 <li v-for="prediction in getPredictions(profile)">{{ prediction.object_class }}</li>
                             </ul>
+                            <p v-if="getPredictions(profile).length === 0">
+                                No relevant objects detected.
+                            </p>
                         </a>
                     </li>
                 </ul>
@@ -34,7 +39,8 @@
                 event: {},
                 predictions: [],
                 profiles: [],
-                selectedProfile: {}
+                selectedProfile: {},
+                highlight: false
             }
         },
 
@@ -73,7 +79,7 @@
                             return p.id;
                         });
 
-                        this.draw(this.event.ai_predictions);
+                        this.draw();
                     });
             },
 
@@ -93,14 +99,29 @@
                 return predictions;
             },
 
-            selectProfile(profile) {
-                this.selectedProfile = profile;
+            toggleActiveProfile(profile) {
 
-                let predictions = this.getPredictions(profile);
-                this.draw(predictions, profile.use_mask ? profile.slug + '.png' : null);
+                if (this.selectedProfile.id === profile.id) {
+                    this.selectedProfile = {};
+                    this.highlight = false;
+                }
+                else {
+                    this.selectedProfile = profile;
+                    this.highlight = true;
+                }
+
+                this.draw();
             },
 
-            draw(predictions, mask_name) {
+            draw() {
+                let predictions = this.highlight ?
+                    this.getPredictions(this.selectedProfile) :
+                    this.event.ai_predictions;
+
+                let mask_name = this.highlight ?
+                    this.selectedProfile.use_mask ? this.selectedProfile.slug + '.png' : null :
+                    null;
+
                 let canvas = document.getElementById('event-snapshot');
                 canvas.width = this.imageWidth;
                 canvas.height = this.imageHeight;
@@ -151,17 +172,6 @@
                         this.addToStage(rects[i]);
                     }
                 });
-                // stage.clear();
-                //
-                // stage.addToStage(image);
-                // image.load(imageFile);
-                //
-                // if (mask) stage.addToStage(mask);
-                //
-                // for (let i = 0; i < rects.length; i++) {
-                //     stage.addToStage(rects[i]);
-                // }
-
 
             }
         }
