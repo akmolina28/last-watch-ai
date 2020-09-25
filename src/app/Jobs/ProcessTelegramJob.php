@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 
 class ProcessTelegramJob implements ShouldQueue
 {
@@ -39,6 +40,6 @@ class ProcessTelegramJob implements ShouldQueue
     {
         $client = new TelegramClient($this->config->token, $this->config->chat_id);
 
-        $client->sendPhoto($this->event->image_file_name);
+        $client->sendPhoto(Storage::path($this->event->image_file_name));
     }
 }
