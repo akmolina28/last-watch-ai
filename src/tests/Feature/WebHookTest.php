@@ -9,7 +9,6 @@ use App\Jobs\ProcessWebhookJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Spatie\WebhookClient\Models\WebhookCall;
@@ -33,7 +32,7 @@ class WebHookTest extends TestCase
 
     protected function setUpTestImage() {
         $imageFile = UploadedFile::fake()->image('testimage.jpg', 640, 480)->size(128);
-        $file = $imageFile->storeAs('events','testimage.jpg', 'public');
+        $file = $imageFile->storeAs('events','testimage.jpg');
     }
 
     protected function handleWebhookJob() {
@@ -69,7 +68,7 @@ class WebHookTest extends TestCase
 
         // see that detection event was generated
         $event = DetectionEvent::first();
-        $this->assertEquals('testimage.jpg', $event->image_file_name);
+        $this->assertEquals('events/testimage.jpg', $event->image_file_name);
         $this->assertEquals('640x480', $event->image_dimensions);
         $this->assertCount(0, $event->patternMatchedProfiles);
     }
@@ -92,12 +91,12 @@ class WebHookTest extends TestCase
 
         // see that detection event was generated
         $event = DetectionEvent::first();
-        $this->assertEquals('testimage.jpg', $event->image_file_name);
+        $this->assertEquals('events/testimage.jpg', $event->image_file_name);
         $this->assertEquals('640x480', $event->image_dimensions);
         $this->assertCount(1, $event->patternMatchedProfiles);
 
         Queue::assertPushed(ProcessDetectionEventJob::class, function ($job) {
-            return $job->event->image_file_name === 'testimage.jpg';
+            return $job->event->image_file_name === 'events/testimage.jpg';
         });
     }
 }

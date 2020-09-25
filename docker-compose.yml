@@ -12,6 +12,7 @@ services:
       - "8080:80"
     volumes:
       - ./src:/var/www/app
+      - c:/aiinput:/var/www/app/storage/app/public/events
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - php
@@ -50,6 +51,7 @@ services:
     ports:
       - "9000:9000"
     volumes:
+      - c:/aiinput:/var/www/app/storage/app/public/events
       - ./src:/var/www/app
     networks:
       - laravel
@@ -63,6 +65,7 @@ services:
       QUEUE_CONNECTION: database
       NUMPROCS: 8
     volumes:
+      - c:/aiinput:/var/www/app/storage/app/public/events
       - ./src:/var/www/app
     networks:
       - laravel
@@ -126,9 +129,10 @@ services:
     image: akmolina28/webhook-folder-watcher
     volumes:
       - ./src:/var/www/app
+      - c:/aiinput:/var/www/app/storage/app/public/events
     restart: unless-stopped
     environment:
-      - WATCH_FOLDER=/var/www/app/storage/app/public
+      - WATCH_FOLDER=/var/www/app/storage/app/public/events
       - WEBHOOK_URL=http://nginx:80/webhook-receiving-url
     networks:
       - laravel

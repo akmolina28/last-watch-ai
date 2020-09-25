@@ -18,8 +18,6 @@ class DeepstackClient {
     public function detection($image_path) {
         $url = $this->api_base_url . 'v1/vision/detection';
 
-        Log::info($url);
-
         $response = Http::attach(
             'image', file_get_contents($image_path), 'photo.jpg'
         )->post($url);

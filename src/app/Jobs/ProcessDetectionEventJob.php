@@ -43,8 +43,7 @@ class ProcessDetectionEventJob implements ShouldQueue
 //        $client = new DeepstackClient();
 //        $response = $client->detection($this->event->image_file_name);
 
-        $file_name = $this->event->image_file_name;
-        $path = Storage::disk('public')->path('events/'.$file_name);
+        $path = Storage::disk('public')->path($this->event->image_file_name);
 
         $response = Deepstack::detection($path);
 

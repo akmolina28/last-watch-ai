@@ -50,7 +50,7 @@ class DeepstackTest extends TestCase
      */
     public function an_event_can_be_processed_with_deepstack() {
         $event = factory(DetectionEvent::class)->make();
-        $event->image_file_name = 'testimage.jpg';
+        $event->image_file_name = 'events/testimage.jpg';
         $event->save();
 
         $job = new ProcessDetectionEventJob($event);
@@ -58,6 +58,8 @@ class DeepstackTest extends TestCase
 
         $event = DetectionEvent::first();
 
-        $this->assertNotNull($event->deepstack_response);
+        Log::info($event->deepstack_response);
+
+        $this->assertNotEmpty($event->deepstack_response);
     }
 }

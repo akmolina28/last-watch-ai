@@ -9,12 +9,16 @@ use App\FolderCopyConfig;
 use App\SmbCifsCopyConfig;
 use App\TelegramConfig;
 use App\WebRequestConfig;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ApiTest extends TestCase
 {
     use RefreshDatabase;
+    use WithFaker;
 
     /**
      * @test
@@ -188,6 +192,30 @@ class ApiTest extends TestCase
                     ]]
             ])
             ->assertJsonCount(3, 'data');
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_a_detection_event_with_valid_image_url()
+    {
+        Storage::fake('public');
+        $imageFile = UploadedFile::fake()->image('testimage.jpg', 640, 480)->size(128);
+        $file = $imageFile->storeAs('events','testimage.jpg');
+
+        $event = factory(DetectionEvent::class)->make();
+        $event->image_file_name = $file;
+        $event->save();
+
+        $response = $this->get('/api/events/'.$event->id)
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'image_file_name' => 'events/testimage.jpg'
+                ]
+            ]);
+
+        Storage::assertExists('events/testimage.jpg');
     }
 
     /**
