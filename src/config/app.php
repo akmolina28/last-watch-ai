@@ -175,6 +175,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        App\Providers\DeepstackServiceProvider::class
     ],
 
     /*
@@ -226,26 +227,6 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
+        'Deepstack' => App\Facades\DeepstackFacade::class
     ],
-
-    'deepstack_base_url' => env('DEEPSTACK_BASE_URL', 'http://localhost:5000/'),
-
-    'deepstack_object_classes' => [
-        'person',
-        'bicycle',
-        'car',
-        'motorcycle',
-        'airplane',
-        'bus',
-        'train',
-        'truck',
-        'boat',
-        'bird',
-        'cat',
-        'dog',
-        'horse',
-        'sheep',
-        'cow',
-        'bear',
-    ]
 ];

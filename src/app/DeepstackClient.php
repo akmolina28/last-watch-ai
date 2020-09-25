@@ -11,12 +11,14 @@ class DeepstackClient {
      */
     private $api_base_url;
 
-    public function __construct() {
-        $this->api_base_url = config('app.deepstack_base_url');
+    public function __construct($api_base_url) {
+        $this->api_base_url = $api_base_url;
     }
 
     public function detection($image_path) {
         $url = $this->api_base_url . 'v1/vision/detection';
+
+        Log::info($url);
 
         $response = Http::attach(
             'image', file_get_contents($image_path), 'photo.jpg'

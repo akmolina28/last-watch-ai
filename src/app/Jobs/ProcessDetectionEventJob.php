@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\AiPrediction;
-use App\DeepstackClient;
+use App\Facades\Deepstack;
 use App\DeepstackResult;
 use App\DetectionEvent;
 use App\DetectionMask;
@@ -13,7 +13,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+
 
 class ProcessDetectionEventJob implements ShouldQueue
 {
@@ -39,8 +40,13 @@ class ProcessDetectionEventJob implements ShouldQueue
      */
     public function handle() // todo: inject deepstack processor container
     {
-        $client = new DeepstackClient();
-        $response = $client->detection($this->event->image_file_name);
+//        $client = new DeepstackClient();
+//        $response = $client->detection($this->event->image_file_name);
+
+        $file_name = $this->event->image_file_name;
+        $path = Storage::disk('public')->path('events/'.$file_name);
+
+        $response = Deepstack::detection($path);
 
         $this->event->deepstack_response = $response;
         $this->event->save();

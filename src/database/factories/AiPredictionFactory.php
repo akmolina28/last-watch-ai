@@ -12,7 +12,7 @@ $factory->define(AiPrediction::class, function (Faker $faker) {
     $y_max = $y_min + $faker->numberBetween(60, 120);
 
     return [
-        'object_class' => $faker->randomElement(config('app.deepstack_object_classes')),
+        'object_class' => $faker->randomElement(config('deepstack.object_classes')),
         'confidence' => $faker->numberBetween(10, 100) / 100,
         'x_min' => $x_min,
         'x_max' => $x_max,

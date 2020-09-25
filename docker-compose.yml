@@ -113,6 +113,15 @@ services:
     ports:
       - "5001:5000"
 
+  deepstack_testing:
+    image: deepquestai/deepstack
+    volumes:
+      - localstorage:/datastore
+    environment:
+      - VISION-DETECTION=True
+    ports:
+      - "5002:5000"
+
   watcher:
     image: akmolina28/webhook-folder-watcher
     volumes:
@@ -147,6 +156,7 @@ services:
       - ./src:/var/www/app
     depends_on:
       - mysql_testing
+      - deepstack_testing
     working_dir: /var/www/app
     entrypoint: ['./vendor/phpunit/phpunit/phpunit']
 

@@ -136,7 +136,7 @@ Route::get('/events', function(Request $request) {
 });
 
 Route::get('/objectClasses', function(Request $request) {
-    return config('app.deepstack_object_classes');
+    return config('deepstack.object_classes');
 });
 
 Route::get('/events/{event}', function(DetectionEvent $event) {
