@@ -105,8 +105,10 @@
                 canvas.width = this.imageWidth;
                 canvas.height = this.imageHeight;
 
+                let imageFile = '/storage/' + this.event.image_file_name;
+
                 let stage = new Facade(document.querySelector('#event-snapshot')),
-                    image = new Facade.Image('/storage/' + this.event.image_file_name, {
+                    image = new Facade.Image(imageFile, {
                         x: this.imageWidth / 2,
                         y: this.imageHeight / 2,
                         height: this.imageHeight,
@@ -141,6 +143,7 @@
                 stage.clear();
 
                 stage.addToStage(image);
+                image.load(imageFile);
 
                 if (mask) stage.addToStage(mask);
 
