@@ -137,6 +137,7 @@ Route::get('/objectClasses', function(Request $request) {
 
 Route::get('/events/{event}', function(DetectionEvent $event) {
     $event->load(['aiPredictions.detectionProfiles', 'patternMatchedProfiles']);
+//    dd($event);
     return DetectionEventResource::make($event);
 });
 

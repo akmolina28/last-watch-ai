@@ -21,6 +21,6 @@ class AiPrediction extends Model
 
     public function detectionProfiles()
     {
-        return $this->belongsToMany('App\DetectionProfile');
+        return $this->belongsToMany('App\DetectionProfile')->withPivot('is_masked');
     }
 }

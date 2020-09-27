@@ -23,7 +23,10 @@ class DetectionProfileResource extends JsonResource
             'file_pattern' => $this->file_pattern,
             'object_classes' => $this->object_classes,
             'min_confidence' => $this->min_confidence,
-            'use_mask' => $this->use_mask
+            'use_mask' => $this->use_mask,
+            'is_masked' => $this->whenPivotLoaded('ai_prediction_detection_profile', function () {
+                return $this->pivot->is_masked;
+            })
         ];
     }
 }

@@ -74,11 +74,11 @@ class ProcessDetectionEventJob implements ShouldQueue
 
             foreach($relevantProfiles as $profile) {
 
-                $profileMatch = true;
+                $object_not_masked = false;
 
                 if ($profile->use_mask) {
                     $mask = new DetectionMask($profile->slug.'.png');
-                    $profileMatch = $mask->is_object_outside_mask(
+                    $object_not_masked = $mask->is_object_outside_mask(
                         $aiPrediction->x_min,
                         $aiPrediction->x_max,
                         $aiPrediction->y_min,
@@ -86,11 +86,12 @@ class ProcessDetectionEventJob implements ShouldQueue
                     );
                 }
 
-                if ($profileMatch) {
+                $profile->aiPredictions()->attach($aiPrediction->id, ['is_masked' => !$object_not_masked]);
+
+                if ($object_not_masked) {
                     if(!in_array($profile, $matchedProfiles)) {
                         array_push($matchedProfiles, $profile);
                     }
-                    $profile->aiPredictions()->attach($aiPrediction->id);
                 }
             }
         }

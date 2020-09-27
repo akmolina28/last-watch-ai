@@ -4,13 +4,17 @@
         <p class="subtitle">{{ event.image_file_name }}</p>
         <div class="columns">
             <div class="column is-one-third">
+                <p class="title is-size-4">Matched Profiles:</p>
                 <ul class="menu-list">
                     <li v-for="profile in event.pattern_matched_profiles" @click="toggleActiveProfile(profile)" class="mb-5">
                         <a :class="profile.id === selectedProfile.id ? 'is-active' : ''">
                             <h6 class="heading is-size-6">{{ profile.name }}</h6>
                             <p class="is-italic">{{ profile.file_pattern }}</p>
                             <ul>
-                                <li v-for="prediction in getPredictions(profile)">{{ prediction.object_class }}</li>
+                                <li v-for="prediction in getPredictions(profile)">
+                                    {{ prediction.object_class }}
+                                    <span v-if="prediction.is_masked">(masked)</span>
+                                </li>
                             </ul>
                             <p v-if="getPredictions(profile).length === 0">
                                 No relevant objects detected.
@@ -90,6 +94,7 @@
                     let prediction = this.event.ai_predictions[i];
                     for (let j = 0; j < prediction.detection_profiles.length; j++) {
                         if (prediction.detection_profiles[j].id === profile.id) {
+                            prediction.is_masked = prediction.detection_profiles[j].is_masked;
                             predictions.push(prediction);
                             break;
                         }
@@ -156,7 +161,7 @@
                         width: prediction.x_max - prediction.x_min,
                         height: prediction.y_max - prediction.y_min,
                         lineWidth: 4,
-                        strokeStyle: 'red',
+                        strokeStyle: prediction.is_masked ? 'gray' : 'red',
                         fillStyle: 'rgba(0, 0, 0, 0)'
                     }));
                 });

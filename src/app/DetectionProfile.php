@@ -34,7 +34,7 @@ class DetectionProfile extends Model
 
     public function aiPredictions()
     {
-        return $this->belongsToMany('App\AiPrediction');
+        return $this->belongsToMany('App\AiPrediction')->withPivot('is_masked');;
     }
 
     public function telegramConfigs()
