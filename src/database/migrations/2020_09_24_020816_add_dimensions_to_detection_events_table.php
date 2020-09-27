@@ -26,7 +26,7 @@ class AddDimensionsToDetectionEventsTable extends Migration
     public function down()
     {
         Schema::table('detection_events', function (Blueprint $table) {
-            //
+            $table->removeColumn('image_dimensions');
         });
     }
 }
