@@ -79,7 +79,7 @@ Route::get('/profiles/{profile}/automations', function(DetectionProfile $profile
     $union = false;
     $query = null;
 
-    foreach ($configTypes() as $type) {
+    foreach ($configTypes as $type) {
         $q = Relation::$morphMap[$type]//::select('id', 'name', DB::raw("'".$type."' as type"));
             ::leftJoin('automation_configs as ac', function($join) use ($type, $profile) {
                 $join->on('ac.automation_config_id', '=', $type.'.id');
