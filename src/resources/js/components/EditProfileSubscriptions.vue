@@ -1,15 +1,15 @@
 <template>
     <div class="component-container">
-        <p class="title">Edit Subscriptions</p>
+        <p class="title">Edit automations</p>
 
         <div class="subtitle">{{ profile.name }}</div>
 
         <div class="columns">
             <div class="column is-one-third">
 
-                <div v-if="subscriptionSuccess" class="notification is-primary">
-                    <button class="delete" @click="subscriptionSuccess = false"></button>
-                    Subscription updated!
+                <div v-if="automationSuccess" class="notification is-primary">
+                    <button class="delete" @click="automationSuccess = false"></button>
+                    automation updated!
                 </div>
 
                 <div v-if="webRequestConfigs.length > 0" class="box">
@@ -23,7 +23,7 @@
                         </thead>
                         <tbody>
                         <tr v-for="config in webRequestConfigs">
-                            <td><input :checked="isSubscribed(config)" type="checkbox" @change="updateSubscription($event, config.id, 'webRequest')"></td>
+                            <td><input :checked="isSubscribed(config)" type="checkbox" @change="updateautomation($event, config.id, 'webRequest')"></td>
                             <td>{{ config.name }}</td>
                         </tr>
                         </tbody>
@@ -41,7 +41,7 @@
                         </thead>
                         <tbody>
                         <tr v-for="config in folderCopyConfigs">
-                            <td><input :checked="isSubscribed(config)" type="checkbox" @change="updateSubscription($event, config.id, 'folderCopy')"></td>
+                            <td><input :checked="isSubscribed(config)" type="checkbox" @change="updateautomation($event, config.id, 'folderCopy')"></td>
                             <td>{{ config.name }}</td>
                         </tr>
                         </tbody>
@@ -59,7 +59,7 @@
                         </thead>
                         <tbody>
                             <tr v-for="config in telegramConfigs">
-                                <td><input :checked="isSubscribed(config)" type="checkbox" @change="updateSubscription($event, config.id, 'telegram')"></td>
+                                <td><input :checked="isSubscribed(config)" type="checkbox" @change="updateautomation($event, config.id, 'telegram')"></td>
                                 <td>{{ config.name }}</td>
                             </tr>
                         </tbody>
@@ -77,7 +77,7 @@
                         </thead>
                         <tbody>
                         <tr v-for="config in smbCifsCopyConfigs">
-                            <td><input :checked="isSubscribed(config)" type="checkbox" @change="updateSubscription($event, config.id, 'smbCifsCopy')"></td>
+                            <td><input :checked="isSubscribed(config)" type="checkbox" @change="updateautomation($event, config.id, 'smbCifsCopy')"></td>
                             <td>{{ config.name }}</td>
                         </tr>
                         </tbody>
@@ -90,7 +90,7 @@
 
 <script>
     export default {
-        name: "EditProfileSubscriptions",
+        name: "EditProfileautomations",
 
         props: ['id'],
 
@@ -101,7 +101,7 @@
                 webRequestConfigs: [],
                 folderCopyConfigs: [],
                 smbCifsCopyConfigs: [],
-                subscriptionSuccess: false
+                automationSuccess: false
             }
         },
 
@@ -132,8 +132,8 @@
                 return subscribed;
             },
 
-            updateSubscription(event, id, type) {
-                this.subscriptionSuccess = false;
+            updateautomation(event, id, type) {
+                this.automationSuccess = false;
                 let checked = event.target.checked;
 
                 let formData = new FormData();
@@ -141,8 +141,8 @@
                 formData.append('type', type);
                 formData.append('value', checked);
 
-                axios.post(`/api/profiles/${this.id}/subscriptions`, formData)
-                    .then(() => this.subscriptionSuccess = true)
+                axios.post(`/api/profiles/${this.id}/automations`, formData)
+                    .then(() => this.automationSuccess = true)
                     .catch(err => {
                         event.target.checked = !checked;
                     });

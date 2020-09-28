@@ -15,6 +15,7 @@
                     <th>Regex</th>
                     <th>Object Classes</th>
                     <th>Min Confidence</th>
+                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -24,6 +25,7 @@
                         <td>{{ profile.use_regex }}</td>
                         <td>{{ profile.object_classes.join('|') }}</td>
                         <td>{{ profile.min_confidence }}</td>
+                        <td><router-link :to="`/profiles/${profile.id}/automations`">Automations</router-link></td>
                     </tr>
                 </tbody>
             </table>

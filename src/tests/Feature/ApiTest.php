@@ -439,13 +439,13 @@ class ApiTest extends TestCase
     /**
      * @test
      */
-    public function api_can_attach_a_telegram_subscription() {
+    public function api_can_attach_a_telegram_automation() {
         $profile = factory(DetectionProfile::class)->create();
 
         $config = factory(TelegramConfig::class)->create();
 
-        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/subscriptions', [
-            'type' => 'telegram',
+        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
+            'type' => 'telegram_configs',
             'id' => $config->id,
             'value' => true
         ])
@@ -460,14 +460,14 @@ class ApiTest extends TestCase
     /**
      * @test
      */
-    public function api_can_attach_a_telegram_subscription_multiple_times()
+    public function api_can_attach_a_telegram_automation_multiple_times()
     {
         $profile = factory(DetectionProfile::class)->create();
 
         $config = factory(TelegramConfig::class)->create();
 
-        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/subscriptions', [
-            'type' => 'telegram',
+        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
+            'type' => 'telegram_configs',
             'id' => $config->id,
             'value' => true
         ])
@@ -478,8 +478,8 @@ class ApiTest extends TestCase
         $this->assertCount(1, $profile->telegramConfigs);
         $this->assertEquals($config->name, $profile->telegramConfigs()->first()->name);
 
-        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/subscriptions', [
-            'type' => 'telegram',
+        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
+            'type' => 'telegram_configs',
             'id' => $config->id,
             'value' => true
         ]);
@@ -493,15 +493,15 @@ class ApiTest extends TestCase
     /**
      * @test
      */
-    public function api_can_detach_a_telegram_subscription() {
+    public function api_can_detach_a_telegram_automation() {
         $profile = factory(DetectionProfile::class)->create();
 
         $config = factory(TelegramConfig::class)->create();
 
         $profile->telegramConfigs()->attach($config->id);
 
-        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/subscriptions', [
-            'type' => 'telegram',
+        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
+            'type' => 'telegram_configs',
             'id' => $config->id,
             'value' => false
         ])
@@ -514,13 +514,13 @@ class ApiTest extends TestCase
     /**
      * @test
      */
-    public function api_can_attach_a_web_request_subscription() {
+    public function api_can_attach_a_web_request_automation() {
         $profile = factory(DetectionProfile::class)->create();
 
         $config = factory(WebRequestConfig::class)->create();
 
-        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/subscriptions', [
-            'type' => 'webRequest',
+        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
+            'type' => 'web_request_configs',
             'id' => $config->id,
             'value' => true
         ])
@@ -535,14 +535,14 @@ class ApiTest extends TestCase
     /**
      * @test
      */
-    public function api_can_attach_a_web_request_subscription_multiple_times()
+    public function api_can_attach_a_web_request_automation_multiple_times()
     {
         $profile = factory(DetectionProfile::class)->create();
 
         $config = factory(WebRequestConfig::class)->create();
 
-        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/subscriptions', [
-            'type' => 'webRequest',
+        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
+            'type' => 'web_request_configs',
             'id' => $config->id,
             'value' => true
         ])
@@ -553,8 +553,8 @@ class ApiTest extends TestCase
         $this->assertCount(1, $profile->webRequestConfigs);
         $this->assertEquals($config->name, $profile->webRequestConfigs()->first()->name);
 
-        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/subscriptions', [
-            'type' => 'webRequest',
+        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
+            'type' => 'web_request_configs',
             'id' => $config->id,
             'value' => true
         ]);
@@ -568,15 +568,15 @@ class ApiTest extends TestCase
     /**
      * @test
      */
-    public function api_can_detach_a_web_request_subscription() {
+    public function api_can_detach_a_web_request_automation() {
         $profile = factory(DetectionProfile::class)->create();
 
         $config = factory(WebRequestConfig::class)->create();
 
         $profile->webRequestConfigs()->attach($config->id);
 
-        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/subscriptions', [
-            'type' => 'webRequest',
+        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
+            'type' => 'web_request_configs',
             'id' => $config->id,
             'value' => false
         ])
@@ -590,14 +590,14 @@ class ApiTest extends TestCase
     /**
      * @test
      */
-    public function api_can_attach_a_folder_copy_subscription_multiple_times()
+    public function api_can_attach_a_folder_copy_automation_multiple_times()
     {
         $profile = factory(DetectionProfile::class)->create();
 
         $config = factory(FolderCopyConfig::class)->create();
 
-        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/subscriptions', [
-            'type' => 'folderCopy',
+        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
+            'type' => 'folder_copy_configs',
             'id' => $config->id,
             'value' => true
         ])
@@ -608,8 +608,8 @@ class ApiTest extends TestCase
         $this->assertCount(1, $profile->folderCopyConfigs);
         $this->assertEquals($config->name, $profile->folderCopyConfigs()->first()->name);
 
-        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/subscriptions', [
-            'type' => 'folderCopy',
+        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
+            'type' => 'folder_copy_configs',
             'id' => $config->id,
             'value' => true
         ]);
@@ -623,15 +623,15 @@ class ApiTest extends TestCase
     /**
      * @test
      */
-    public function api_can_detach_a_folder_copy_subscription() {
+    public function api_can_detach_a_folder_copy_automation() {
         $profile = factory(DetectionProfile::class)->create();
 
         $config = factory(FolderCopyConfig::class)->create();
 
         $profile->folderCopyConfigs()->attach($config->id);
 
-        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/subscriptions', [
-            'type' => 'folderCopy',
+        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
+            'type' => 'folder_copy_configs',
             'id' => $config->id,
             'value' => false
         ])
@@ -645,14 +645,14 @@ class ApiTest extends TestCase
     /**
      * @test
      */
-    public function api_can_attach_a_smb_cifs_copy_subscription_multiple_times()
+    public function api_can_attach_a_smb_cifs_copy_automation_multiple_times()
     {
         $profile = factory(DetectionProfile::class)->create();
 
         $config = factory(SmbCifsCopyConfig::class)->create();
 
-        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/subscriptions', [
-            'type' => 'smbCifsCopy',
+        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
+            'type' => 'smb_cifs_copy_configs',
             'id' => $config->id,
             'value' => true
         ])
@@ -663,8 +663,8 @@ class ApiTest extends TestCase
         $this->assertCount(1, $profile->smbCifsCopyConfigs);
         $this->assertEquals($config->name, $profile->smbCifsCopyConfigs()->first()->name);
 
-        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/subscriptions', [
-            'type' => 'smbCifsCopy',
+        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
+            'type' => 'smb_cifs_copy_configs',
             'id' => $config->id,
             'value' => true
         ]);
@@ -678,15 +678,15 @@ class ApiTest extends TestCase
     /**
      * @test
      */
-    public function api_can_detach_a_smb_cifs_copy_subscription() {
+    public function api_can_detach_a_smb_cifs_copy_automation() {
         $profile = factory(DetectionProfile::class)->create();
 
         $config = factory(SmbCifsCopyConfig::class)->create();
 
         $profile->smbCifsCopyConfigs()->attach($config->id);
 
-        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/subscriptions', [
-            'type' => 'smbCifsCopy',
+        $response = $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
+            'type' => 'smb_cifs_copy_configs',
             'id' => $config->id,
             'value' => false
         ])

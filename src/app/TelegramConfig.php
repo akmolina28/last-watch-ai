@@ -16,6 +16,6 @@ class TelegramConfig extends Model
 
     public function detectionProfiles()
     {
-        return $this->belongsToMany('App\DetectionProfile');
+        return $this->morphToMany('App\DetectionProfile', 'automation_config');
     }
 }

@@ -2,11 +2,14 @@
 
 namespace Tests\Unit;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\DetectionProfile;
 
 class DetectionProfileTest extends TestCase
 {
+    use RefreshDatabase;
+    
     /**
      * @test
      */

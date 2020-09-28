@@ -3,6 +3,7 @@
 use App\DetectionEvent;
 use App\DetectionProfile;
 use App\FolderCopyConfig;
+use App\Resources\AutomationConfigResource;
 use App\Resources\DetectionEventResource;
 use App\Resources\DetectionProfileResource;
 use App\Resources\FolderCopyConfigResource;
@@ -12,6 +13,7 @@ use App\Resources\WebRequestConfigResource;
 use App\SmbCifsCopyConfig;
 use App\TelegramConfig;
 use App\WebRequestConfig;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -64,45 +66,67 @@ Route::get('/profiles/{profile}', function(DetectionProfile $profile) {
     return DetectionProfileResource::make($profile);
 });
 
-Route::post('/profiles/{profile}/subscriptions', function(DetectionProfile $profile) {
+Route::get('/profiles/{profile}/automations', function(DetectionProfile $profile) {
+    $configTypes = [];
+
+    $morphs = Relation::morphMap();
+    foreach ($morphs as $alias => $type) {
+        if (strpos($type, 'Config')) {
+            array_push($configTypes, $alias);
+        }
+    }
+
+    $union = false;
+    $query = null;
+
+    foreach ($configTypes() as $type) {
+        $q = Relation::$morphMap[$type]//::select('id', 'name', DB::raw("'".$type."' as type"));
+            ::leftJoin('automation_configs as ac', function($join) use ($type, $profile) {
+                $join->on('ac.automation_config_id', '=', $type.'.id');
+                $join->where('ac.automation_config_type', '=', $type);
+                $join->where('ac.detection_profile_id', '=', $profile->id);
+            })
+            ->select($type.'.id as id', DB::raw("'".$type."' as type"), 'ac.detection_profile_id as detection_profile_id', 'name');
+
+        if ($union) {
+            $query = $query->unionAll($q);
+        }
+        else {
+            $query = $q;
+            $union = true;
+        }
+    }
+
+    return AutomationConfigResource::collection($query->get());
+});
+
+Route::post('/profiles/{profile}/automations', function(DetectionProfile $profile) {
     $type = request()->get('type');
     $id = request()->get('id');
     $value = request()->get('value');
 
-    if ($type == 'telegram') {
-        if ($value == 'true') {
-            $profile->telegramConfigs()->sync([$id], false);
-        }
-        else {
-            $profile->telegramConfigs()->detach($id);
-        }
-    }
-    else if ($type == 'webRequest') {
-        if ($value == 'true') {
-            $profile->webRequestConfigs()->sync([$id], false);
-        }
-        else {
-            $profile->webRequestConfigs()->detach($id);
-        }
-    }
-    else if ($type == 'folderCopy') {
-        if ($value == 'true') {
-            $profile->folderCopyConfigs()->sync([$id], false);
-        }
-        else {
-            $profile->folderCopyConfigs()->detach($id);
-        }
-    }
-    else if ($type == 'smbCifsCopy') {
-        if ($value == 'true') {
-            $profile->smbCifsCopyConfigs()->sync([$id], false);
-        }
-        else {
-            $profile->smbCifsCopyConfigs()->detach($id);
+
+    if ($value == 'true') {
+        $count = DB::table('automation_configs')->where([
+            ['detection_profile_id', '=', $profile->id],
+            ['automation_config_id', '=', $id],
+            ['automation_config_type', '=', $type],
+        ])->count();
+
+        if ($count == 0) {
+            DB::table('automation_configs')->insert([
+                'detection_profile_id' => $profile->id,
+                'automation_config_id' => $id,
+                'automation_config_type' => $type,
+            ]);
         }
     }
     else {
-        throw new Exception('Invalid type '.$type);
+        DB::table('automation_configs')->where([
+            ['detection_profile_id', '=', $profile->id],
+            ['automation_config_id', '=', $id],
+            ['automation_config_type', '=', $type],
+        ])->delete();
     }
 
     return true;
@@ -137,7 +161,6 @@ Route::get('/objectClasses', function(Request $request) {
 
 Route::get('/events/{event}', function(DetectionEvent $event) {
     $event->load(['aiPredictions.detectionProfiles', 'patternMatchedProfiles']);
-//    dd($event);
     return DetectionEventResource::make($event);
 });
 

@@ -118,7 +118,7 @@
                 let formData = new FormData(this.$refs.profileForm);
                 axios.post('/api/profiles', formData).then(response => {
                     let id = response.data.data.id;
-                    this.$router.push(`/profiles/${id}/subscriptions`);
+                    this.$router.push(`/profiles/${id}/automations`);
                 });
             },
             checkForm: function (e) {

@@ -16,6 +16,6 @@ class WebRequestConfig extends Model
 
     public function detectionProfiles()
     {
-        return $this->belongsToMany('App\DetectionProfile', 'detection_profile_web_request_cfg');
+        return $this->morphToMany('App\DetectionProfile', 'automation_config');
     }
 }

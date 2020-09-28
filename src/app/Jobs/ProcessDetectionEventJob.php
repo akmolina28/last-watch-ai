@@ -85,6 +85,9 @@ class ProcessDetectionEventJob implements ShouldQueue
                         $aiPrediction->y_max
                     );
                 }
+                else {
+                    $object_not_masked = true;
+                }
 
                 $profile->aiPredictions()->attach($aiPrediction->id, ['is_masked' => !$object_not_masked]);
 

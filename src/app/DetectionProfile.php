@@ -34,27 +34,27 @@ class DetectionProfile extends Model
 
     public function aiPredictions()
     {
-        return $this->belongsToMany('App\AiPrediction')->withPivot('is_masked');;
+        return $this->belongsToMany('App\AiPrediction')->withPivot('is_masked');
     }
 
     public function telegramConfigs()
     {
-        return $this->belongsToMany('App\TelegramConfig');
+        return $this->morphedByMany('App\TelegramConfig', 'automation_config');
     }
 
     public function webRequestConfigs()
     {
-        return $this->belongsToMany('App\WebRequestConfig', 'detection_profile_web_request_cfg');
+        return $this->morphedByMany('App\WebRequestConfig', 'automation_config');
     }
 
     public function folderCopyConfigs()
     {
-        return $this->belongsToMany('App\FolderCopyConfig');
+        return $this->morphedByMany('App\FolderCopyConfig', 'automation_config');
     }
 
     public function smbCifsCopyConfigs()
     {
-        return $this->belongsToMany('App\SmbCifsCopyConfig');
+        return $this->morphedByMany('App\SmbCifsCopyConfig', 'automation_config');
     }
 
     public function setNameAttribute($value)

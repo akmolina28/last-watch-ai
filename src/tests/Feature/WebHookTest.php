@@ -108,7 +108,7 @@ class WebHookTest extends TestCase
         factory(DetectionProfile::class, 5)->create();
 
         // create some profile to match the event
-        $profile = factory(DetectionProfile::class, 3)->create([
+        factory(DetectionProfile::class, 3)->create([
             'file_pattern' => 'testimage',
             'use_regex' => false
         ]);

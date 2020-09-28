@@ -2,7 +2,7 @@
     <div class="component-container">
         <p class="title">Detection Event</p>
         <p class="subtitle">{{ event.image_file_name }}</p>
-        <div class="columns">
+        <div class="columns has-background-light">
             <div class="column is-one-third">
                 <p class="title is-size-4">Matched Profiles:</p>
                 <ul class="menu-list">

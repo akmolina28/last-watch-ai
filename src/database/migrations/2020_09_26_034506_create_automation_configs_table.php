@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateDetectionProfileTelegramConfigTable extends Migration
+class CreateAutomationConfigsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,13 @@ class CreateDetectionProfileTelegramConfigTable extends Migration
      */
     public function up()
     {
-        Schema::create('detection_profile_telegram_config', function (Blueprint $table) {
+        Schema::create('automation_configs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('detection_profile_id')->references('id')->on('detection_profiles');
-            $table->foreignId('telegram_config_id')->references('id')->on('telegram_configs');
+            $table->morphs('automation_config', 'morph_index');
             $table->timestamps();
+//
+//            $table->unique(['name', 'automation_config_type'], 'automation_name_uniq');
         });
     }
 
@@ -28,6 +30,6 @@ class CreateDetectionProfileTelegramConfigTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('detection_profile_telegram_config');
+        Schema::dropIfExists('automation_configs');
     }
 }

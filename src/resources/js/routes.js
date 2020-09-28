@@ -16,8 +16,8 @@ let routes = [
         props: true
     },
     {
-        path: '/profiles/:id/subscriptions',
-        component: require('./components/EditProfileSubscriptions').default,
+        path: '/profiles/:id/automations',
+        component: require('./components/EditProfileAutomations').default,
         props: true
     },
     {
