@@ -133,7 +133,10 @@ Route::post('/profiles/{profile}/automations', function(DetectionProfile $profil
 });
 
 Route::get('/events', function(Request $request) {
-    $query = DetectionEvent::query();
+    $query = DetectionEvent::query()
+        ->withCount(['detectionProfiles' => function ($q) {
+            $q->where('ai_prediction_detection_profile.is_masked', '=', false);
+        }]);
 
     if ($request->has('profileId')) {
 
@@ -145,11 +148,11 @@ Route::get('/events', function(Request $request) {
     }
     else if ($request->has('relevant')) {
 
-        $query->has('detectionProfiles', '>', 0);
+        $query->having('detection_profiles_count', '>', 0);
     }
 
     return DetectionEventResource::collection(
-        $query->withCount(['detectionProfiles'])
+        $query
             ->orderByDesc('occurred_at')
             ->paginate(10)
     );

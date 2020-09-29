@@ -92,18 +92,55 @@ class ApiTest extends TestCase
             ]);
     }
 
-    /**
-     * @test
-     */
-    public function api_can_first_page_of_events()
-    {
-        factory(DetectionEvent::class, 25)
+    protected function setUpEvents(DetectionProfile $profile) {
+
+        factory(DetectionEvent::class, 5)
             ->create()
             ->each(function ($event) {
                 $event->aiPredictions()->createMany(
                     factory(AiPrediction::class, 3)->make()->toArray()
                 );
             });
+
+        // make 6 events relevant
+        $events = factory(DetectionEvent::class, 6)
+            ->create()
+            ->each(function ($event) {
+                $event->aiPredictions()->createMany(
+                    factory(AiPrediction::class, 3)->make()->toArray()
+                );
+            });
+
+        foreach ($events as $event) {
+            $prediction = $event->aiPredictions()->first();
+            $prediction->detectionProfiles()->attach($profile->id, [
+                'is_masked' => false
+            ]);
+        }
+
+        // make 2 events relevant but masked
+        $events = factory(DetectionEvent::class, 2)
+            ->create()
+            ->each(function ($event) {
+                $event->aiPredictions()->createMany(
+                    factory(AiPrediction::class, 3)->make()->toArray()
+                );
+            });
+
+        foreach ($events as $event) {
+            $prediction = $event->aiPredictions()->first();
+            $prediction->detectionProfiles()->attach($profile->id, [
+                'is_masked' => true
+            ]);
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_first_page_of_events()
+    {
+        $this->setUpEvents(factory(DetectionProfile::class)->create());
 
         $response = $this->get('/api/events');
 
@@ -127,20 +164,7 @@ class ApiTest extends TestCase
      */
     public function api_can_get_relevant_events()
     {
-        factory(DetectionEvent::class, 15)
-            ->create()
-            ->each(function ($event) {
-                $event->aiPredictions()->createMany(
-                    factory(AiPrediction::class, 3)->make()->toArray()
-                );
-            });
-
-        // make 5 events relevant
-        $profile = factory(DetectionProfile::class)->create();
-        foreach (DetectionEvent::take(5)->get() as $event) {
-            $prediction = $event->aiPredictions()->first();
-            $prediction->detectionProfiles()->attach($profile->id);
-        }
+        $this->setUpEvents(factory(DetectionProfile::class)->create());
 
         $response = $this->get('/api/events?relevant');
 
@@ -155,7 +179,7 @@ class ApiTest extends TestCase
                         'detection_profiles_count'
                     ]]
             ])
-            ->assertJsonCount(5, 'data');
+            ->assertJsonCount(6, 'data');
     }
 
     /**
@@ -163,20 +187,9 @@ class ApiTest extends TestCase
      */
     public function api_can_get_events_by_profile()
     {
-        factory(DetectionEvent::class, 15)
-            ->create()
-            ->each(function ($event) {
-                $event->aiPredictions()->createMany(
-                    factory(AiPrediction::class, 3)->make()->toArray()
-                );
-            });
-
-        // make 3 events relevant
         $profile = factory(DetectionProfile::class)->create();
-        foreach (DetectionEvent::take(3)->get() as $event) {
-            $prediction = $event->aiPredictions()->first();
-            $prediction->detectionProfiles()->attach($profile->id);
-        }
+
+        $this->setUpEvents($profile);
 
         $response = $this->get('/api/events?profileId='.$profile->id);
 
@@ -191,7 +204,7 @@ class ApiTest extends TestCase
                         'detection_profiles_count'
                     ]]
             ])
-            ->assertJsonCount(3, 'data');
+            ->assertJsonCount(8, 'data');
     }
 
     /**

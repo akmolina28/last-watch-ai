@@ -90,6 +90,7 @@ class WebHookTest extends TestCase
         $this->handleWebhookJob();
 
         // see that detection event was generated
+        $this->assertDatabaseCount('detection_events', 1);
         $event = DetectionEvent::first();
         $this->assertEquals('events/testimage.jpg', $event->image_file_name);
         $this->assertEquals('640x480', $event->image_dimensions);
@@ -117,6 +118,7 @@ class WebHookTest extends TestCase
         $this->handleWebhookJob();
 
         // see that detection event was generated
+        $this->assertDatabaseCount('detection_events', 1);
         $event = DetectionEvent::first();
         $this->assertEquals('events/testimage.jpg', $event->image_file_name);
         $this->assertEquals('640x480', $event->image_dimensions);
