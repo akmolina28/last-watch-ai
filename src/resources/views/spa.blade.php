@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Vision Alerts</title>
+    <title>Last Watch AI</title>
 
     <link href="{{ mix('css/app.css') }}" rel="stylesheet">
 </head>
@@ -14,7 +14,7 @@
             <div class="container">
                 <div class="navbar-brand">
                     <a class="navbar-item" href="/">
-                        <span class="heading is-size-4 mb-0">Vision Alerts</span>
+                        <span class="heading is-size-4 mb-0">Last Watch</span>
                     </a>
 
                     <a role="button" class="navbar-burger burger" onclick="document.querySelector('.navbar-menu').classList.toggle('is-active');">
