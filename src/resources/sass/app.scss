@@ -4,3 +4,34 @@
 @import './node_modules/@fortawesome/fontawesome-free/scss/regular.scss';
 @import './node_modules/@fortawesome/fontawesome-free/scss/brands.scss';
 @import './node_modules/@fortawesome/fontawesome-free/scss/solid.scss';
+
+@media screen and (min-width: 1408px) {
+    .container:not(.is-max-desktop):not(.is-max-widescreen) {
+        max-width: 1344px;
+    }
+}
+
+@media screen and (max-width: 1023px) {
+    .lead {
+        padding: 1.5rem;
+    }
+}
+
+@media screen and (min-width: 1024px) {
+    .lead {
+        padding: 3rem;
+        margin-left: -3rem;
+    }
+}
+
+@media(max-width: 767px) {
+    .reverse-columns {
+        flex-direction: column-reverse;
+        display: flex;
+    }
+}
+
+a.navbar-item>.icon:not(:last-child) {
+    margin-left: -.25em;
+    margin-right: .25em;
+}

@@ -1,18 +1,32 @@
 <template>
     <div class="component-container">
-        <p class="title">Edit Automations</p>
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/profiles">Detection Profiles</a></li>
+                <li><a :href="'/profiles/' + id">{{ profile.name }}</a></li>
+                <li class="is-active"><a href="#" aria-current="page">Automations</a></li>
+            </ul>
+        </nav>
 
-        <div class="subtitle">{{ profile.name }}</div>
+        <title-header>
+            <template v-slot:title>
+                Profile Automations
+            </template>
+            <template v-slot:subtitle>
+                {{ profile.name }}
+            </template>
+        </title-header>
 
         <div class="columns">
             <div class="column is-one-third">
 
-                <div v-if="automationSuccess" class="notification is-primary">
+                <div v-if="automationSuccess" class="notification is-primary" style="position:sticky; top:10px;">
                     <button class="delete" @click="automationSuccess = false"></button>
                     automation updated!
                 </div>
 
-                <div v-for="type in configTypes" class="mb-5">
+                <div v-for="type in configTypes" class="mb-5" style="overflow-x:auto;">
                     <h4 class="heading is-size-4">{{ type | headerize }}</h4>
 
                     <table class="table">

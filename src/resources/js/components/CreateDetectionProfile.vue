@@ -1,6 +1,18 @@
 <template>
     <div class="component-wrapper">
-        <h1 class="heading has-text-weight-bold is-size-4">New Detection Profile</h1>
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/profiles">Detection Profiles</a></li>
+                <li class="is-active"><a href="#" aria-current="page">Create</a></li>
+            </ul>
+        </nav>
+
+        <title-header>
+            <template v-slot:title>
+                Create Profile
+            </template>
+        </title-header>
 
         <form @submit="checkForm" method="POST" action="/profiles" enctype="multipart/form-data" ref="profileForm">
 

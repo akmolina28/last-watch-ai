@@ -18,40 +18,114 @@
         }
     </style>
 </head>
-<body class="antialiased px-5 py-5">
-    <div id="app" class="container">
-        <div class="columns">
-            <div class="column is-one-quarter">
-                <aside class="menu">
-                    <p class="menu-label">
-                        Vision Alerts
-                    </p>
-                    <ul class="menu-list">
-                        <li><router-link to="/profiles">Detection Profiles</router-link></li>
-                        <li><router-link to="/events">Detection Events</router-link></li>
-                    </ul>
-                    <p class="menu-label">
-                        Automation
-                    </p>
-                    <ul class="menu-list">
-                        <li><router-link to="/folderCopy">Folder Copy</router-link></li>
-                        <li><router-link to="/smbCifsCopy">SMB/CIFS Copy</router-link></li>
-                        <li><router-link to="/webRequest">Web Request</router-link></li>
-                        <li><router-link to="/telegram">Telegram</router-link></li>
-                        <li><a>MQTT (coming soon)</a></li>
-                    </ul>
-                    <p class="menu-label">
-                        Configuration
-                    </p>
-                    <ul class="menu-list">
-                        <li><a>Settings</a></li>
-                    </ul>
-                </aside>
+<body>
+    <div id="app">
+        <nav id="navbar" class="navbar has-shadow is-spaced">
+            <div class="container">
+                <div class="navbar-brand">
+                    <a class="navbar-item" href="/">
+                        <span class="heading is-size-4 mb-0">Vision Alerts</span>
+                    </a>
+
+                    <a role="button" class="navbar-burger burger" onclick="document.querySelector('.navbar-menu').classList.toggle('is-active');">
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                    </a>
+                </div>
+
+                <div class="navbar-menu">
+                    <div class="navbar-start">
+                        <router-link to="/profiles" class="navbar-item">
+                            <span class="icon has-text-primary">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                            <span class="is-hidden-touch is-hidden-widescreen">
+                                Profiles
+                            </span>
+                            <span class="is-hidden-desktop-only">
+                                Detection Profiles
+                            </span>
+                        </router-link>
+
+                        <router-link to="/events" class="navbar-item">
+                            <span class="icon has-text-danger">
+                                <i class="fas fa-images"></i>
+                            </span>
+
+                            <span>Detection Events</span>
+                        </router-link>
+
+
+                        <div class="navbar-item has-dropdown is-hoverable">
+
+                            <router-link class="navbar-link" to="/automations">
+                                Automation
+                            </router-link>
+
+                            <div id="moreDropdown" class="navbar-dropdown">
+                                <router-link to="/automations/folderCopy" class="navbar-item">
+                                    <span>
+                                        <span class="icon has-text-info">
+                                            <i class="fas fa-copy"></i>
+                                        </span>
+                                        <strong>Folder Copy</strong>
+                                        <br>
+                                        Copy image files to a local folder
+                                  </span>
+                                </router-link>
+
+                                <hr class="navbar-divider ">
+
+                                <router-link to="/automations/smbCifsCopy" class="navbar-item">
+                                    <span>
+                                        <span class="icon has-text-info">
+                                            <i class="fas fa-upload"></i>
+                                        </span>
+                                        <strong>SMB/CIFS Copy</strong>
+                                        <br>
+                                        Upload images to Samba share
+                                  </span>
+                                </router-link>
+
+                                <hr class="navbar-divider ">
+
+                                <router-link to="/automations/telegram" class="navbar-item">
+                                    <span>
+                                        <span class="icon has-text-info">
+                                            <i class="fab fa-telegram-plane"></i>
+                                        </span>
+                                        <strong>Telegram</strong>
+                                        <br>
+                                        Send images to Telegram bots
+                                  </span>
+                                </router-link>
+
+                                <hr class="navbar-divider ">
+
+                                <router-link to="/automations/webRequest" class="navbar-item">
+                                    <span>
+                                        <span class="icon has-text-info">
+                                            <i class="fas fa-globe-americas"></i>
+                                        </span>
+                                        <strong>Web Request</strong>
+                                        <br>
+                                        Make Http GET requests
+                                  </span>
+                                </router-link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="column is-three-quarters">
-                <router-view></router-view>
+        </nav>
+        <main>
+            <div class="container main-container">
+                <div class="container lead">
+                    <router-view></router-view>
+                </div>
             </div>
-        </div>
+        </main>
     </div>
     <!-- Javascript -->
     <script src="{{ mix("js/app.js") }}" type="text/javascript"></script>

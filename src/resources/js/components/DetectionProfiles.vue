@@ -6,7 +6,20 @@
                 <li class="is-active"><a href="#" aria-current="page">Detection Profiles</a></li>
             </ul>
         </nav>
-        <div>
+        <title-header>
+            <template v-slot:title>
+                Detection Profiles
+            </template>
+            <template v-slot:subtitle>
+                Configure the AI to run when certain image files are created
+            </template>
+        </title-header>
+
+        <div class="mb-3">
+            <a class="button is-info" href="/profiles/create">New Profile</a>
+        </div>
+
+        <div style="overflow-x:auto;">
             <table class="table">
                 <thead>
                 <tr>
@@ -32,7 +45,6 @@
 
             <pagination :data="laravelData.meta" @pagination-change-page="getData"></pagination>
 
-            <a class="button" href="/profiles/create">New Profile</a>
         </div>
     </div>
 </template>

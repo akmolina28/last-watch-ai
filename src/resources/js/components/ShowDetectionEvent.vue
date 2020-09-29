@@ -1,8 +1,22 @@
 <template>
     <div class="component-container">
-        <p class="title">Detection Event</p>
-        <p class="subtitle">{{ event.image_file_name }}</p>
-        <div class="columns has-background-light">
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/events">Detection Events</a></li>
+                <li class="is-active"><a href="#" aria-current="page">Details</a></li>
+            </ul>
+        </nav>
+        <title-header>
+            <template v-slot:title>
+                Detection Event
+            </template>
+            <template v-slot:subtitle>
+                {{ event.image_file_name }}
+            </template>
+        </title-header>
+
+        <div class="columns reverse-columns" style="margin-left:-0.75rem;">
             <div class="column is-one-third">
                 <p class="title is-size-4">Matched Profiles:</p>
                 <ul class="menu-list">
@@ -12,8 +26,8 @@
                             <p class="is-italic">{{ profile.file_pattern }}</p>
                             <ul>
                                 <li v-for="prediction in getPredictions(profile)">
-                                    {{ prediction.object_class }}
                                     <span v-if="prediction.is_masked">(masked)</span>
+                                    {{ prediction.object_class }} - {{ prediction.confidence | percentage }}
                                 </li>
                             </ul>
                             <p v-if="getPredictions(profile).length === 0">
@@ -24,7 +38,7 @@
                 </ul>
             </div>
             <div class="column is-two-thirds">
-                <canvas id="event-snapshot" ref="event-snapshot" style="width: 640px; height: 480px"></canvas>
+                <canvas id="event-snapshot" ref="event-snapshot" style="width:100%;"></canvas>
             </div>
         </div>
     </div>
@@ -64,6 +78,12 @@
                     return parseInt(this.event.image_dimensions.substring(this.event.image_dimensions.indexOf('x') + 1));
                 }
                 return 0;
+            }
+        },
+
+        filters: {
+            percentage(value) {
+                return (value * 100) + "%";
             }
         },
 
@@ -109,6 +129,7 @@
                 if (this.selectedProfile.id === profile.id) {
                     this.selectedProfile = {};
                     this.highlight = false;
+                    this.event.ai_predictions.forEach(p => p.is_masked = false);
                 }
                 else {
                     this.selectedProfile = profile;

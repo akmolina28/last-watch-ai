@@ -1,6 +1,20 @@
 <template>
     <div class="component-container">
-        <p class="title">Detection Events</p>
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li class="is-active"><a href="#" aria-current="page">Detection Events</a></li>
+            </ul>
+        </nav>
+        <title-header>
+            <template v-slot:title>
+                Detection Events
+            </template>
+            <template v-slot:subtitle>
+                Search through all AI-tested images
+            </template>
+        </title-header>
+
         <div class="level">
             <div class="level-left">
                 <div class="level-item">

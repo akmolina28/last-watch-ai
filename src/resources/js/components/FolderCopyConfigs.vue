@@ -1,31 +1,47 @@
 <template>
     <div class="component-container">
-        <h1 class="title">Folder Copy Configs</h1>
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/automations">Automations</a></li>
+                <li class="is-active"><a href="#" aria-current="page">Folder Copy</a></li>
+            </ul>
+        </nav>
+        <title-header>
+            <template v-slot:title>
+                Folder Copy
+            </template>
+            <template v-slot:subtitle>
+                Copy image files to a local folder
+            </template>
+        </title-header>
 
-        <table class="table pb-5">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Copy To</th>
-                    <th>Overwrite</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-if="folderCopyConfigs.length === 0" class="py-4 is-italic">
-                    No configs set up yet. Add one below.
-                </tr>
-                <tr v-for="config in folderCopyConfigs">
-                    <td>{{ config.name }}</td>
-                    <td>{{ config.copy_to }}</td>
-                    <td>
-                        <i v-if="config.overwrite" class="fas fa-check"></i>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <div style="overflow-x:auto;" class="mb-3">
+            <table class="table pb-5">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Copy To</th>
+                        <th>Overwrite</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-if="folderCopyConfigs.length === 0" class="py-4 is-italic">
+                        No configs set up yet. Add one below.
+                    </tr>
+                    <tr v-for="config in folderCopyConfigs">
+                        <td>{{ config.name }}</td>
+                        <td>{{ config.copy_to }}</td>
+                        <td>
+                            <i v-if="config.overwrite" class="fas fa-check"></i>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         <div class="box is-6">
             <p class="subtitle">New Config</p>
-            <form @submit="checkForm" method="POST" action="/folderCopy" ref="folderCopyForm">
+            <form @submit="checkForm" method="POST" action="/automations/folderCopy" ref="folderCopyForm">
 
                 <div class="field">
                     <label class="label" for="name">Name</label>
@@ -95,13 +111,13 @@
 
         methods: {
             getData() {
-                axios.get('/api/folderCopy').then(response => {
+                axios.get('/api/automations/folderCopy').then(response => {
                     this.folderCopyConfigs  = response.data.data;
                 });
             },
 
             submitForm: function () {
-                axios.post('/api/folderCopy', {
+                axios.post('/api/automations/folderCopy', {
                     name: this.name,
                     copy_to: this.copy_to,
                     overwrite: this.overwrite

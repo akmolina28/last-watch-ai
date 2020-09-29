@@ -1,37 +1,55 @@
 <template>
     <div class="component-container">
-        <h1 class="title">SMB/CIFS Copy Configs</h1>
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/automations">Automations</a></li>
+                <li class="is-active"><a href="#" aria-current="page">SMB/CIFS Copy</a></li>
+            </ul>
+        </nav>
 
-        <table class="table pb-5">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Service Name</th>
-                    <th>Username</th>
-                    <th>Password</th>
-                    <th>Remote Dest</th>
-                    <th>Overwrite</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-if="smbCifsCopyConfigs.length === 0" class="py-4 is-italic">
-                    No configs set up yet. Add one below.
-                </tr>
-                <tr v-for="config in smbCifsCopyConfigs">
-                    <td>{{ config.name }}</td>
-                    <td>{{ config.servicename }}</td>
-                    <td>{{ config.user }}</td>
-                    <td>{{ config.password }}</td>
-                    <td>{{ config.remote_dest }}</td>
-                    <td>
-                        <i v-if="config.overwrite" class="fas fa-check"></i>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <title-header>
+            <template v-slot:title>
+                SMB/CIFS Copy
+            </template>
+            <template v-slot:subtitle>
+                Upload images to a Samba share
+            </template>
+        </title-header>
+
+        <div style="overflow-x:auto;" class="mb-3">
+            <table class="table pb-5">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Service Name</th>
+                        <th>Username</th>
+                        <th>Password</th>
+                        <th>Remote Dest</th>
+                        <th>Overwrite</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-if="smbCifsCopyConfigs.length === 0" class="py-4 is-italic">
+                        No configs set up yet. Add one below.
+                    </tr>
+                    <tr v-for="config in smbCifsCopyConfigs">
+                        <td>{{ config.name }}</td>
+                        <td>{{ config.servicename }}</td>
+                        <td>{{ config.user }}</td>
+                        <td>{{ config.password }}</td>
+                        <td>{{ config.remote_dest }}</td>
+                        <td>
+                            <i v-if="config.overwrite" class="fas fa-check"></i>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
         <div class="box is-6">
             <p class="subtitle">New Config</p>
-            <form @submit="checkForm" method="POST" action="/smbCifsCopy" ref="smbCifsCopyForm">
+            <form @submit="checkForm" method="POST" action="/automations/smbCifsCopy" ref="smbCifsCopyForm">
 
                 <div class="field">
                     <label class="label" for="name">Name</label>
@@ -145,13 +163,13 @@
 
         methods: {
             getData() {
-                axios.get('/api/smbCifsCopy').then(response => {
+                axios.get('/api/automations/smbCifsCopy').then(response => {
                     this.smbCifsCopyConfigs  = response.data.data;
                 });
             },
 
             submitForm: function () {
-                axios.post('/api/smbCifsCopy', {
+                axios.post('/api/automations/smbCifsCopy', {
                     name: this.name,
                     servicename: this.servicename,
                     user: this.user,

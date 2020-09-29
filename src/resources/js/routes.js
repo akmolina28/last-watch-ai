@@ -31,22 +31,22 @@ let routes = [
         props: true
     },
     {
-        path: '/folderCopy/',
+        path: '/automations/folderCopy/',
         component: require('./components/FolderCopyConfigs').default,
         props: true
     },
     {
-        path: '/smbCifsCopy/',
+        path: '/automations/smbCifsCopy/',
         component: require('./components/SmbCifsCopyConfigs').default,
         props: true
     },
     {
-        path: '/telegram/',
+        path: '/automations/telegram/',
         component: require('./components/TelegramConfigs').default,
         props: true
     },
     {
-        path: '/webRequest/',
+        path: '/automations/webRequest/',
         component: require('./components/WebRequestConfigs').default,
         props: true
     }

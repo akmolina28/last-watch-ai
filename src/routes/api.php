@@ -164,13 +164,13 @@ Route::get('/events/{event}', function(DetectionEvent $event) {
     return DetectionEventResource::make($event);
 });
 
-Route::get('/telegram', function() {
+Route::get('/automations/telegram', function() {
     return TelegramConfigResource::collection(
         TelegramConfig::with(['detectionProfiles'])->orderByDesc('created_at')->get()
     );
 });
 
-Route::post('/telegram', function(Request $request) {
+Route::post('/automations/telegram', function(Request $request) {
     $request->validate([
         'name' => 'required|unique:telegram_configs',
         'token' => 'required',
@@ -186,13 +186,13 @@ Route::post('/telegram', function(Request $request) {
     return TelegramConfigResource::make($config);
 });
 
-Route::get('/webRequest', function() {
+Route::get('/automations/webRequest', function() {
     return WebRequestConfigResource::collection(
         WebRequestConfig::with(['detectionProfiles'])->orderByDesc('created_at')->get()
     );
 });
 
-Route::post('/webRequest', function(Request $request) {
+Route::post('/automations/webRequest', function(Request $request) {
     $request->validate([
         'name' => 'required|unique:web_request_configs',
         'url' => 'required',
@@ -206,13 +206,13 @@ Route::post('/webRequest', function(Request $request) {
     return WebRequestConfigResource::make($config);
 });
 
-Route::get('/folderCopy', function() {
+Route::get('/automations/folderCopy', function() {
     return FolderCopyConfigResource::collection(
         FolderCopyConfig::with(['detectionProfiles'])->orderByDesc('created_at')->get()
     );
 });
 
-Route::post('/folderCopy', function(Request $request) {
+Route::post('/automations/folderCopy', function(Request $request) {
     $request->validate([
         'name' => 'required|unique:folder_copy_configs',
         'copy_to' => 'required'
@@ -227,13 +227,13 @@ Route::post('/folderCopy', function(Request $request) {
     return FolderCopyConfigResource::make($config);
 });
 
-Route::get('/smbCifsCopy', function() {
+Route::get('/automations/smbCifsCopy', function() {
     return SmbCifsCopyConfigResource::collection(
         SmbCifsCopyConfig::with(['detectionProfiles'])->orderByDesc('created_at')->get()
     );
 });
 
-Route::post('/smbCifsCopy', function(Request $request) {
+Route::post('/automations/smbCifsCopy', function(Request $request) {
     $request->validate([
         'name' => 'required|unique:folder_copy_configs',
         'servicename' => 'required',

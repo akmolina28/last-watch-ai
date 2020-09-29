@@ -272,7 +272,7 @@ class ApiTest extends TestCase
     {
         factory(TelegramConfig::class, 5)->create();
 
-        $this->get('/api/telegram')
+        $this->get('/api/automations/telegram')
             ->assertStatus(200)
             ->assertJsonStructure([
                 'data' =>
@@ -292,7 +292,7 @@ class ApiTest extends TestCase
      */
     public function api_can_create_a_telegram_config()
     {
-        $response = $this->post('/api/telegram', [
+        $response = $this->post('/api/automations/telegram', [
             'name' => 'My Bot',
             'token' => 'abc123wra8v7ar9e8wac987wac897ea98ce7w98f7ewa97f',
             'chat_id' => '1192051592'
@@ -314,7 +314,7 @@ class ApiTest extends TestCase
     {
         factory(WebRequestConfig::class, 5)->create();
 
-        $this->get('/api/webRequest')
+        $this->get('/api/automations/webRequest')
             ->assertStatus(200)
             ->assertJsonStructure([
                 'data' =>
@@ -332,7 +332,7 @@ class ApiTest extends TestCase
      */
     public function api_can_create_a_web_request_config()
     {
-        $response = $this->post('/api/webRequest', [
+        $response = $this->post('/api/automations/webRequest', [
             'name' => 'Web Test',
             'url' => 'http://google.com'
         ])
@@ -352,7 +352,7 @@ class ApiTest extends TestCase
     {
         factory(FolderCopyConfig::class, 5)->create();
 
-        $this->get('/api/folderCopy')
+        $this->get('/api/automations/folderCopy')
             ->assertStatus(200)
             ->assertJsonStructure([
                 'data' =>
@@ -371,7 +371,7 @@ class ApiTest extends TestCase
      */
     public function api_can_create_a_folder_copy_config()
     {
-        $response = $this->post('/api/folderCopy', [
+        $response = $this->post('/api/automations/folderCopy', [
             'name' => 'Folder Copy Test',
             'copy_to' => '/mnt/test',
             'overwrite' => true
@@ -393,7 +393,7 @@ class ApiTest extends TestCase
     {
         factory(SmbCifsCopyConfig::class, 5)->create();
 
-        $this->get('/api/smbCifsCopy')
+        $this->get('/api/automations/smbCifsCopy')
             ->assertStatus(200)
             ->assertJsonStructure([
                 'data' =>
@@ -415,7 +415,7 @@ class ApiTest extends TestCase
      */
     public function api_can_create_a_smb_cifs_copy_config()
     {
-        $response = $this->post('/api/smbCifsCopy', [
+        $response = $this->post('/api/automations/smbCifsCopy', [
             'name' => 'Test Share',
             'servicename' => '//192.168.1.100/share',
             'user' => 'testuser',

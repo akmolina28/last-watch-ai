@@ -1,31 +1,49 @@
 <template>
     <div class="component-container">
-        <h1 class="title">Configured Telegram Bots</h1>
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/automations">Automations</a></li>
+                <li class="is-active"><a href="#" aria-current="page">Telegram</a></li>
+            </ul>
+        </nav>
 
-        <table class="table pb-5">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Token</th>
-                    <th>Chat ID</th>
-                    <th>Created At</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-if="telegramConfigs.length === 0" class="py-4 is-italic">
-                    No bots set up yet. Add one below.
-                </tr>
-                <tr v-for="config in telegramConfigs">
-                    <td>{{ config.name }}</td>
-                    <td>{{ config.token }}</td>
-                    <td>{{ config.chat_id }}</td>
-                    <td>{{ config.created_at }}</td>
-                </tr>
-            </tbody>
-        </table>
+        <title-header>
+            <template v-slot:title>
+                Telegram
+            </template>
+            <template v-slot:subtitle>
+                Send images to Telegram bots
+            </template>
+        </title-header>
+
+        <div style="overflow-x:auto;" class="mb-3">
+            <table class="table pb-5">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Token</th>
+                        <th>Chat ID</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-if="telegramConfigs.length === 0" class="py-4 is-italic">
+                        No bots set up yet. Add one below.
+                    </tr>
+                    <tr v-for="config in telegramConfigs">
+                        <td>{{ config.name }}</td>
+                        <td>{{ config.token }}</td>
+                        <td>{{ config.chat_id }}</td>
+                        <td>{{ config.created_at }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
         <div class="box is-6">
             <p class="subtitle">New Bot</p>
-            <form @submit="checkForm" method="POST" action="/telegram" ref="telegramForm">
+            <form @submit="checkForm" method="POST" action="/automations/telegram" ref="telegramForm">
 
                 <div class="field">
                     <label class="label" for="name">Name</label>
@@ -95,14 +113,14 @@
 
         methods: {
             getData() {
-                axios.get('/api/telegram').then(response => {
+                axios.get('/api/automations/telegram').then(response => {
                     this.telegramConfigs  = response.data.data;
                 });
             },
 
             submitForm: function () {
                 let formData = new FormData(this.$refs.telegramForm);
-                axios.post('/api/telegram', formData)
+                axios.post('/api/automations/telegram', formData)
                     .then(response => {
                         this.telegramConfigs.push(response.data.data);
                         this.name = '';
