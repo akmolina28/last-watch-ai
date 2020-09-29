@@ -6,17 +6,7 @@
 
     <title>Vision Alerts</title>
 
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-
-    <!-- Styles -->
     <link href="{{ mix('css/app.css') }}" rel="stylesheet">
-
-    <style>
-        body {
-            font-family: 'Nunito';
-        }
-    </style>
 </head>
 <body>
     <div id="app">
@@ -127,7 +117,7 @@
             </div>
         </main>
     </div>
-    <!-- Javascript -->
+
     <script src="{{ mix("js/app.js") }}" type="text/javascript"></script>
 </body>
 </html>

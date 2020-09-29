@@ -13,3 +13,5 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 import moment from 'moment';
 window.moment = moment;
+
+require('typeface-nunito');
