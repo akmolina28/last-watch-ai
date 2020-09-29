@@ -49,9 +49,6 @@ class ProcessFolderCopyJob implements ShouldQueue
             $basename = $this->profile->slug.'.'.$ext;
         }
 
-        Log::info($this->event->image_file_name);
-        Log::info($this->config->copy_to.$basename);
-
         copy($this->event->image_file_name, $this->config->copy_to.$basename);
     }
 }

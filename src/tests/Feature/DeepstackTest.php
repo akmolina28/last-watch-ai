@@ -58,8 +58,6 @@ class DeepstackTest extends TestCase
 
         $event = DetectionEvent::first();
 
-        Log::info($event->deepstack_response);
-
         $this->assertNotEmpty($event->deepstack_response);
     }
 }

@@ -53,7 +53,5 @@ class ProcessSmbCifsCopyJob implements ShouldQueue
         $cmd = 'smbclient '.$this->config->servicename.' -U '.$this->config->user.'%'.$this->config->password.' -c \'cd "'.$this->config->remote_dest.'" ; put "'.$localPath.'" "'.$destPath.'"\'';
 
         $result = shell_exec($cmd);
-
-        Log::info($result);
     }
 }
