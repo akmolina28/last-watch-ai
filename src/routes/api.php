@@ -13,6 +13,7 @@ use App\Resources\WebRequestConfigResource;
 use App\SmbCifsCopyConfig;
 use App\TelegramConfig;
 use App\WebRequestConfig;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -64,6 +65,33 @@ Route::post('/profiles', function(Request $request) {
 
 Route::get('/profiles/{profile}', function(DetectionProfile $profile) {
     return DetectionProfileResource::make($profile);
+});
+
+Route::put('/profiles/{profile}/status', function(DetectionProfile $profile) {
+
+    if (request()->has('status')) {
+
+        $status = request()->get('status');
+
+        if ($status === 'active') {
+            $profile->is_active = true;
+        }
+
+        else if ($status === 'inactive') {
+            $profile->is_active = false;
+        }
+
+        else {
+            return response()
+                ->json(['message' => 'Invalid status "'.$status.'"'], 422);
+        }
+
+        $profile->save();
+        return response()->json(['message' => 'OK'], 204);
+    }
+
+    return response()
+        ->json(['message' => 'Missing status key.'], 422);
 });
 
 Route::get('/profiles/{profile}/automations', function(DetectionProfile $profile) {
@@ -256,3 +284,7 @@ Route::post('/automations/smbCifsCopy', function(Request $request) {
 
     return SmbCifsCopyConfigResource::make($config);
 });
+
+Route::get("/{any}", function () {
+    return response()->json(['message' => 'Not Found.'], 404);
+})->where('any', '.*');

@@ -9,6 +9,7 @@ use App\Jobs\ProcessWebhookJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Spatie\WebhookClient\Models\WebhookCall;
@@ -91,7 +92,7 @@ class WebHookTest extends TestCase
 
         // see that detection event was generated
         $this->assertDatabaseCount('detection_events', 1);
-        $event = DetectionEvent::first();
+        $event = DetectionEvent::with(['patternMatchedProfiles'])->first();
         $this->assertEquals('events/testimage.jpg', $event->image_file_name);
         $this->assertEquals('640x480', $event->image_dimensions);
         $this->assertCount(1, $event->patternMatchedProfiles);
@@ -127,5 +128,32 @@ class WebHookTest extends TestCase
         Queue::assertPushed(ProcessDetectionEventJob::class, function ($job) {
             return $job->event->image_file_name === 'events/testimage.jpg';
         });
+    }
+
+    /**
+     * @test
+     */
+    public function webhook_can_an_ignore_inactive_profile() {
+        // create a profile to match the event
+        $profile = factory(DetectionProfile::class)->make();
+        $profile->file_pattern = 'testimage';
+        $profile->use_regex = false;
+
+        // inactive
+        $profile->is_active = false;
+
+        $profile->save();
+
+        // hit the webhook
+        $this->handleWebhookJob();
+
+        // see that detection event was generated
+        $this->assertDatabaseCount('detection_events', 1);
+        $event = DetectionEvent::first();
+        $this->assertEquals('events/testimage.jpg', $event->image_file_name);
+        $this->assertEquals('640x480', $event->image_dimensions);
+        $this->assertCount(0, $event->patternMatchedProfiles);
+
+        Queue::assertNothingPushed();
     }
 }

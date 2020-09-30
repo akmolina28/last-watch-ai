@@ -23,7 +23,7 @@ class ProcessWebhookJob extends SpatieProcessWebhookJob
             'image_dimensions' => $width.'x'.$height
         ]);
 
-        $activeProfiles = DetectionProfile::get();
+        $activeProfiles = DetectionProfile::where('is_active', '=', 1)->get();
         $match = false;
 
         foreach($activeProfiles as $profile) {

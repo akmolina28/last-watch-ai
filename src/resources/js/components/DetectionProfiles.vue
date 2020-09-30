@@ -28,7 +28,8 @@
                     <th>Regex</th>
                     <th>Object Classes</th>
                     <th>Min Confidence</th>
-                    <th></th>
+                    <th>Automations</th>
+                    <th>Status</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -39,6 +40,34 @@
                         <td>{{ profile.object_classes.join('|') }}</td>
                         <td>{{ profile.min_confidence }}</td>
                         <td><router-link :to="`/profiles/${profile.id}/automations`">Automations</router-link></td>
+                        <td>
+                            <div class="dropdown is-hoverable">
+                                <div class="dropdown-trigger">
+                                    <button class="button" aria-haspopup="true" aria-controls="dropdown-menu2">
+                                        <span>{{ profile.status }}</span>
+                                        <span class="icon is-small">
+                                            <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                        </span>
+                                    </button>
+                                </div>
+                                <div class="dropdown-menu" role="menu">
+                                    <div class="dropdown-content">
+                                        <a class="dropdown-item" @click="updateStatus(profile, 'active')">
+                                            <p><strong>Active</strong></p>
+                                        </a>
+                                        <hr class="dropdown-divider">
+                                        <a class="dropdown-item" @click="updateStatus(profile, 'inactive')">
+                                            <p><strong>Inactive</strong></p>
+                                        </a>
+                                        <hr class="dropdown-divider">
+                                        <a class="dropdown-item">
+                                            <p><strong>As Scheduled</strong></p>
+                                            <p>Under development</p>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -68,6 +97,15 @@
                 axios.get(`/api/profiles?page=${page}`)
                     .then(response => {
                         this.laravelData = response.data;
+                    });
+            },
+
+            updateStatus(profile, status) {
+                axios.put(`/api/profiles/${profile.id}/status`, {
+                    'status': status
+                })
+                    .then(response => {
+                        profile.status = status;
                     });
             }
         }

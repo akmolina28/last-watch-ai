@@ -22,6 +22,16 @@ class DetectionProfile extends Model
         'object_classes' => 'array'
     ];
 
+    public function getStatusAttribute()
+    {
+        if ($this->is_active) {
+            return 'active';
+        }
+        else {
+            return 'inactive';
+        }
+    }
+
     public function detectionEvents()
     {
         return $this->hasManyDeep(

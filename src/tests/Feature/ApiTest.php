@@ -23,6 +23,21 @@ class ApiTest extends TestCase
     /**
      * @test
      */
+    public function missing_api_routes_should_return_a_json_404()
+    {
+        $this->withoutExceptionHandling();
+        $response = $this->get('/api/missing/route');
+
+        $response->assertStatus(404);
+        $response->assertHeader('Content-Type', 'application/json');
+        $response->assertJson([
+            'message' => 'Not Found.'
+        ]);
+    }
+
+    /**
+     * @test
+     */
     public function api_can_get_all_profiles()
     {
         factory(DetectionProfile::class, 10)->create();
@@ -708,5 +723,104 @@ class ApiTest extends TestCase
         $profile->load(['smbCifsCopyConfigs']);
 
         $this->assertCount(0, $profile->smbCifsCopyConfigs);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_active_profile_status()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+
+        $this->get('/api/profiles/'.$profile->id)
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'status' => 'active'
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_inactive_profile_status()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+        $profile->is_active = false;
+        $profile->save();
+
+        $this->get('/api/profiles/'.$profile->id)
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'status' => 'inactive'
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_set_profile_status_inactive()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+
+        $this->json('PUT', '/api/profiles/'.$profile->id.'/status', [
+            'status' => 'inactive'
+        ])
+            ->assertStatus(204);
+
+        $profile->refresh();
+
+        $this->assertEquals('inactive', $profile->status);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_set_profile_status_active()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+        $profile->is_active = false;
+        $profile->save();
+
+        $this->json('PUT', '/api/profiles/'.$profile->id.'/status', [
+            'status' => 'active'
+        ])
+            ->assertStatus(204);
+
+        $profile->refresh();
+
+        $this->assertEquals('active', $profile->status);
+    }
+
+    /**
+     * @test
+     */
+    public function api_throws_422_if_profile_status_update_invalid()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+
+        $this->json('PUT', '/api/profiles/'.$profile->id.'/status', [
+            'status' => 'asdf'
+        ])
+            ->assertHeader('Content-Type', 'application/json')
+            ->assertStatus(422);
+    }
+
+    /**
+     * @test
+     */
+    public function api_throws_404_if_profile_status_update_invalid_id()
+    {
+        $this->json('PUT', '/api/profiles/999999/status', [
+            'status' => 'asdf'
+        ])
+            ->assertStatus(404)
+            ->assertHeader('Content-Type', 'application/json')
+            ->assertJson([
+                'message' => 'Not Found.'
+            ]);
     }
 }
