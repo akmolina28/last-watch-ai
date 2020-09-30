@@ -1,5 +1,7 @@
 # Last Watch AI
 
+![preview1](previews/detection-event2.JPG)
+
 Last Watch AI is a standalone tool for creating if-then automations based on computer vision events. A primary use for this tool is the automation of motion events from NVR software such as Blue Iris. This project was heavily inspired by [gentlepumpkin/bi-aidetection](https://github.com/gentlepumpkin/bi-aidetection).
 
 ## How it works
