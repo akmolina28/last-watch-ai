@@ -14,9 +14,12 @@ Last Watch runs completely "offline". All processing is handled localling using 
 
 ## Features
 
+Goals of this project:
+
 * Platform Independence - everything runs in Docker containers
 * Extensibility - designed to be forked and added to
 * Web-based Interface - desktop and mobile friendly
+* Web API - everything can be managed with http requests
 * 100% locally hosted
 
 Supported Automations:
