@@ -1,6 +1,6 @@
 # Last Watch AI
 
-![preview1](previews/detection-event2.JPG)
+![detection-event2](previews/detection-event2.JPG)
 
 Last Watch AI is a standalone tool for creating if-then automations based on computer vision events. A primary use for this tool is the automation of motion events from NVR software such as Blue Iris. This project was heavily inspired by [gentlepumpkin/bi-aidetection](https://github.com/gentlepumpkin/bi-aidetection).
 
@@ -14,9 +14,12 @@ Last Watch runs completely "offline". All processing is handled localling using 
 
 ## Features
 
+Goals of this project:
+
 * Platform Independence - everything runs in Docker containers
 * Extensibility - designed to be forked and added to
 * Web-based Interface - desktop and mobile friendly
+* Web API - everything can be managed with http requests
 * 100% locally hosted
 
 Supported Automations:
@@ -47,6 +50,28 @@ Supported Automations:
 4. Run migrations: `docker-compose run --rm artisan migrate`
 
 5. Start the containers: `docker-compose up -d --build site`
+
+## Usage
+
+Follow the instructions above to start the containers. Once running, visit http://localhost:8080/ and you should be greeted with this page:
+
+![detection-profiles](previews/detection-profiles.jpg)
+
+The first step is to create a Detection Profile. A Detection Profile is how you will define triggers for your automations. Once you have created a profile, Last Watch will look for files in the watch folder which match the File Pattern you specified. If the AI finds relevant objects in the matched files, then the automations will be triggered.
+
+Once you save your first profile, you will be redirected to the next step to link the profile to your automations. This page will be empty at first, because you have no automations defined! 
+
+Naturally, the next step is to define some automations. Navigate to one of the Automation pages in the header, for example Telegram:
+
+![telegram](previews/telegram.jpg)
+
+Give the automation a unique name and fill out the configuration details, and Submit it. Now, you can navigate back to the Detection Profiles page and click the link to manage the Automations for your profile.
+
+![automation](previews/automation.jpg)
+
+Now your automation will show up and you can link it to your profile.
+
+At this point, Last Watch will be looking for files in the watch folder that match the file pattern you specified. If a match is found, a detection event will be generated in the Detection Events page. If a relevant object is detected by the AI, the event will be marked as Relevant and the automations will be triggered.
 
 ## Building from source
 
