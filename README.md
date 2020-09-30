@@ -27,3 +27,43 @@ Supported Automations:
 * Web Request - make http requests
 
 ## Installation
+
+** install the latest stable version of Docker first **
+
+1. Download the latest release zip and extract the files
+
+2. Edit .env file at the root level and set the watch folder location as desired
+
+3. Run docker-compose command to start the containers: `docker-compose up -d --build site`
+
+## Upgrading
+
+1. Download the latest release zip and extract the files
+
+2. Stop all existing containers: `docker-compose down`
+
+3. Copy mysql folder from previous install into the new install folder
+
+4. Run migrations: `docker-compose run --rm artisan migrate`
+
+5. Start the containers: `docker-compose up -d --build site`
+
+## Building from source
+
+1. git clone https://github.com/akmolina28/last-watch-ai.git
+
+2. cd last-watch-ai
+
+3. cp src/.env.example src/.env
+
+4. docker-compose run --rm composer install
+
+5. docker-compose run --rm artisan key:generate
+
+7. docker-compose run --rm artisan storage:link
+
+8. docker-compose run --rm artisan migrate
+
+9. docker-compose run --rm npm install
+
+11. docker-compose run --rm npm run watch-poll
