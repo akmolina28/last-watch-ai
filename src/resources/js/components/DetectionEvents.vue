@@ -46,7 +46,9 @@
                 <tbody>
                     <tr v-for="event in laravelData.data" @click="$router.push(`/events/${event.id}`)" :key="event.id">
                         <td>{{ event.image_file_name }}</td>
-                        <td>{{ event.occurred_at }}</td>
+                        <td :title="event.occurred_at | dateStr">
+                            {{ event.occurred_at | dateStrRelative }}
+                        </td>
                         <td>
                             <i v-if="event.detection_profiles_count > 0" class='fas fa-check'></i>
                         </td>
@@ -79,6 +81,15 @@
         mounted () {
             this.getProfiles();
             this.getData();
+        },
+
+        filters: {
+            dateStr(value) {
+                return moment.utc(value).local();
+            },
+            dateStrRelative(value) {
+                return moment.utc(value).fromNow();
+            }
         },
 
         methods: {
