@@ -26,7 +26,7 @@ class AddIsMaskedToAiPredictionDetectionProfileTable extends Migration
     public function down()
     {
         Schema::table('ai_prediction_detection_profile', function (Blueprint $table) {
-            $table->removeColumn('is_masked');
+            $table->dropColumn('is_masked');
         });
     }
 }
