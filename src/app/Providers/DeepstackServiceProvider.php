@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\DeepstackClient;
+use App\DeepstackClientInterface;
 use Illuminate\Support\ServiceProvider;
 
 class DeepstackServiceProvider extends ServiceProvider
@@ -18,7 +19,7 @@ class DeepstackServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__.'/../config/deepstack.php', 'deepstack');
 
-        $this->app->bind(DeepstackClient::class, function () {
+        $this->app->bind(DeepstackClientInterface::class, function () {
             $config = config('deepstack');
 
 //            $this->guardAgainstInvalidConfiguration($config);
