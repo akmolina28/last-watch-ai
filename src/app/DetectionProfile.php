@@ -32,6 +32,11 @@ class DetectionProfile extends Model
         }
     }
 
+    public function patternMatchedEvents()
+    {
+        return $this->belongsToMany('App\DetectionEvent', 'pattern_match');
+    }
+
     public function detectionEvents()
     {
         return $this->hasManyDeep(

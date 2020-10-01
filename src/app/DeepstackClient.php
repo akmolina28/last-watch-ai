@@ -5,7 +5,7 @@ namespace App;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class DeepstackClient {
+class DeepstackClient implements DeepstackClientInterface {
     /**
      * @var string
      */

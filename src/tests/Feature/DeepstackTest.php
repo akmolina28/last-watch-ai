@@ -44,20 +44,4 @@ class DeepstackTest extends TestCase
         $job = new ProcessWebhookJob($webhookCall);
         $job->handle();
     }
-
-    /**
-     * @test
-     */
-    public function an_event_can_be_processed_with_deepstack() {
-        $event = factory(DetectionEvent::class)->make();
-        $event->image_file_name = 'events/testimage.jpg';
-        $event->save();
-
-        $job = new ProcessDetectionEventJob($event);
-        $job->handle();
-
-        $event = DetectionEvent::first();
-
-        $this->assertNotEmpty($event->deepstack_response);
-    }
 }

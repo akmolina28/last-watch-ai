@@ -3,6 +3,8 @@
 namespace App\Jobs;
 
 use App\AiPrediction;
+use App\DeepstackClient;
+use App\DeepstackClientInterface;
 use App\Facades\Deepstack;
 use App\DeepstackResult;
 use App\DetectionEvent;
@@ -38,14 +40,11 @@ class ProcessDetectionEventJob implements ShouldQueue
      *
      * @return void
      */
-    public function handle() // todo: inject deepstack processor container
+    public function handle(DeepstackClientInterface $client)
     {
-//        $client = new DeepstackClient();
-//        $response = $client->detection($this->event->image_file_name);
-
         $path = Storage::disk('public')->path($this->event->image_file_name);
 
-        $response = Deepstack::detection($path);
+        $response = $client->detection($path);
 
         $this->event->deepstack_response = $response;
         $this->event->save();
@@ -65,12 +64,13 @@ class ProcessDetectionEventJob implements ShouldQueue
                 'detection_event_id' => $this->event->id
             ]);
 
-            $relevantProfiles =
-                DetectionProfile::
-                      whereRaw('\''.$this->event->image_file_name .'\' like CONCAT(\'%\', file_pattern ,\'%\')')
-                    ->where('object_classes', 'like', '%"'.$prediction->label.'"%')
-                    ->where('min_confidence', '<=', $prediction->confidence)
-                    ->get();
+            $relevantProfiles = DetectionProfile::
+                whereHas('patternMatchedEvents', function ($query) {
+                    $query->where('detection_event_id', '=', $this->event->id);
+                })
+                ->whereJsonContains('object_classes', $prediction->label)
+                ->where('min_confidence', '<=', $prediction->confidence)
+                ->get();
 
             foreach($relevantProfiles as $profile) {
 
