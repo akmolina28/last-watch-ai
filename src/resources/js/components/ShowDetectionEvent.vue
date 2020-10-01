@@ -22,8 +22,11 @@
                 <ul class="menu-list">
                     <li v-for="profile in event.pattern_matched_profiles" @click="toggleActiveProfile(profile)" class="mb-5">
                         <a :class="profile.id === selectedProfile.id ? 'is-active' : ''">
-                            <h6 class="heading is-size-6">{{ profile.name }}</h6>
-                            <p class="is-italic">{{ profile.file_pattern }}</p>
+                            <h6 class="heading is-size-6">
+                                <i v-if="hasUnmaskedPredictions(profile)" class="fas fa-check"></i>
+                                <i v-else class="fas fa-times"></i>
+                                {{ profile.name }}
+                            </h6>
                             <ul>
                                 <li v-for="prediction in getPredictions(profile)">
                                     <span v-if="prediction.is_masked">(masked)</span>
@@ -107,6 +110,18 @@
                     });
             },
 
+            hasUnmaskedPredictions(profile) {
+                let predictions = this.getPredictions(profile);
+
+                for (let i = 0; i < predictions.length; i++) {
+                    if (!predictions[i].is_masked) {
+                        return true;
+                    }
+                }
+
+                return false;
+            },
+
             getPredictions(profile) {
                 let predictions = [];
 
@@ -176,13 +191,14 @@
 
                 let rects = [];
                 predictions.forEach(prediction => {
+                    let color = this.highlight ? '#3273dc' : 'red';
                     rects.push(new Facade.Rect({
                         x: prediction.x_min,
                         y: prediction.y_min,
                         width: prediction.x_max - prediction.x_min,
                         height: prediction.y_max - prediction.y_min,
                         lineWidth: 4,
-                        strokeStyle: prediction.is_masked ? 'gray' : 'red',
+                        strokeStyle: prediction.is_masked ? 'gray' : color,
                         fillStyle: 'rgba(0, 0, 0, 0)'
                     }));
                 });
