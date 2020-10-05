@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 use App\DetectionProfile;
 
@@ -26,13 +27,13 @@ class DetectionProfileTest extends TestCase
 
         $profile = DetectionProfile::first();
 
-        $this->assertEquals(1, $profile->is_active);
+        $this->assertEquals(1, $profile->is_enabled);
     }
 
     /**
      * @test
      */
-    public function a_detection_profile_has_active_status()
+    public function a_detection_profile_has_enabled_status()
     {
         DetectionProfile::create([
             'name' => $this->faker->word(),
@@ -43,13 +44,13 @@ class DetectionProfileTest extends TestCase
 
         $profile = DetectionProfile::first();
 
-        $this->assertEquals('active', $profile->status);
+        $this->assertEquals('enabled', $profile->status);
     }
 
     /**
      * @test
      */
-    public function a_detection_profile_has_inactive_status()
+    public function a_detection_profile_has_disabled_status()
     {
         $profile = DetectionProfile::create([
             'name' => $this->faker->word(),
@@ -58,9 +59,9 @@ class DetectionProfileTest extends TestCase
             'use_regex' => false
         ]);
 
-        $profile->is_active = false;
+        $profile->is_enabled = false;
 
-        $this->assertEquals('inactive', $profile->status);
+        $this->assertEquals('disabled', $profile->status);
     }
 
     /**
@@ -121,5 +122,173 @@ class DetectionProfileTest extends TestCase
         $file_name = 'driveway_camera.20200825_180814020.jpg';
 
         $this->assertFalse($profile->pattern_match($file_name));
+    }
+
+    /**
+     * @test
+     */
+    public function a_detection_profile_can_be_soft_deleted()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+
+        $profile->delete();
+
+        $profile->refresh();
+
+        $this->assertTrue($profile->trashed());
+        $this->assertNotNull($profile->deleted_at);
+    }
+
+
+
+    /**
+     * @test
+     */
+    public function a_detection_profile_can_be_soft_deleted_then_created_again()
+    {
+        $profileName = 'test';
+
+        $profile = factory(DetectionProfile::class)->create([
+            'name' => $profileName
+        ]);
+
+        $id1 = $profile->id;
+
+        $profile->delete();
+
+        $profile = factory(DetectionProfile::class)->create([
+            'name' => $profileName
+        ]);
+
+        $id2 = $profile->id;
+
+        $this->assertNotEquals($id2, $id1);
+    }
+
+    /**
+     * @test
+     */
+    public function a_detection_profile_can_be_scheduled()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+
+        $profile->start_time = '08:00';
+        $profile->end_time = '16:00';
+        $profile->is_scheduled = true;
+        $profile->save();
+
+        $profile->refresh();
+
+        $this->assertEquals('as_scheduled', $profile->status);
+    }
+
+    /**
+     * @test
+     */
+    public function a_detection_profile_is_active_when_scheduled_am_to_pm()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+
+        $profile->start_time = '08:00';
+        $profile->end_time = '16:00';
+        $profile->is_scheduled = true;
+        $profile->save();
+
+        $profile->refresh();
+
+        $date1 = Carbon::create(2020, 1, 1, 8, 0, 0);
+        $date2 = Carbon::create(2020, 1, 1, 9, 45, 7);
+        $date3 = Carbon::create(2020, 1, 1, 12, 0, 33);
+        $date4 = Carbon::create(2020, 1, 1, 15, 1, 21);
+        $date5 = Carbon::create(2020, 1, 1, 15, 59, 59);
+
+        $this->assertTrue($profile->isActive($date1));
+        $this->assertTrue($profile->isActive($date2));
+        $this->assertTrue($profile->isActive($date3));
+        $this->assertTrue($profile->isActive($date4));
+        $this->assertTrue($profile->isActive($date5));
+    }
+
+    /**
+     * @test
+     */
+    public function a_detection_profile_is_inactive_when_not_scheduled_am_to_pm()
+    {
+
+        $profile = factory(DetectionProfile::class)->create();
+
+        $profile->start_time = '08:00';
+        $profile->end_time = '16:00';
+        $profile->is_scheduled = true;
+        $profile->save();
+
+        $profile->refresh();
+
+        $date1 = Carbon::create(2020, 1, 1, 16, 0, 0);
+        $date2 = Carbon::create(2020, 1, 1, 17, 45, 7);
+        $date3 = Carbon::create(2020, 1, 1, 23, 0, 33);
+        $date4 = Carbon::create(2020, 1, 1, 0, 0, 0);
+        $date5 = Carbon::create(2020, 1, 1, 7, 59, 59);
+
+        $this->assertFalse($profile->isActive($date1));
+        $this->assertFalse($profile->isActive($date2));
+        $this->assertFalse($profile->isActive($date3));
+        $this->assertFalse($profile->isActive($date4));
+        $this->assertFalse($profile->isActive($date5));
+    }
+
+    /**
+     * @test
+     */
+    public function a_detection_profile_is_active_when_scheduled_pm_to_am()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+
+        $profile->start_time = '21:30';
+        $profile->end_time = '06:20';
+        $profile->is_scheduled = true;
+        $profile->save();
+
+        $profile->refresh();
+
+        $date1 = Carbon::create(2020, 1, 1, 21, 30, 0);
+        $date2 = Carbon::create(2020, 1, 1, 23, 45, 7);
+        $date3 = Carbon::create(2020, 1, 1, 1, 0, 33);
+        $date4 = Carbon::create(2020, 1, 1, 4, 1, 21);
+        $date5 = Carbon::create(2020, 1, 1, 6, 19, 59);
+
+        $this->assertTrue($profile->isActive($date1));
+        $this->assertTrue($profile->isActive($date2));
+        $this->assertTrue($profile->isActive($date3));
+        $this->assertTrue($profile->isActive($date4));
+        $this->assertTrue($profile->isActive($date5));
+    }
+
+    /**
+     * @test
+     */
+    public function a_detection_profile_is_inactive_when_not_scheduled_pm_to_am()
+    {
+
+        $profile = factory(DetectionProfile::class)->create();
+
+        $profile->start_time = '21:30';
+        $profile->end_time = '06:20';
+        $profile->is_scheduled = true;
+        $profile->save();
+
+        $profile->refresh();
+
+        $date1 = Carbon::create(2020, 1, 1, 6, 20, 0);
+        $date2 = Carbon::create(2020, 1, 1, 8, 45, 7);
+        $date3 = Carbon::create(2020, 1, 1, 12, 0, 33);
+        $date4 = Carbon::create(2020, 1, 1, 16, 0, 0);
+        $date5 = Carbon::create(2020, 1, 1, 21, 29, 59);
+
+        $this->assertFalse($profile->isActive($date1));
+        $this->assertFalse($profile->isActive($date2));
+        $this->assertFalse($profile->isActive($date3));
+        $this->assertFalse($profile->isActive($date4));
+        $this->assertFalse($profile->isActive($date5));
     }
 }

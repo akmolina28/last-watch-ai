@@ -91,6 +91,45 @@ class ApiTest extends TestCase
     /**
      * @test
      */
+    public function api_can_delete_a_profile()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+
+        $this->json('DELETE', '/api/profiles/'.$profile->id)
+            ->assertStatus(200);
+
+        $profile->refresh();
+
+        $this->assertTrue($profile->trashed());
+    }
+
+
+    /**
+     * @test
+     */
+    public function api_can_reuse_name_of_deleted_profile()
+    {
+        $profileName = $this->faker->word();
+
+        $profile = factory(DetectionProfile::class)->create([
+            'name' => $profileName
+        ]);
+
+        $profile->delete();
+
+        $this->json('POST', '/api/profiles', [
+            'name' => $profileName,
+            'file_pattern' => 'camera123',
+            'use_regex' => false,
+            'object_classes' => ['car', 'person'],
+            'min_confidence' => 0.42
+        ])
+            ->assertStatus(201);
+    }
+
+    /**
+     * @test
+     */
     public function api_can_get_a_profile()
     {
         $profile = factory(DetectionProfile::class)->create();
@@ -253,6 +292,40 @@ class ApiTest extends TestCase
 
         $response = $this->get('/api/events/'.$event->id)
             ->assertStatus(200)
+            ->assertJsonCount(3, 'data.pattern_matched_profiles')
+            ->assertJsonStructure([
+                'data' => [
+                    'image_file_name',
+                    'image_dimensions',
+                    'detection_profiles_count',
+                    'pattern_matched_profiles' => [
+                        2 => [
+                            'name',
+                            'file_pattern',
+                            'object_classes'
+                        ]
+                    ]
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_a_detection_event_deleted_profile_match()
+    {
+        $profiles = factory(DetectionProfile::class, 3)->create();
+        $profile_ids = $profiles->pluck(['id']);
+
+        $event = factory(DetectionEvent::class)->create();
+        $event->patternMatchedProfiles()->attach($profile_ids);
+
+        // delete a profile
+        $profiles->first()->delete();
+
+        $response = $this->get('/api/events/'.$event->id)
+            ->assertStatus(200)
+            ->assertJsonCount(3, 'data.pattern_matched_profiles')
             ->assertJsonStructure([
                 'data' => [
                     'image_file_name',
@@ -736,7 +809,7 @@ class ApiTest extends TestCase
             ->assertStatus(200)
             ->assertJson([
                 'data' => [
-                    'status' => 'active'
+                    'status' => 'enabled'
                 ]
             ]);
     }
@@ -747,14 +820,51 @@ class ApiTest extends TestCase
     public function api_can_get_inactive_profile_status()
     {
         $profile = factory(DetectionProfile::class)->create();
-        $profile->is_active = false;
+        $profile->is_enabled = false;
         $profile->save();
 
         $this->get('/api/profiles/'.$profile->id)
             ->assertStatus(200)
             ->assertJson([
                 'data' => [
-                    'status' => 'inactive'
+                    'status' => 'disabled'
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_scheduled_profile_status()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+        $profile->is_scheduled = true;
+        $profile->save();
+
+        $this->get('/api/profiles/'.$profile->id)
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'status' => 'as_scheduled'
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_scheduled_profile_disabled_status()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+        $profile->is_scheduled = true;
+        $profile->is_enabled = false;
+        $profile->save();
+
+        $this->get('/api/profiles/'.$profile->id)
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'status' => 'disabled'
                 ]
             ]);
     }
@@ -767,13 +877,13 @@ class ApiTest extends TestCase
         $profile = factory(DetectionProfile::class)->create();
 
         $this->json('PUT', '/api/profiles/'.$profile->id.'/status', [
-            'status' => 'inactive'
+            'status' => 'disabled'
         ])
             ->assertStatus(204);
 
         $profile->refresh();
 
-        $this->assertEquals('inactive', $profile->status);
+        $this->assertEquals('disabled', $profile->status);
     }
 
     /**
@@ -782,17 +892,36 @@ class ApiTest extends TestCase
     public function api_can_set_profile_status_active()
     {
         $profile = factory(DetectionProfile::class)->create();
-        $profile->is_active = false;
+        $profile->is_enabled = false;
         $profile->save();
 
         $this->json('PUT', '/api/profiles/'.$profile->id.'/status', [
-            'status' => 'active'
+            'status' => 'enabled'
         ])
             ->assertStatus(204);
 
         $profile->refresh();
 
-        $this->assertEquals('active', $profile->status);
+        $this->assertEquals('enabled', $profile->status);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_set_profile_status_as_scheduled()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+        $profile->is_scheduled = true;
+        $profile->save();
+
+        $this->json('PUT', '/api/profiles/'.$profile->id.'/status', [
+            'status' => 'as_scheduled'
+        ])
+            ->assertStatus(204);
+
+        $profile->refresh();
+
+        $this->assertEquals('as_scheduled', $profile->status);
     }
 
     /**
@@ -823,4 +952,5 @@ class ApiTest extends TestCase
                 'message' => 'Not Found.'
             ]);
     }
+
 }

@@ -70,17 +70,26 @@ class DetectionTest extends TestCase
     /**
      * @test
      */
-    public function detection_job_creates_relevant_relationship_for_matched_profiles_only()
+    public function detection_job_creates_relevant_relationship_for_active_matches()
     {
-        $profile = factory(DetectionProfile::class, 5)->create();
+        factory(DetectionProfile::class, 5)->create();
 
+        // active match
         $profile = factory(DetectionProfile::class)->create([
             'object_classes' => ['car', 'person'],
             'use_mask' => false
         ]);
-
         $event = factory(DetectionEvent::class)->create();
         $event->patternMatchedProfiles()->attach($profile->id);
+
+        // inactive match
+        $profile = factory(DetectionProfile::class)->create([
+            'object_classes' => ['car', 'person'],
+            'use_mask' => false
+        ]);
+        $event->patternMatchedProfiles()->attach($profile->id, [
+            'is_profile_active' => false
+        ]);
 
         $this->handleDetectionJob($event);
 

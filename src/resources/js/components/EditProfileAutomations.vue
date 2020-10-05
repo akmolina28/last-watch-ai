@@ -14,7 +14,7 @@
                 Profile Automations
             </template>
             <template v-slot:subtitle>
-                {{ profile.name }}
+                Do something when <strong>{{ profile.name }}</strong> is triggered
             </template>
         </title-header>
 
@@ -26,7 +26,11 @@
                     automation updated!
                 </div>
 
-                <div v-for="type in configTypes" class="mb-5" style="overflow-x:auto;">
+                <p v-if="configTypes.length === 0">
+                    No automations have been set up yet.
+                </p>
+
+                <div v-for="type in configTypes" class="box mb-5" style="overflow-x:auto;">
                     <h4 class="heading is-size-4">{{ type | headerize }}</h4>
 
                     <table class="table">

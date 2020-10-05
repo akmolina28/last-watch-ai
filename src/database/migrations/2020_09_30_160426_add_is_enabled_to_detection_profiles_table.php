@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddIsActiveToDetectionProfilesTable extends Migration
+class AddIsEnabledToDetectionProfilesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,10 +14,10 @@ class AddIsActiveToDetectionProfilesTable extends Migration
     public function up()
     {
         Schema::table('detection_profiles', function (Blueprint $table) {
-            $table->boolean('is_active')->default(true);
+            $table->boolean('is_enabled')->default(true);
         });
 
-        DB::statement('UPDATE detection_profiles SET is_active = true');
+        DB::statement('UPDATE detection_profiles SET is_enabled = true');
     }
 
     /**
@@ -28,7 +28,7 @@ class AddIsActiveToDetectionProfilesTable extends Migration
     public function down()
     {
         Schema::table('detection_profiles', function (Blueprint $table) {
-            $table->dropColumn('is_active');
+            $table->dropColumn('is_enabled');
         });
     }
 }

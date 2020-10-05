@@ -3,6 +3,8 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Eloquent;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
@@ -15,6 +17,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 class DetectionProfile extends Model
 {
     use HasRelationships;
+    use SoftDeletes;
 
     protected $fillable = ['name', 'file_pattern', 'min_confidence', 'use_regex', 'object_classes'];
 
@@ -24,11 +27,14 @@ class DetectionProfile extends Model
 
     public function getStatusAttribute()
     {
-        if ($this->is_active) {
-            return 'active';
+        if ($this->is_enabled) {
+            if ($this->is_scheduled) {
+                return 'as_scheduled';
+            }
+            return 'enabled';
         }
         else {
-            return 'inactive';
+            return 'disabled';
         }
     }
 
@@ -86,5 +92,46 @@ class DetectionProfile extends Model
         else {
             return strpos($file_name, $this->file_pattern) !== false;
         }
+    }
+
+    public function timeToInt($time) {
+        $hour = substr($time, 0, 2);
+        $minute = substr($time, 3, 2);
+
+        return $hour + ($minute / 60);
+    }
+
+    public function isActiveForDate(Carbon $date)
+    {
+        $start = $this->timeToInt($this->start_time);
+        $end = $this->timeToInt($this->end_time);
+
+        $now = $this->timeToInt($date->format('H:i'));
+
+        if ($start < $end) {
+            if ($now >= $start && $now < $end) {
+                return true;
+            }
+        }
+        else {
+            if ($now >= $start || $now < $end) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isActive(Carbon $date)
+    {
+        if ($this->is_enabled) {
+            if ($this->is_scheduled) {
+                return $this->isActiveForDate($date);
+            }
+            else {
+                return true;
+            }
+        }
+        return false;
     }
 }

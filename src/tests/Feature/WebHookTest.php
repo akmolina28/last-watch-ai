@@ -9,6 +9,7 @@ use App\Jobs\ProcessWebhookJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
@@ -36,13 +37,13 @@ class WebHookTest extends TestCase
         $file = $imageFile->storeAs('events','testimage.jpg');
     }
 
-    protected function handleWebhookJob() {
+    protected function handleWebhookJob(Carbon $occurred_at = null) {
         $webhookCall = new WebhookCall();
         $webhookCall->payload = [
             'file' => 'testimage.jpg'
         ];
         $job = new ProcessWebhookJob($webhookCall);
-        $job->handle();
+        $job->handle($occurred_at);
     }
 
     /**
@@ -82,10 +83,10 @@ class WebHookTest extends TestCase
         factory(DetectionProfile::class, 5)->create();
 
         // create a profile to match the event
-        $profile = factory(DetectionProfile::class)->make();
-        $profile->file_pattern = 'testimage';
-        $profile->use_regex = false;
-        $profile->save();
+        factory(DetectionProfile::class)->create([
+            'file_pattern' => 'testimage',
+            'use_regex' => false
+        ]);
 
         // hit the webhook
         $this->handleWebhookJob();
@@ -96,6 +97,7 @@ class WebHookTest extends TestCase
         $this->assertEquals('events/testimage.jpg', $event->image_file_name);
         $this->assertEquals('640x480', $event->image_dimensions);
         $this->assertCount(1, $event->patternMatchedProfiles);
+        $this->assertEquals(1, $event->patternMatchedProfiles()->first()->pivot->is_profile_active);
 
         Queue::assertPushed(ProcessDetectionEventJob::class, function ($job) {
             return $job->event->image_file_name === 'events/testimage.jpg';
@@ -133,14 +135,14 @@ class WebHookTest extends TestCase
     /**
      * @test
      */
-    public function webhook_can_an_ignore_inactive_profile() {
+    public function webhook_job_does_not_push_detection_job_for_inactive_profile() {
         // create a profile to match the event
         $profile = factory(DetectionProfile::class)->make();
         $profile->file_pattern = 'testimage';
         $profile->use_regex = false;
 
         // inactive
-        $profile->is_active = false;
+        $profile->is_enabled = false;
 
         $profile->save();
 
@@ -149,11 +151,92 @@ class WebHookTest extends TestCase
 
         // see that detection event was generated
         $this->assertDatabaseCount('detection_events', 1);
-        $event = DetectionEvent::first();
-        $this->assertEquals('events/testimage.jpg', $event->image_file_name);
-        $this->assertEquals('640x480', $event->image_dimensions);
-        $this->assertCount(0, $event->patternMatchedProfiles);
 
+        // ensure no deepstack job was created
         Queue::assertNothingPushed();
+    }
+
+    /**
+     * @test
+     */
+    public function webhook_job_creates_inactive_match_for_inactive_profile()
+    {
+        // create a profile to match the event
+        $profile = factory(DetectionProfile::class)->make();
+        $profile->file_pattern = 'testimage';
+        $profile->use_regex = false;
+
+        // inactive
+        $profile->is_enabled = false;
+
+        $profile->save();
+
+        // hit the webhook
+        $this->handleWebhookJob();
+
+        // see that detection event was generated
+        $this->assertDatabaseCount('detection_events', 1);
+
+        $event = DetectionEvent::first();
+        $this->assertCount(1, $event->patternMatchedProfiles);
+        $this->assertEquals(0, $event->patternMatchedProfiles()->first()->pivot->is_profile_active);
+    }
+
+    /**
+     * @test
+     */
+    public function webhook_job_creates_active_match_for_scheduled_profile()
+    {
+        // create a profile to match the event
+        $profile = factory(DetectionProfile::class)->make();
+        $profile->file_pattern = 'testimage';
+        $profile->use_regex = false;
+
+        // schedule
+        $profile->is_scheduled = true;
+        $profile->start_time = '01:00';
+        $profile->end_time = '02:00';
+
+        $profile->save();
+
+        // hit the webhook
+        $occurred_at = Carbon::create(2020, 1, 1, 1, 25, 33);
+        $this->handleWebhookJob($occurred_at);
+
+        // see that detection event was generated
+        $this->assertDatabaseCount('detection_events', 1);
+
+        $event = DetectionEvent::first();
+        $this->assertCount(1, $event->patternMatchedProfiles);
+        $this->assertEquals(1, $event->patternMatchedProfiles()->first()->pivot->is_profile_active);
+    }
+
+    /**
+     * @test
+     */
+    public function webhook_job_creates_inactive_match_for_scheduled_profile()
+    {
+        // create a profile to match the event
+        $profile = factory(DetectionProfile::class)->make();
+        $profile->file_pattern = 'testimage';
+        $profile->use_regex = false;
+
+        // schedule
+        $profile->is_scheduled = true;
+        $profile->start_time = '01:00';
+        $profile->end_time = '02:00';
+
+        $profile->save();
+
+        // hit the webhook
+        $occurred_at = Carbon::create(2020, 1, 1, 3, 25, 33);
+        $this->handleWebhookJob($occurred_at);
+
+        // see that detection event was generated
+        $this->assertDatabaseCount('detection_events', 1);
+
+        $event = DetectionEvent::first();
+        $this->assertCount(1, $event->patternMatchedProfiles);
+        $this->assertEquals(0, $event->patternMatchedProfiles()->first()->pivot->is_profile_active);
     }
 }
