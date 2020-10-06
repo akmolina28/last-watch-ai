@@ -86,6 +86,15 @@ Route::put('/profiles/{profile}/status', function(DetectionProfile $profile) {
         }
 
         else if ($status === 'as_scheduled') {
+
+            if (request()->has('start_time')) {
+                $profile->start_time = request()->get('start_time');
+            }
+
+            if (request()->has('end_time')) {
+                $profile->end_time = request()->get('end_time');
+            }
+
             $profile->is_scheduled = true;
             $profile->is_enabled = true;
         }

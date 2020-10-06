@@ -53,7 +53,10 @@ class ApiTest extends TestCase
                         'name',
                         'object_classes',
                         'min_confidence',
-                        'use_mask'
+                        'use_mask',
+                        'start_time',
+                        'end_time',
+                        'status'
                     ]]
             ])
             ->assertJsonCount(10, 'data');
@@ -915,13 +918,17 @@ class ApiTest extends TestCase
         $profile->save();
 
         $this->json('PUT', '/api/profiles/'.$profile->id.'/status', [
-            'status' => 'as_scheduled'
+            'status' => 'as_scheduled',
+            'start_time' => '23:45',
+            'end_time' => '12:34'
         ])
             ->assertStatus(204);
 
         $profile->refresh();
 
         $this->assertEquals('as_scheduled', $profile->status);
+        $this->assertEquals('23:45', $profile->start_time);
+        $this->assertEquals('12:34', $profile->end_time);
     }
 
     /**

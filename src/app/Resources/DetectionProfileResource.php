@@ -25,6 +25,8 @@ class DetectionProfileResource extends JsonResource
             'min_confidence' => $this->min_confidence,
             'use_mask' => $this->use_mask,
             'status' => $this->status,
+            'start_time' => $this->start_time,
+            'end_time' => $this->end_time,
             'is_masked' => $this->whenPivotLoaded('ai_prediction_detection_profile', function () {
                 return $this->pivot->is_masked;
             })

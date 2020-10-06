@@ -28,7 +28,7 @@
                     <div class="navbar-start">
                         <router-link to="/profiles" class="navbar-item">
                             <span class="icon has-text-primary">
-                                <i class="fas fa-eye"></i>
+                                <b-icon icon="eye"></b-icon>
                             </span>
                             <span class="is-hidden-touch is-hidden-widescreen">
                                 Profiles
@@ -40,7 +40,7 @@
 
                         <router-link to="/events" class="navbar-item">
                             <span class="icon has-text-danger">
-                                <i class="fas fa-images"></i>
+                                <b-icon icon="images"></b-icon>
                             </span>
 
                             <span>Detection Events</span>
@@ -57,7 +57,7 @@
                                 <router-link to="/automations/folderCopy" class="navbar-item">
                                     <span>
                                         <span class="icon has-text-info">
-                                            <i class="fas fa-copy"></i>
+                                            <b-icon icon="copy"></b-icon>
                                         </span>
                                         <strong>Folder Copy</strong>
                                         <br>
@@ -70,7 +70,7 @@
                                 <router-link to="/automations/smbCifsCopy" class="navbar-item">
                                     <span>
                                         <span class="icon has-text-info">
-                                            <i class="fas fa-upload"></i>
+                                            <b-icon icon="upload"></b-icon>
                                         </span>
                                         <strong>SMB/CIFS Copy</strong>
                                         <br>
@@ -83,7 +83,7 @@
                                 <router-link to="/automations/telegram" class="navbar-item">
                                     <span>
                                         <span class="icon has-text-info">
-                                            <i class="fab fa-telegram-plane"></i>
+                                            <b-icon pack="fab" icon="telegram-plane"></b-icon>
                                         </span>
                                         <strong>Telegram</strong>
                                         <br>
@@ -96,7 +96,7 @@
                                 <router-link to="/automations/webRequest" class="navbar-item">
                                     <span>
                                         <span class="icon has-text-info">
-                                            <i class="fas fa-globe-americas"></i>
+                                            <b-icon icon="globe-americas"></b-icon>
                                         </span>
                                         <strong>Web Request</strong>
                                         <br>
