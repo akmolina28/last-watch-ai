@@ -40,7 +40,7 @@
                         <td>{{ config.password }}</td>
                         <td>{{ config.remote_dest }}</td>
                         <td>
-                            <i v-if="config.overwrite" class="fas fa-check"></i>
+                            <b-icon v-if="config.overwrite" icon="check"></b-icon>
                         </td>
                     </tr>
                 </tbody>

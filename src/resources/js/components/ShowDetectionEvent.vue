@@ -23,8 +23,7 @@
                     <li v-for="profile in event.pattern_matched_profiles" @click="toggleActiveProfile(profile)" class="mb-5">
                         <a :class="profile.id === selectedProfile.id ? 'is-active' : ''">
                             <h6 class="heading is-size-6">
-                                <i v-if="hasUnmaskedPredictions(profile)" class="fas fa-check"></i>
-                                <i v-else class="fas fa-times"></i>
+                                <b-icon :icon="hasUnmaskedPredictions(profile) ? 'check' : 'times'"></b-icon>
                                 {{ profile.name }}
                             </h6>
                             <ul>

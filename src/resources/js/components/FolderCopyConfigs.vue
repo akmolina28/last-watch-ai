@@ -33,7 +33,7 @@
                         <td>{{ config.name }}</td>
                         <td>{{ config.copy_to }}</td>
                         <td>
-                            <i v-if="config.overwrite" class="fas fa-check"></i>
+                            <b-icon v-if="config.overwrite" icon="check"></b-icon>
                         </td>
                     </tr>
                 </tbody>

@@ -50,7 +50,7 @@
                             {{ event.occurred_at | dateStrRelative }}
                         </td>
                         <td>
-                            <i v-if="event.detection_profiles_count > 0" class='fas fa-check'></i>
+                            <b-icon v-if="event.detection_profiles_count > 0" icon="check"></b-icon>
                         </td>
                     </tr>
                 </tbody>

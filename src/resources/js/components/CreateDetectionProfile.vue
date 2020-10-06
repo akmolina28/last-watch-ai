@@ -70,7 +70,7 @@
                         <input @change="evt=>mask = evt.target.files[0]" class="file-input" type="file" name="mask" accept="image/x-png">
                         <span class="file-cta">
                                 <span class="file-icon">
-                                    <i class="fas fa-upload"></i>
+                                    <b-icon icon="upload"></b-icon>
                                 </span>
                                 <span class="file-label">
                                     Choose a file…
