@@ -29,6 +29,9 @@
         flex-direction: column-reverse;
         display: flex;
     }
+    .responsive-table-wrapper {
+        overflow-x: scroll;
+    }
 }
 
 body {

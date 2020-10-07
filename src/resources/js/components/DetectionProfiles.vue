@@ -19,7 +19,7 @@
             <a class="button is-info" href="/profiles/create">New Profile</a>
         </div>
 
-        <div style="">
+        <div class="responsive-table-wrapper">
             <table class="table">
                 <thead>
                 <tr>

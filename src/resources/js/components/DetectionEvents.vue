@@ -34,7 +34,7 @@
                 </div>
             </div>
         </div>
-        <div id="wrapper">
+        <div class="responsive-table-wrapper">
             <table class="table">
                 <thead>
                 <tr>
