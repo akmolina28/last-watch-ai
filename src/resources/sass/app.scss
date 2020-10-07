@@ -39,3 +39,9 @@ a.navbar-item>.icon:not(:last-child) {
     margin-left: -.25em;
     margin-right: .25em;
 }
+
+a.dropdown-item.is-active .icon,
+.dropdown .dropdown-menu .has-link a.is-active .icon,
+button.dropdown-item.is-active .icon {
+    color: #fff;
+}
