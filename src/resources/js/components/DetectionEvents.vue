@@ -34,32 +34,55 @@
                 </div>
             </div>
         </div>
-        <div class="responsive-table-wrapper">
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>Matched File</th>
-                    <th>Occurred</th>
-                    <th>Relevant</th>
-                </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="event in laravelData.data" @click="$router.push(`/events/${event.id}`)" :key="event.id">
-                        <td>{{ event.image_file_name }}</td>
-                        <td :title="event.occurred_at | dateStr">
-                            {{ event.occurred_at | dateStrRelative }}
-                        </td>
-                        <td>
-                            <b-icon v-if="event.detection_profiles_count > 0" icon="check"></b-icon>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+<!--        <div class="responsive-table-wrapper">-->
+<!--            <table class="table">-->
+<!--                <thead>-->
+<!--                <tr>-->
+<!--                    <th>Matched File</th>-->
+<!--                    <th>Occurred</th>-->
+<!--                    <th>Relevant</th>-->
+<!--                </tr>-->
+<!--                </thead>-->
+<!--                <tbody>-->
+<!--                    <tr v-for="event in laravelData.data" @click="$router.push(`/events/${event.id}`)" :key="event.id">-->
+<!--                        <td>{{ event.image_file_name }}</td>-->
+<!--                        <td :title="event.occurred_at | dateStr">-->
+<!--                            {{ event.event.occurred_at | dateStrRelative }}-->
+<!--                        </td>-->
+<!--                        <td>-->
+<!--                            <b-icon v-if="event.detection_profiles_count > 0" icon="check"></b-icon>-->
+<!--                        </td>-->
+<!--                    </tr>-->
+<!--                </tbody>-->
+<!--            </table>-->
 
-            <pagination :data="laravelData.meta" @pagination-change-page="getData" :limit="5">
-            </pagination>
+        <b-table
+            hoverable
+            :selected.sync="selected"
+            mobile-cards
+            :data="isEmpty ? [] : events"
+            :loading="eventsLoading"
+            @click="rowClick"
+            class="mb-3">
 
-        </div>
+            <b-table-column field="image_file_name" label="Image File" v-slot="props">
+                {{ props.row.image_file_name }}
+            </b-table-column>
+
+            <b-table-column field="occurred_at" label="Occurred" v-slot="props">
+                <span :title="props.row.occurred_at | dateStr">
+                    {{ props.row.occurred_at | dateStrRelative }}
+                </span>
+            </b-table-column>
+
+            <b-table-column field="relevant" label="Relevant" v-slot="props">
+                <b-icon v-if="props.row.detection_profiles_count > 0" icon="check"></b-icon>
+            </b-table-column>
+
+        </b-table>
+
+        <pagination :data="meta" @pagination-change-page="getData" :limit="5">
+        </pagination>
     </div>
 
 
@@ -71,10 +94,14 @@
 
         data() {
             return {
-                laravelData: {},
+                events: [],
+                eventsLoading: false,
+                meta: {},
                 filterOption: 'relevant',
                 filterProfileId: null,
-                allProfiles: []
+                allProfiles: [],
+                isEmpty: true,
+                selected: {}
             }
         },
 
@@ -93,6 +120,10 @@
         },
 
         methods: {
+            rowClick(event) {
+                window.open(`/events/${event.id}`, '_blank');
+            },
+
             filter(filterOption) {
                 if (filterOption === 'all' || filterOption === 'relevant') {
                     this.filterProfileId = null;
@@ -108,6 +139,7 @@
             },
 
             getData(page = 1) {
+                this.eventsLoading = true;
                 let url = '/api/events?page=' + page;
                 if (this.filterOption === 'relevant') {
                     url += '&relevant';
@@ -117,7 +149,12 @@
                 }
                 axios.get(url)
                     .then(response => {
-                        this.laravelData = response.data;
+                        this.events = response.data.data;
+                        this.meta = response.data.meta;
+                        this.isEmpty = false;
+                    })
+                    .finally(() => {
+                        this.eventsLoading = false;
                     });
             }
         }

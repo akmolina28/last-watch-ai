@@ -16,76 +16,81 @@
         </title-header>
 
         <div class="mb-3">
-            <a class="button is-info" href="/profiles/create">New Profile</a>
+            <a class="button is-primary" href="/profiles/create">
+                <span>New Profile</span>
+                <span class="icon">
+                    <b-icon icon="plus"></b-icon>
+                </span>
+            </a>
         </div>
 
-        <div class="responsive-table-wrapper">
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Pattern</th>
-                    <th>Regex</th>
-                    <th>Object Classes</th>
-                    <th>Min Confidence</th>
-                    <th>Automations</th>
-                    <th>Status</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="profile in profiles" :key="profile.id">
-                        <td>{{ profile.name }}</td>
-                        <td>{{ profile.file_pattern }}</td>
-                        <td>{{ profile.use_regex }}</td>
-                        <td>{{ profile.object_classes.join('|') }}</td>
-                        <td>{{ profile.min_confidence }}</td>
-                        <td><router-link :to="`/profiles/${profile.id}/automations`">Automations</router-link></td>
-                        <td>
-                            <b-dropdown aria-role="list" :ref="'dropdown' + profile.id">
-                                <button :class="'button is-primary' + (profile.status === 'disabled' ? ' is-light': '') + (profile.isStatusUpdating ? ' is-loading' : '')"
-                                        slot="trigger" slot-scope="{ statusDropdownActive }">
-                                    <span>{{ profile.status | menuize }}</span>
-                                    <b-icon :icon="statusDropdownActive ? 'chevron-up' : 'chevron-down'"></b-icon>
-                                </button>
+        <b-table
+            hoverable
+            mobile-cards
+            :data="isEmpty ? [] : profiles"
+            :loading="profilesLoading"
+            class="mb-3">
 
-                                <b-dropdown-item aria-role="listitem" @click="updateStatus(profile, 'enabled')">
-                                    <span class="icon has-text-success">
-                                        <b-icon icon="circle"></b-icon>
-                                    </span>
-                                    Enabled
-                                </b-dropdown-item>
-                                <hr class="dropdown-divider">
-                                <b-dropdown-item aria-role="listitem" @click="updateStatus(profile, 'disabled')">
-                                    <span class="icon has-text-grey">
-                                        <b-icon icon="ban"></b-icon>
-                                    </span>
-                                    Disabled
-                                </b-dropdown-item>
-                                <hr class="dropdown-divider">
-                                <b-dropdown-item aria-role="listitem" @click="showSchedulerModal(profile)">
-                                    <span class="icon has-text-primary">
-                                        <b-icon icon="clock"></b-icon>
-                                    </span>
-                                    As Scheduled
-                                </b-dropdown-item>
-                            </b-dropdown>
+            <b-table-column field="name" label="Profile Name" v-slot="props">
+                {{ props.row.name }}
+            </b-table-column>
 
-                        </td>
-                        <td>
-                            <button @click="deleteProfile(profile)" :class="'button is-danger is-outlined' + (profile.isDeleting ? ' is-loading' : '')">
-                                <span class="icon is-small">
-                                    <b-icon icon="trash"></b-icon>
-                                </span>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <b-table-column field="file_pattern" label="File Pattern" v-slot="props">
+                {{ props.row.file_pattern }}
+            </b-table-column>
 
+            <b-table-column field="use_regex" label="Use Regex" v-slot="props">
+                <b-icon v-if="props.row.use_regex" icon="check"></b-icon>
+            </b-table-column>
+
+            <b-table-column field="object_classes" label="Object Classes" v-slot="props">
+                {{ props.row.object_classes.join('|') }}
+            </b-table-column>
+
+            <b-table-column field="min_confidence" label="Min Confidence" v-slot="props">
+                {{ props.row.min_confidence }}
+            </b-table-column>
+
+            <b-table-column field="automations" label="Automations" v-slot="props">
+                <router-link :to="`/profiles/${props.row.id}/automations`">Automations</router-link>
+            </b-table-column>
+
+            <b-table-column field="status" label="Status" v-slot="props">
+                <b-dropdown aria-role="list">
+                    <button :class="'button is-primary' + (props.row.status === 'disabled' ? ' is-light': '') + (props.row.isStatusUpdating ? ' is-loading' : '')"
+                            slot="trigger" slot-scope="{ statusDropdownActive }">
+                        <span>{{ props.row.status | menuize }}</span>
+                        <b-icon :icon="statusDropdownActive ? 'chevron-up' : 'chevron-down'"></b-icon>
+                    </button>
+
+                    <b-dropdown-item aria-role="listitem" @click="updateStatus(props.row, 'enabled')">
+                        <span class="icon has-text-success">
+                            <b-icon icon="circle"></b-icon>
+                        </span>
+                        Enabled
+                    </b-dropdown-item>
+                    <hr class="dropdown-divider">
+                    <b-dropdown-item aria-role="listitem" @click="updateStatus(props.row, 'disabled')">
+                        <span class="icon has-text-grey">
+                            <b-icon icon="ban"></b-icon>
+                        </span>
+                        Disabled
+                    </b-dropdown-item>
+                    <hr class="dropdown-divider">
+                    <b-dropdown-item aria-role="listitem" @click="showSchedulerModal(props.row)">
+                        <span class="icon has-text-primary">
+                            <b-icon icon="clock"></b-icon>
+                        </span>
+                        As Scheduled
+                    </b-dropdown-item>
+                </b-dropdown>
+            </b-table-column>
+        </b-table>
+
+        <div class="container is-spaced">
             <pagination :data="meta" @pagination-change-page="getData"></pagination>
-
         </div>
+
         <b-modal
             v-model="isModalActive"
             trap-focus
@@ -157,6 +162,8 @@
         },
         data() {
             return {
+                isEmpty: true,
+                profilesLoading: false,
                 profiles: [],
                 meta: {},
                 isModalActive: false,
@@ -204,6 +211,7 @@
             },
 
             getData(page = 1) {
+                this.profilesLoading = true;
                 axios.get(`/api/profiles?page=${page}`)
                     .then(response => {
                         let profiles = response.data.data;
@@ -213,6 +221,11 @@
                         profiles.forEach(p => p.endTime = (p.end_time ? new Date('2020-01-01 ' + p.end_time) : null));
                         this.profiles = profiles;
                         this.meta = response.data.meta;
+                        this.isEmpty = false;
+                        this.profilesLoading = false;
+                    })
+                    .catch(() => {
+                        this.profilesLoading = false;
                     });
             },
 
