@@ -16,7 +16,7 @@
             </template>
         </title-header>
 
-        <div style="overflow-x:auto;" class="mb-3">
+        <div class="responsive-table-wrapper mb-3">
             <table class="table pb-5">
                 <thead>
                     <tr>
