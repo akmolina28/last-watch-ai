@@ -32,6 +32,14 @@
                         </option>
                     </select>
                 </div>
+                <div class="level-item">
+                    <button class="button" :disabled="eventsLoading" @click="getData()">
+                        <span>
+                            Refresh
+                        </span>
+                        <b-icon icon="sync"></b-icon>
+                    </button>
+                </div>
             </div>
         </div>
 <!--        <div class="responsive-table-wrapper">-->
