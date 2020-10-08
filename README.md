@@ -73,7 +73,7 @@ Now your automation will show up and you can link it to your profile.
 
 At this point, Last Watch will be looking for files in the watch folder that match the file pattern you specified. If a match is found, a detection event will be generated in the Detection Events page. If a relevant object is detected by the AI, the event will be marked as Relevant and the automations will be triggered.
 
-## Building from source
+## Building from source for development
 
 1. git clone https://github.com/akmolina28/last-watch-ai.git
 
@@ -92,3 +92,7 @@ At this point, Last Watch will be looking for files in the watch folder that mat
 9. docker-compose run --rm npm install
 
 11. docker-compose run --rm npm run watch-poll
+
+## Testing
+
+To execute tests, use the built in phpunit container by running `docker-compose run --rm phpunit`. This container will also stand up separate testing containers for mysql and deepstack to run the feature tests.
