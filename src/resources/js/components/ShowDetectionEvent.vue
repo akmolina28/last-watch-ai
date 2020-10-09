@@ -18,26 +18,63 @@
 
         <div class="columns reverse-columns" style="margin-left:-0.75rem;">
             <div class="column is-one-third">
-                <p class="title is-size-4">Matched Profiles:</p>
-                <ul class="menu-list">
-                    <li v-for="profile in event.pattern_matched_profiles" @click="toggleActiveProfile(profile)" class="mb-5">
-                        <a :class="profile.id === selectedProfile.id ? 'is-active' : ''">
-                            <h6 class="heading is-size-6">
-                                <b-icon :icon="hasUnmaskedPredictions(profile) ? 'check' : 'times'"></b-icon>
-                                {{ profile.name }}
-                            </h6>
-                            <ul>
+                <b-menu>
+                    <b-menu-list label="Matched Profiles">
+                        <b-menu-item
+                            v-for="profile in event.pattern_matched_profiles"
+                            @click="toggleActiveProfile(profile)"
+                            :key="profile.key"
+                            :disabled="!profile.is_profile_active">
+
+                            <template slot="label" slot-scope="props">
+                                <p class="heading is-size-6">
+                                    <b-icon :icon="getIcon(profile)"></b-icon>
+                                    {{ profile.name }}
+                                    <span v-if="!profile.is_profile_active">(inactive)</span>
+                                </p>
+                            </template>
+
+                            <div v-if="getPredictions(profile).length > 0">
                                 <li v-for="prediction in getPredictions(profile)">
                                     <span v-if="prediction.is_masked">(masked)</span>
                                     {{ prediction.object_class }} - {{ prediction.confidence | percentage }}
                                 </li>
-                            </ul>
-                            <p v-if="getPredictions(profile).length === 0">
+
+                            </div>
+                            <p v-else>
                                 No relevant objects detected.
                             </p>
-                        </a>
-                    </li>
-                </ul>
+                        </b-menu-item>
+                    </b-menu-list>
+                </b-menu>
+
+
+
+
+<!--                <ul class="menu-list">-->
+<!--                    <li v-for="profile in event.pattern_matched_profiles" @click="toggleActiveProfile(profile)" class="mb-5">-->
+<!--                        <a :class="profile.id === selectedProfile.id ? 'is-active' : ''">-->
+<!--                            <h6 class="heading is-size-6">-->
+<!--                                <b-icon v-if="!profile.is_profile_enabled" icon="ban"></b-icon>-->
+<!--                                <b-icon v-else :icon="hasUnmaskedPredictions(profile) ? 'check' : 'times'"></b-icon>-->
+<!--                                {{ profile.name }}-->
+<!--                            </h6>-->
+<!--                            <p v-if="!profile.is_profile_active">-->
+<!--                                Profile was inactive.-->
+<!--                            </p>-->
+<!--                            <ul v-else-if="getPredictions(profile).length > 0">-->
+<!--                                <li v-for="prediction in getPredictions(profile)">-->
+<!--                                    <span v-if="prediction.is_masked">(masked)</span>-->
+<!--                                    {{ prediction.object_class }} - {{ prediction.confidence | percentage }}-->
+<!--                                </li>-->
+
+<!--                            </ul>-->
+<!--                            <p v-else>-->
+<!--                                No relevant objects detected.-->
+<!--                            </p>-->
+<!--                        </a>-->
+<!--                    </li>-->
+<!--                </ul>-->
             </div>
             <div class="column is-two-thirds">
                 <canvas id="event-snapshot" ref="event-snapshot" style="width:100%;"></canvas>
@@ -153,10 +190,22 @@
                 this.draw();
             },
 
+            getIcon(profile) {
+                if (!profile.is_profile_active) {
+                    return "ban";
+                }
+
+                if (this.hasUnmaskedPredictions(profile)) {
+                    return 'check';
+                }
+
+                return 'times';
+            },
+
             draw() {
                 let predictions = this.highlight ?
                     this.getPredictions(this.selectedProfile) :
-                    this.event.ai_predictions;
+                    [];
 
                 let mask_name = this.highlight ?
                     this.selectedProfile.use_mask ? this.selectedProfile.slug + '.png' : null :
@@ -190,7 +239,7 @@
 
                 let rects = [];
                 predictions.forEach(prediction => {
-                    let color = this.highlight ? '#3273dc' : 'red';
+                    let color = this.highlight ? '#7957d5' : 'red';
                     rects.push(new Facade.Rect({
                         x: prediction.x_min,
                         y: prediction.y_min,
