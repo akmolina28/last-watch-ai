@@ -48,53 +48,49 @@
 
                                 <b-dropdown-item has-link aria-role="menuitem">
                                     <router-link to="/automations/folderCopy" class="dropdown-item">
-                                        <span>
-                                            <span class="icon has-text-primary">
-                                                <b-icon icon="copy"></b-icon>
-                                            </span>
-                                            <strong>Folder Copy</strong>
-                                            <br>
-                                            Copy image files to a local folder
-                                        </span>
+                                        <div class="media">
+                                            <b-icon class="media-left fa-lg" icon="copy"></b-icon>
+                                            <div class="media-content">
+                                                <h3>Folder Copy</h3>
+                                                <small>Copy image files to a local folder</small>
+                                            </div>
+                                        </div>
                                     </router-link>
                                 </b-dropdown-item>
 
                                 <b-dropdown-item has-link aria-role="menuitem">
                                     <router-link to="/automations/smbCifsCopy" class="dropdown-item">
-                                        <span>
-                                            <span class="icon has-text-primary">
-                                                <b-icon icon="upload"></b-icon>
-                                            </span>
-                                            <strong>SMB/CIFS Copy</strong>
-                                            <br>
-                                            Upload images to Samba share
-                                        </span>
+                                        <div class="media">
+                                            <b-icon class="media-left fa-lg" icon="upload"></b-icon>
+                                            <div class="media-content">
+                                                <h3>SMB/CIFS Copy</h3>
+                                                <small>Upload images to Samba share</small>
+                                            </div>
+                                        </div>
                                     </router-link>
                                 </b-dropdown-item>
 
                                 <b-dropdown-item has-link aria-role="menuitem">
                                     <router-link to="/automations/telegram" class="dropdown-item">
-                                        <span>
-                                            <span class="icon has-text-primary">
-                                                <b-icon pack="fab" icon="telegram-plane"></b-icon>
-                                            </span>
-                                            <strong>Telegram</strong>
-                                            <br>
-                                            Send images to Telegram bots
-                                        </span>
+                                        <div class="media">
+                                            <b-icon pack="fab" class="media-left fa-lg" icon="telegram-plane"></b-icon>
+                                            <div class="media-content">
+                                                <h3>Telegram</h3>
+                                                <small>Upload images to Samba share</small>
+                                            </div>
+                                        </div>
                                     </router-link>
                                 </b-dropdown-item>
 
                                 <b-dropdown-item has-link aria-role="menuitem">
                                     <router-link to="/automations/webRequest" class="dropdown-item">
-                                        <span>
-                                            <span class="icon has-text-primary">
-                                                <b-icon icon="globe-americas"></b-icon>
-                                            </span>
-                                            <strong>Web Request</strong>
-                                            <br>
-                                            Make Http GET requests
-                                        </span>
+                                        <div class="media">
+                                            <b-icon class="media-left fa-lg" icon="globe-americas"></b-icon>
+                                            <div class="media-content">
+                                                <h3>Web Request</h3>
+                                                <small>Make Http GET requests</small>
+                                            </div>
+                                        </div>
                                     </router-link>
                                 </b-dropdown-item>
                             </b-dropdown>
