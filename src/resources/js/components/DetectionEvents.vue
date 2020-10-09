@@ -18,20 +18,29 @@
         <div class="level">
             <div class="level-left">
                 <div class="level-item">
-                    <select v-model="filterOption" class="select" @change="filter(filterOption)">
-                        <option value="all">All</option>
-                        <option value="relevant">Relevant</option>
-                        <option value="profile">Specific Profile</option>
-                    </select>
+                    <div class="field">
+                        <b-switch v-model="relevant" @input="getData()">
+                            Relevant Only
+                        </b-switch>
+                    </div>
                 </div>
+
                 <div class="level-item">
-                    <select v-model="filterProfileId" v-if="filterOption === 'profile'" class="select" @change="getData()">
-                        <option></option>
-                        <option v-for="profile in allProfiles" :key="profile.id" :value="profile.id">
+                    <b-select
+                        v-model="filterProfileId"
+                        @input="getData()"
+                        class="is-primary is-outlined"
+                        icon="eye">
+                        <option :value="null" :key="-1">Any Profile</option>
+                        <option
+                            v-for="profile in allProfiles"
+                            :value="profile.id"
+                            :key="profile.id">
                             {{ profile.name }}
                         </option>
-                    </select>
+                    </b-select>
                 </div>
+
                 <div class="level-item">
                     <button class="button" :disabled="eventsLoading" @click="getData()">
                         <span>
@@ -42,27 +51,6 @@
                 </div>
             </div>
         </div>
-<!--        <div class="responsive-table-wrapper">-->
-<!--            <table class="table">-->
-<!--                <thead>-->
-<!--                <tr>-->
-<!--                    <th>Matched File</th>-->
-<!--                    <th>Occurred</th>-->
-<!--                    <th>Relevant</th>-->
-<!--                </tr>-->
-<!--                </thead>-->
-<!--                <tbody>-->
-<!--                    <tr v-for="event in laravelData.data" @click="$router.push(`/events/${event.id}`)" :key="event.id">-->
-<!--                        <td>{{ event.image_file_name }}</td>-->
-<!--                        <td :title="event.occurred_at | dateStr">-->
-<!--                            {{ event.event.occurred_at | dateStrRelative }}-->
-<!--                        </td>-->
-<!--                        <td>-->
-<!--                            <b-icon v-if="event.detection_profiles_count > 0" icon="check"></b-icon>-->
-<!--                        </td>-->
-<!--                    </tr>-->
-<!--                </tbody>-->
-<!--            </table>-->
 
         <b-table
             hoverable
@@ -105,7 +93,7 @@
                 events: [],
                 eventsLoading: false,
                 meta: {},
-                filterOption: 'relevant',
+                relevant: true,
                 filterProfileId: null,
                 allProfiles: [],
                 isEmpty: true,
@@ -132,13 +120,6 @@
                 window.open(`/events/${event.id}`, '_blank');
             },
 
-            filter(filterOption) {
-                if (filterOption === 'all' || filterOption === 'relevant') {
-                    this.filterProfileId = null;
-                    this.getData();
-                }
-            },
-
             getProfiles() {
                 axios.get('/api/profiles')
                     .then(response => {
@@ -149,10 +130,10 @@
             getData(page = 1) {
                 this.eventsLoading = true;
                 let url = '/api/events?page=' + page;
-                if (this.filterOption === 'relevant') {
+                if (this.relevant) {
                     url += '&relevant';
                 }
-                else if (this.filterProfileId) {
+                if (this.filterProfileId) {
                     url += '&profileId=' + this.filterProfileId;
                 }
                 axios.get(url)

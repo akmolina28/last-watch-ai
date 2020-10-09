@@ -11,7 +11,7 @@ $factory->define(DetectionProfile::class, function (Faker $faker) {
         'file_pattern' => $faker->word(),
         'object_classes' => $faker->randomElements(config('deepstack.object_classes'), $faker->numberBetween(1, 5)),
         'min_confidence' => $faker->numberBetween(45, 100) / 100,
-        'use_regex' => $faker->boolean(),
+        'use_regex' => false,
         'use_mask' => $faker->boolean()
     ];
 });

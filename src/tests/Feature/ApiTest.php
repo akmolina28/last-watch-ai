@@ -149,9 +149,10 @@ class ApiTest extends TestCase
             ]);
     }
 
-    protected function setUpEvents(DetectionProfile $profile) {
-
-        factory(DetectionEvent::class, 5)
+    protected function setUpEvents(DetectionProfile $profile)
+    {
+        // make 3 unmatched, irrelevant events
+        factory(DetectionEvent::class, 3)
             ->create()
             ->each(function ($event) {
                 $event->aiPredictions()->createMany(
@@ -159,13 +160,14 @@ class ApiTest extends TestCase
                 );
             });
 
-        // make 6 events relevant
-        $events = factory(DetectionEvent::class, 6)
+        // make 2 events matched and relevant
+        $events = factory(DetectionEvent::class, 2)
             ->create()
-            ->each(function ($event) {
+            ->each(function ($event) use ($profile) {
                 $event->aiPredictions()->createMany(
                     factory(AiPrediction::class, 3)->make()->toArray()
                 );
+                $event->patternMatchedProfiles()->attach($profile->id);
             });
 
         foreach ($events as $event) {
@@ -175,19 +177,50 @@ class ApiTest extends TestCase
             ]);
         }
 
-        // make 2 events relevant but masked
-        $events = factory(DetectionEvent::class, 2)
+        // make 1 event relevant but masked
+        $events = factory(DetectionEvent::class, 1)
             ->create()
-            ->each(function ($event) {
+            ->each(function ($event) use ($profile) {
                 $event->aiPredictions()->createMany(
                     factory(AiPrediction::class, 3)->make()->toArray()
                 );
+                $event->patternMatchedProfiles()->attach($profile->id);
             });
 
         foreach ($events as $event) {
             $prediction = $event->aiPredictions()->first();
             $prediction->detectionProfiles()->attach($profile->id, [
                 'is_masked' => true
+            ]);
+        }
+
+        // make 2 events matched but not relevant
+        $events = factory(DetectionEvent::class, 2)
+            ->create()
+            ->each(function ($event) use ($profile) {
+                $event->aiPredictions()->createMany(
+                    factory(AiPrediction::class, 3)->make()->toArray()
+                );
+                $event->patternMatchedProfiles()->attach($profile->id);
+            });
+
+
+        // make 2 events matched and relevant to a different profile
+        $differentProfile = factory(DetectionProfile::class)->create();
+
+        $events = factory(DetectionEvent::class, 2)
+            ->create()
+            ->each(function ($event) use ($differentProfile) {
+                $event->aiPredictions()->createMany(
+                    factory(AiPrediction::class, 3)->make()->toArray()
+                );
+                $event->patternMatchedProfiles()->attach($differentProfile->id);
+            });
+
+        foreach ($events as $event) {
+            $prediction = $event->aiPredictions()->first();
+            $prediction->detectionProfiles()->attach($differentProfile->id, [
+                'is_masked' => false
             ]);
         }
     }
@@ -197,7 +230,7 @@ class ApiTest extends TestCase
      */
     public function api_can_first_page_of_events()
     {
-        $this->setUpEvents(factory(DetectionProfile::class)->create());
+        factory(DetectionEvent::class, 30)->create();
 
         $response = $this->get('/api/events');
 
@@ -236,13 +269,38 @@ class ApiTest extends TestCase
                         'detection_profiles_count'
                     ]]
             ])
-            ->assertJsonCount(6, 'data');
+            ->assertJsonCount(4, 'data');
     }
 
     /**
      * @test
      */
-    public function api_can_get_events_by_profile()
+    public function api_can_get_relevant_events_by_profile()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+
+        $this->setUpEvents($profile);
+
+        $response = $this->get('/api/events?relevant&profileId='.$profile->id);
+
+        $response
+            ->assertStatus(200)
+            ->assertJsonStructure([
+                'data' =>
+                    [0 => [
+                        'id',
+                        'image_file_name',
+                        'image_dimensions',
+                        'detection_profiles_count'
+                    ]]
+            ])
+            ->assertJsonCount(2, 'data');
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_all_events_by_profile()
     {
         $profile = factory(DetectionProfile::class)->create();
 
@@ -261,7 +319,7 @@ class ApiTest extends TestCase
                         'detection_profiles_count'
                     ]]
             ])
-            ->assertJsonCount(8, 'data');
+            ->assertJsonCount(5, 'data');
     }
 
     /**
@@ -305,7 +363,8 @@ class ApiTest extends TestCase
                         2 => [
                             'name',
                             'file_pattern',
-                            'object_classes'
+                            'object_classes',
+                            'is_profile_active'
                         ]
                     ]
                 ]
@@ -338,7 +397,92 @@ class ApiTest extends TestCase
                         2 => [
                             'name',
                             'file_pattern',
-                            'object_classes'
+                            'object_classes',
+                            'is_profile_active'
+                        ]
+                    ]
+                ]
+            ]);
+    }
+
+    /**
+    * @test
+    */
+    public function api_can_get_a_detection_event_active_profile_match()
+    {
+        $profiles = factory(DetectionProfile::class, 3)->create();
+        $profile_ids = $profiles->pluck(['id']);
+
+        $event = factory(DetectionEvent::class)->create();
+        $event->patternMatchedProfiles()->attach($profile_ids, [
+            'is_profile_active' => true
+        ]);
+
+        $response = $this->get('/api/events/'.$event->id)
+            ->assertStatus(200)
+            ->assertJsonCount(3, 'data.pattern_matched_profiles')
+            ->assertJsonStructure([
+                'data' => [
+                    'image_file_name',
+                    'image_dimensions',
+                    'detection_profiles_count',
+                    'pattern_matched_profiles' => [
+                        2 => [
+                            'name',
+                            'file_pattern',
+                            'object_classes',
+                            'is_profile_active'
+                        ]
+                    ],
+                ]
+            ])
+            ->assertJson([
+                'data' => [
+                    'pattern_matched_profiles' => [
+                        0 => [
+                            'is_profile_active' => true
+                        ]
+                    ]
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_a_detection_event_inactive_profile_match()
+    {
+        $profiles = factory(DetectionProfile::class, 3)->create();
+        $profile_ids = $profiles->pluck(['id']);
+
+        $event = factory(DetectionEvent::class)->create();
+        $event->patternMatchedProfiles()->attach($profile_ids, [
+            'is_profile_active' => false
+        ]);
+
+        $response = $this->get('/api/events/'.$event->id)
+            ->assertStatus(200)
+            ->assertJsonCount(3, 'data.pattern_matched_profiles')
+            ->assertJsonStructure([
+                'data' => [
+                    'image_file_name',
+                    'image_dimensions',
+                    'detection_profiles_count',
+                    'pattern_matched_profiles' => [
+                        2 => [
+                            'name',
+                            'file_pattern',
+                            'object_classes',
+                            'is_profile_active'
+                        ]
+                    ],
+                ]
+            ])
+            ->assertJson([
+                'data' => [
+                    'pattern_matched_profiles' => [
+                        0 => [
+                            'is_profile_active' => false
                         ]
                     ]
                 ]
