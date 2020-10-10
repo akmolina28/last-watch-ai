@@ -28,302 +28,40 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/profiles', function(Request $request) {
-    return DetectionProfileResource::collection(DetectionProfile::paginate(10));
-});
+Route::get('/profiles', 'DetectionProfileController@index');
 
-Route::post('/profiles', function(Request $request) {
-    $request->validate([
-        'name' => 'required|unique:detection_profiles,name,NULL,id,deleted_at,NULL',
-        'file_pattern' => 'required',
-        'min_confidence' => 'required',
-        'object_classes' => 'required'
-    ]);
+Route::post('/profiles', 'DetectionProfileController@make');
 
-    $profile = DetectionProfile::make([
-        'name' => $request->get('name'),
-        'file_pattern' => $request->get('file_pattern'),
-        'min_confidence' => $request->get('min_confidence'),
-        'use_regex' => $request->get('use_regex') == 'on',
-        'object_classes' => $request->get('object_classes')
-    ]);
+Route::get('/profiles/{profile}', 'DetectionProfileController@show');
 
-    $file = $request->file('mask');
-    if ($file) {
-        $file->storeAs('masks', $profile->slug.'.png', 'public');
-        $profile->use_mask = true;
-    }
-    else {
-        $profile->use_mask = false;
-    }
+Route::delete('/profiles/{profile}', 'DetectionProfileController@destroy');
 
-    $profile->save();
+Route::put('/profiles/{profile}/status', 'DetectionProfileController@updateStatus');
 
-    return DetectionProfileResource::make($profile);
-});
+Route::get('/profiles/{profile}/automations', 'DetectionProfileController@showAutomations');
 
-Route::get('/profiles/{profile}', function(DetectionProfile $profile) {
-    return DetectionProfileResource::make($profile);
-});
+Route::post('/profiles/{profile}/automations', 'DetectionProfileController@updateAutomations');
 
-Route::delete('/profiles/{profile}', function(DetectionProfile $profile) {
-    $profile->delete();
-    return response()->json(['message' => 'OK'], 200);
-});
+Route::get('/events', 'DetectionEventController@index');
 
-Route::put('/profiles/{profile}/status', function(DetectionProfile $profile) {
+Route::get('/objectClasses', 'DeepstackController@showObjectClasses');
 
-    if (request()->has('status')) {
+Route::get('/events/{event}', 'DetectionEventController@show');
 
-        $status = request()->get('status');
+Route::get('/automations/telegram', 'AutomationController@telegramConfigIndex');
 
-        if ($status === 'enabled') {
-            $profile->is_enabled = true;
-        }
+Route::post('/automations/telegram', 'AutomationController@makeTelegramConfig');
 
-        else if ($status === 'disabled') {
-            $profile->is_enabled = false;
-        }
+Route::get('/automations/webRequest', 'AutomationController@webRequestConfigIndex');
 
-        else if ($status === 'as_scheduled') {
+Route::post('/automations/webRequest', 'AutomationController@makeWebRequestConfig');
 
-            if (request()->has('start_time')) {
-                $profile->start_time = request()->get('start_time');
-            }
+Route::get('/automations/folderCopy', 'AutomationController@folderCopyConfigIndex');
 
-            if (request()->has('end_time')) {
-                $profile->end_time = request()->get('end_time');
-            }
+Route::post('/automations/folderCopy', 'AutomationController@makeFolderCopyConfig');
 
-            $profile->is_scheduled = true;
-            $profile->is_enabled = true;
-        }
+Route::get('/automations/smbCifsCopy', 'AutomationController@smbCifsCopyConfigIndex');
 
-        else {
-            return response()
-                ->json(['message' => 'Invalid status "'.$status.'"'], 422);
-        }
+Route::post('/automations/smbCifsCopy', 'AutomationController@makeSmbCifsCopyConfig');
 
-        $profile->save();
-        return response()->json(['message' => 'OK'], 204);
-    }
-
-    return response()
-        ->json(['message' => 'Missing status key.'], 422);
-});
-
-Route::get('/profiles/{profile}/automations', function(DetectionProfile $profile) {
-    $configTypes = [];
-
-    $morphs = Relation::morphMap();
-    foreach ($morphs as $alias => $type) {
-        if (strpos($type, 'Config')) {
-            array_push($configTypes, $alias);
-        }
-    }
-
-    $union = false;
-    $query = null;
-
-    foreach ($configTypes as $type) {
-        $q = Relation::$morphMap[$type]//::select('id', 'name', DB::raw("'".$type."' as type"));
-            ::leftJoin('automation_configs as ac', function($join) use ($type, $profile) {
-                $join->on('ac.automation_config_id', '=', $type.'.id');
-                $join->where('ac.automation_config_type', '=', $type);
-                $join->where('ac.detection_profile_id', '=', $profile->id);
-            })
-            ->select($type.'.id as id', DB::raw("'".$type."' as type"), 'ac.detection_profile_id as detection_profile_id', 'name');
-
-        if ($union) {
-            $query = $query->unionAll($q);
-        }
-        else {
-            $query = $q;
-            $union = true;
-        }
-    }
-
-    return AutomationConfigResource::collection($query->get());
-});
-
-Route::post('/profiles/{profile}/automations', function(DetectionProfile $profile) {
-    $type = request()->get('type');
-    $id = request()->get('id');
-    $value = request()->get('value');
-
-
-    if ($value == 'true') {
-        $count = DB::table('automation_configs')->where([
-            ['detection_profile_id', '=', $profile->id],
-            ['automation_config_id', '=', $id],
-            ['automation_config_type', '=', $type],
-        ])->count();
-
-        if ($count == 0) {
-            DB::table('automation_configs')->insert([
-                'detection_profile_id' => $profile->id,
-                'automation_config_id' => $id,
-                'automation_config_type' => $type,
-            ]);
-        }
-    }
-    else {
-        DB::table('automation_configs')->where([
-            ['detection_profile_id', '=', $profile->id],
-            ['automation_config_id', '=', $id],
-            ['automation_config_type', '=', $type],
-        ])->delete();
-    }
-
-    return true;
-});
-
-Route::get('/events', function(Request $request) {
-    $query = DetectionEvent::query()
-        ->withCount([
-            'detectionProfiles' => function ($q) {
-                $q->where('ai_prediction_detection_profile.is_masked', '=', false);
-            },
-            'patternMatchedProfiles'
-        ]);
-
-    if ($request->has('profileId')) {
-
-        $profileId = $request->get('profileId');
-
-        if ($request->has('relevant')) {
-            $query->whereHas('detectionProfiles', function ($q) use ($profileId) {
-                return $q
-                    ->where('detection_profile_id', $profileId)
-                    ->where('ai_prediction_detection_profile.is_masked', '=', false);
-            });
-        }
-
-        else {
-            $query->whereHas('patternMatchedProfiles', function($q) use ($profileId) {
-                return $q->where('detection_profile_id', $profileId);
-            });
-        }
-    }
-
-    else if ($request->has('relevant')) {
-
-        $query->having('detection_profiles_count', '>', 0);
-    }
-
-    return DetectionEventResource::collection(
-        $query
-            ->orderByDesc('occurred_at')
-            ->paginate(10)
-    );
-});
-
-Route::get('/objectClasses', function(Request $request) {
-    return config('deepstack.object_classes');
-});
-
-Route::get('/events/{event}', function(DetectionEvent $event) {
-    $event->load([
-        'aiPredictions.detectionProfiles' => function($query) {
-            $query->withTrashed();
-        },
-        'patternMatchedProfiles' => function($query) {
-            $query->withTrashed();
-        }
-    ]);
-    return DetectionEventResource::make($event);
-});
-
-Route::get('/automations/telegram', function() {
-    return TelegramConfigResource::collection(
-        TelegramConfig::with(['detectionProfiles'])->orderByDesc('created_at')->get()
-    );
-});
-
-Route::post('/automations/telegram', function(Request $request) {
-    $request->validate([
-        'name' => 'required|unique:telegram_configs',
-        'token' => 'required',
-        'chat_id' => 'required',
-    ]);
-
-    $config = TelegramConfig::create([
-        'name' => $request->get('name'),
-        'token' => $request->get('token'),
-        'chat_id' => $request->get('chat_id')
-    ]);
-
-    return TelegramConfigResource::make($config);
-});
-
-Route::get('/automations/webRequest', function() {
-    return WebRequestConfigResource::collection(
-        WebRequestConfig::with(['detectionProfiles'])->orderByDesc('created_at')->get()
-    );
-});
-
-Route::post('/automations/webRequest', function(Request $request) {
-    $request->validate([
-        'name' => 'required|unique:web_request_configs',
-        'url' => 'required',
-    ]);
-
-    $config = WebRequestConfig::create([
-        'name' => $request->get('name'),
-        'url' => $request->get('url'),
-    ]);
-
-    return WebRequestConfigResource::make($config);
-});
-
-Route::get('/automations/folderCopy', function() {
-    return FolderCopyConfigResource::collection(
-        FolderCopyConfig::with(['detectionProfiles'])->orderByDesc('created_at')->get()
-    );
-});
-
-Route::post('/automations/folderCopy', function(Request $request) {
-    $request->validate([
-        'name' => 'required|unique:folder_copy_configs',
-        'copy_to' => 'required'
-    ]);
-
-    $config = FolderCopyConfig::create([
-        'name' => $request->get('name'),
-        'copy_to' => $request->get('copy_to'),
-        'overwrite' => $request->get('overwrite', false)
-    ]);
-
-    return FolderCopyConfigResource::make($config);
-});
-
-Route::get('/automations/smbCifsCopy', function() {
-    return SmbCifsCopyConfigResource::collection(
-        SmbCifsCopyConfig::with(['detectionProfiles'])->orderByDesc('created_at')->get()
-    );
-});
-
-Route::post('/automations/smbCifsCopy', function(Request $request) {
-    $request->validate([
-        'name' => 'required|unique:folder_copy_configs',
-        'servicename' => 'required',
-        'user' => 'required',
-        'password' => 'required',
-        'remote_dest' => 'required'
-    ]);
-
-    $config = SmbCifsCopyConfig::create([
-        'name' => $request->get('name'),
-        'servicename' => $request->get('servicename'),
-        'user' => $request->get('user'),
-        'password' => $request->get('password'),
-        'remote_dest' => $request->get('remote_dest'),
-        'overwrite' => $request->get('overwrite', false)
-    ]);
-
-    return SmbCifsCopyConfigResource::make($config);
-});
-
-Route::any("/{any}", function () {
-    return response()->json(['message' => 'Not Found.'], 404);
-})->where('any', '.*');
+Route::any("/{any}", 'ErrorController@catchAll')->where('any', '.*');
