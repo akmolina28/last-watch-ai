@@ -106,15 +106,6 @@
             this.getData();
         },
 
-        filters: {
-            dateStr(value) {
-                return moment.utc(value).local();
-            },
-            dateStrRelative(value) {
-                return moment.utc(value).fromNow();
-            }
-        },
-
         methods: {
             rowClick(event) {
                 window.open(`/events/${event.id}`, '_blank');

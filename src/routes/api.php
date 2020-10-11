@@ -1,20 +1,5 @@
 <?php
 
-use App\DetectionEvent;
-use App\DetectionProfile;
-use App\FolderCopyConfig;
-use App\Resources\AutomationConfigResource;
-use App\Resources\DetectionEventResource;
-use App\Resources\DetectionProfileResource;
-use App\Resources\FolderCopyConfigResource;
-use App\Resources\SmbCifsCopyConfigResource;
-use App\Resources\TelegramConfigResource;
-use App\Resources\WebRequestConfigResource;
-use App\SmbCifsCopyConfig;
-use App\TelegramConfig;
-use App\WebRequestConfig;
-use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*

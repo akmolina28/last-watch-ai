@@ -18,7 +18,19 @@
 
         <div class="columns reverse-columns" style="margin-left:-0.75rem;">
             <div class="column is-one-third">
-                <b-menu>
+                <div class="content">
+                    <span class="icon">
+                        <b-icon icon="image"></b-icon>
+                    </span>
+                    <a :href="imageFile" download>{{ event.image_file_name }}</a>
+                </div>
+                <div class="content" :title="event.occurred_at | dateStr">
+                    <span class="icon">
+                        <b-icon icon="clock"></b-icon>
+                    </span>
+                    <span>{{ event.occurred_at | dateStrRelative }}</span>
+                </div>
+                <b-menu class="mb-4">
                     <b-menu-list label="Matched Profiles">
                         <b-menu-item
                             v-for="profile in event.pattern_matched_profiles"
@@ -39,7 +51,6 @@
                                     <span v-if="prediction.is_masked">(masked)</span>
                                     {{ prediction.object_class }} - {{ prediction.confidence | percentage }}
                                 </li>
-
                             </div>
                             <p v-else>
                                 No relevant objects detected.
@@ -50,31 +61,6 @@
 
 
 
-
-<!--                <ul class="menu-list">-->
-<!--                    <li v-for="profile in event.pattern_matched_profiles" @click="toggleActiveProfile(profile)" class="mb-5">-->
-<!--                        <a :class="profile.id === selectedProfile.id ? 'is-active' : ''">-->
-<!--                            <h6 class="heading is-size-6">-->
-<!--                                <b-icon v-if="!profile.is_profile_enabled" icon="ban"></b-icon>-->
-<!--                                <b-icon v-else :icon="hasUnmaskedPredictions(profile) ? 'check' : 'times'"></b-icon>-->
-<!--                                {{ profile.name }}-->
-<!--                            </h6>-->
-<!--                            <p v-if="!profile.is_profile_active">-->
-<!--                                Profile was inactive.-->
-<!--                            </p>-->
-<!--                            <ul v-else-if="getPredictions(profile).length > 0">-->
-<!--                                <li v-for="prediction in getPredictions(profile)">-->
-<!--                                    <span v-if="prediction.is_masked">(masked)</span>-->
-<!--                                    {{ prediction.object_class }} - {{ prediction.confidence | percentage }}-->
-<!--                                </li>-->
-
-<!--                            </ul>-->
-<!--                            <p v-else>-->
-<!--                                No relevant objects detected.-->
-<!--                            </p>-->
-<!--                        </a>-->
-<!--                    </li>-->
-<!--                </ul>-->
             </div>
             <div class="column is-two-thirds">
                 <canvas id="event-snapshot" ref="event-snapshot" style="width:100%;"></canvas>
@@ -117,6 +103,9 @@
                     return parseInt(this.event.image_dimensions.substring(this.event.image_dimensions.indexOf('x') + 1));
                 }
                 return 0;
+            },
+            imageFile() {
+                return this.event ? '/storage/' + this.event.image_file_name : '';
             }
         },
 
@@ -215,10 +204,8 @@
                 canvas.width = this.imageWidth;
                 canvas.height = this.imageHeight;
 
-                let imageFile = '/storage/' + this.event.image_file_name;
-
                 let stage = new Facade(document.querySelector('#event-snapshot')),
-                    image = new Facade.Image(imageFile, {
+                    image = new Facade.Image(this.imageFile, {
                         x: this.imageWidth / 2,
                         y: this.imageHeight / 2,
                         height: this.imageHeight,
