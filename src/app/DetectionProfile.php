@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Eloquent;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
@@ -19,7 +20,7 @@ class DetectionProfile extends Model
     use HasRelationships;
     use SoftDeletes;
 
-    protected $fillable = ['name', 'file_pattern', 'min_confidence', 'use_regex', 'object_classes'];
+    protected $fillable = ['name', 'file_pattern', 'min_confidence', 'use_regex', 'object_classes', 'use_smart_filter'];
 
     protected $casts = [
         'object_classes' => 'array'
@@ -133,5 +134,47 @@ class DetectionProfile extends Model
             }
         }
         return false;
+    }
+
+    public function isPredictionSmartFiltered(AiPrediction $prediction)
+    {
+        $precision = 0.95;
+
+        if (!$this->use_smart_filter) {
+            return false;
+        }
+
+        $lastDetectionEvent = $this->getLatestRelevantEvent();
+
+        if ($lastDetectionEvent == null) {
+            return false;
+        }
+
+        // get predictions with the same object class
+        $filterCandidates = $lastDetectionEvent
+            ->aiPredictions()
+            ->where('object_class', '=', $prediction->object_class)
+            ->whereHas('detectionProfiles', function ($q) {
+                return $q
+                    ->where('detection_profile_id', '=', $this->id)
+                    ->where('ai_prediction_detection_profile.is_masked', '=', false);
+            })->get();
+
+        // see if any of the predictions overlap with the new prediction
+        foreach ($filterCandidates as $candidate) {
+            if ($candidate->percentageOverlap($prediction) >= $precision) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getLatestRelevantEvent() {
+        $id = $this->id;
+
+        return DetectionEvent::whereHas('detectionProfiles', function ($q) use ($id) {
+            $q->where('detection_profile_id', '=', $id);
+        })->latest()->first();
     }
 }

@@ -15,6 +15,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 
@@ -90,9 +91,18 @@ class ProcessDetectionEventJob implements ShouldQueue
                     $object_not_masked = true;
                 }
 
-                $profile->aiPredictions()->attach($aiPrediction->id, ['is_masked' => !$object_not_masked]);
+                $objectFiltered = false;
 
-                if ($object_not_masked) {
+                if ($object_not_masked && $profile->use_smart_filter) {
+                    $objectFiltered = $profile->isPredictionSmartFiltered($aiPrediction);
+                }
+
+                $profile->aiPredictions()->attach($aiPrediction->id, [
+                    'is_masked' => !$object_not_masked,
+                    'is_smart_filtered' => $objectFiltered
+                ]);
+
+                if ($object_not_masked && !$objectFiltered) {
                     if(!in_array($profile, $matchedProfiles)) {
                         array_push($matchedProfiles, $profile);
                     }

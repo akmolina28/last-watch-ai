@@ -99,4 +99,38 @@ class DetectionTest extends TestCase
         $this->assertCount(3, $event->aiPredictions);
         $this->assertCount(3, $event->detectionProfiles);
     }
+
+    /**
+     * @test
+     */
+    public function detection_job_can_smart_filter_predictions()
+    {
+        factory(DetectionProfile::class, 5)->create();
+
+        // active match
+        $profile = factory(DetectionProfile::class)->create([
+            'object_classes' => ['car', 'person'],
+            'use_mask' => false,
+            'use_smart_filter' => true
+        ]);
+
+        // process an event
+        $event = factory(DetectionEvent::class)->create();
+        $event->patternMatchedProfiles()->attach($profile->id);
+        $this->handleDetectionJob($event);
+
+        // process another event with the same predictions
+        $event = factory(DetectionEvent::class)->create();
+        $event->patternMatchedProfiles()->attach($profile->id);
+        $this->handleDetectionJob($event);
+
+        $event = DetectionEvent::find($event->id);
+        $this->assertCount(3, $event->aiPredictions);
+        $this->assertCount(3, $event->detectionProfiles);
+
+        foreach ($event->detectionProfiles as $profile) {
+//            $profile->refresh();
+            $this->assertEquals(1, $profile->ai_prediction_detection_profile->is_smart_filtered);
+        }
+    }
 }

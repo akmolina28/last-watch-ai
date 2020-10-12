@@ -2,6 +2,8 @@
 
 namespace Tests\Unit;
 
+use App\AiPrediction;
+use App\DetectionEvent;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Carbon;
@@ -290,5 +292,107 @@ class DetectionProfileTest extends TestCase
         $this->assertFalse($profile->isActive($date3));
         $this->assertFalse($profile->isActive($date4));
         $this->assertFalse($profile->isActive($date5));
+    }
+
+    protected function setUpSmartFilterData($predictionVars) {
+        // create a profile
+        $profile = factory(DetectionProfile::class)->create([
+            'use_smart_filter' => true
+        ]);
+
+        // create some events that contain the test prediction
+        $events = factory(DetectionEvent::class, 3)->create()
+            ->each(function ($event) use ($predictionVars) {
+                $event->aiPredictions()->create($predictionVars);
+            });
+
+        // link each prediction to the profile
+        foreach ($events as $event) {
+            foreach($event->aiPredictions as $prediction) {
+                $profile->aiPredictions()->attach($prediction->id);
+            }
+        }
+
+        return $profile;
+    }
+
+    /**
+     * @test
+     */
+    public function a_profile_can_smart_filter_the_same_prediction() {
+        // prediction to test
+        $predictionVars = [
+            'x_min' => 123,
+            'x_max' => 404,
+            'y_min' => 222,
+            'y_max' => 669,
+            'object_class' => 'person',
+            'confidence' => 0.99
+        ];
+
+        $profile = $this->setUpSmartFilterData($predictionVars);
+
+        // create the test prediction
+        $testPrediction = new AiPrediction($predictionVars);
+
+        $this->assertTrue($profile->isPredictionSmartFiltered($testPrediction));
+    }
+
+    /**
+     * @test
+     */
+    public function a_profile_can_smart_filter_a_similar_prediction() {
+        // prediction to test
+        $predictionVars = [
+            'x_min' => 123,
+            'x_max' => 404,
+            'y_min' => 222,
+            'y_max' => 669,
+            'object_class' => 'person',
+            'confidence' => 0.99
+        ];
+
+        $profile = $this->setUpSmartFilterData($predictionVars);
+
+        // create the test prediction
+        $testPrediction = new AiPrediction([
+            'x_min' => $predictionVars['x_min'] + 1,
+            'x_max' => $predictionVars['x_max'] + 1,
+            'y_min' => $predictionVars['y_min'] + 1,
+            'y_max' => $predictionVars['y_max'] + 1,
+            'object_class' => 'person',
+            'confidence' => 0.99
+        ]);
+
+        $this->assertTrue($profile->isPredictionSmartFiltered($testPrediction));
+    }
+
+    /**
+     * @test
+     */
+    public function a_profile_can_not_smart_filter_a_non_similar_prediction() {
+        // prediction to test
+        $predictionVars = [
+            'x_min' => 123,
+            'x_max' => 404,
+            'y_min' => 222,
+            'y_max' => 669,
+            'object_class' => 'person',
+            'confidence' => 0.99
+        ];
+
+        $profile = $this->setUpSmartFilterData($predictionVars);
+
+        // create the test prediction
+        $testPrediction = new AiPrediction([
+            'x_min' => $predictionVars['x_min'] + 50,
+            'x_max' => $predictionVars['x_max'] + 50,
+            'y_min' => $predictionVars['y_min'] + 50,
+            'y_max' => $predictionVars['y_max'] + 50,
+            'object_class' => 'person',
+            'confidence' => 0.99
+        ]);
+
+        $this->assertFalse($profile->isPredictionSmartFiltered($testPrediction));
     }
 }
