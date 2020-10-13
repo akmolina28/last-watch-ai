@@ -214,8 +214,6 @@ class DetectionProfile extends Model
 
         $id = $this->id;
 
-        Log::info('detectionEventId='.$lastDetectionEvent->id);
-
         // get predictions with the same object class
         $filterCandidates = $lastDetectionEvent
             ->aiPredictions()
@@ -225,8 +223,6 @@ class DetectionProfile extends Model
                     ->where('detection_profile_id', '=', $id)
                     ->where('ai_prediction_detection_profile.is_masked', '=', false);
             })->get();
-
-        Log::info('fc='.count($filterCandidates));
 
         // see if any of the predictions overlap with the new prediction
         foreach ($filterCandidates as $candidate) {

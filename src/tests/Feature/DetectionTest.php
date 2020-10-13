@@ -23,7 +23,7 @@ class DetectionTest extends TestCase
 
         Queue::fake();
 
-        app()->bind(DeepstackClient::class, function() { // not a service provider but the target of service provider
+        app()->bind(DeepstackClient::class, function() {
             return new FakeDeepstackClient();
         });
     }
