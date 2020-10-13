@@ -2,14 +2,39 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Eloquent;
+use Illuminate\Support\Carbon;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 /**
  * DetectionEvent
  *
  * @mixin Eloquent
+ * @property int $id
+ * @property string $image_file_name
+ * @property string|null $deepstack_response
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property string $image_dimensions
+ * @property Carbon|null $occurred_at
+ * @property-read Collection|AiPrediction[] $aiPredictions
+ * @property-read int|null $ai_predictions_count
+ * @property-read mixed $deepstack_result
+ * @property-read Collection|DetectionProfile[] $patternMatchedProfiles
+ * @property-read int|null $pattern_matched_profiles_count
+ * @method static Builder|DetectionEvent newModelQuery()
+ * @method static Builder|DetectionEvent newQuery()
+ * @method static Builder|DetectionEvent query()
+ * @method static Builder|DetectionEvent whereCreatedAt($value)
+ * @method static Builder|DetectionEvent whereDeepstackResponse($value)
+ * @method static Builder|DetectionEvent whereId($value)
+ * @method static Builder|DetectionEvent whereImageDimensions($value)
+ * @method static Builder|DetectionEvent whereImageFileName($value)
+ * @method static Builder|DetectionEvent whereOccurredAt($value)
+ * @method static Builder|DetectionEvent whereUpdatedAt($value)
  */
 class DetectionEvent extends Model
 {
@@ -27,7 +52,8 @@ class DetectionEvent extends Model
 
     public function patternMatchedProfiles()
     {
-        return $this->belongsToMany('App\DetectionProfile', 'pattern_match')->withPivot('is_profile_active');;
+        return $this->belongsToMany('App\DetectionProfile', 'pattern_match')
+            ->withPivot('is_profile_active');
     }
 
     public function aiPredictions()

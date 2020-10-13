@@ -10,7 +10,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Spatie\WebhookClient\Models\WebhookCall;
@@ -34,7 +33,7 @@ class WebHookTest extends TestCase
 
     protected function setUpTestImage() {
         $imageFile = UploadedFile::fake()->image('testimage.jpg', 640, 480)->size(128);
-        $file = $imageFile->storeAs('events','testimage.jpg');
+        $imageFile->storeAs('events','testimage.jpg');
     }
 
     protected function handleWebhookJob(Carbon $occurred_at = null) {
@@ -80,7 +79,9 @@ class WebHookTest extends TestCase
      */
     public function webhook_can_create_a_detection_event_with_one_match() {
         // create some dummy profiles
-        factory(DetectionProfile::class, 5)->create();
+        factory(DetectionProfile::class, 5)->create([
+            'file_pattern' => 'fakepattern123'
+        ]);
 
         // create a profile to match the event
         factory(DetectionProfile::class)->create([
@@ -109,7 +110,9 @@ class WebHookTest extends TestCase
      */
     public function webhook_can_create_a_detection_event_with_many_matches() {
         // create some dummy profiles
-        factory(DetectionProfile::class, 5)->create();
+        factory(DetectionProfile::class, 5)->create([
+            'file_pattern' => 'fakepattern123'
+        ]);
 
         // create some profile to match the event
         factory(DetectionProfile::class, 3)->create([

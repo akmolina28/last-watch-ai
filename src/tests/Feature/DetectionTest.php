@@ -9,9 +9,7 @@ use App\Mocks\FakeDeepstackClient;
 use App\Jobs\ProcessDetectionEventJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
-use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class DetectionTest extends TestCase
@@ -161,8 +159,6 @@ class DetectionTest extends TestCase
      */
     public function detection_job_can_relate_profile_by_object_class()
     {
-        factory(DetectionProfile::class, 5)->create();
-
         // active match
         $personProfile = factory(DetectionProfile::class)->create([
             'object_classes' => ['person'],

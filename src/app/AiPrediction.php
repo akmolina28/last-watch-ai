@@ -2,13 +2,42 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Eloquent;
+use Illuminate\Support\Carbon;
 
 /**
  * AiPrediction
  *
  * @mixin Eloquent
+ * @property int $id
+ * @property int $detection_event_id
+ * @property string $object_class
+ * @property string $confidence
+ * @property int $x_min
+ * @property int $x_max
+ * @property int $y_min
+ * @property int $y_max
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read DetectionEvent $detectionEvent
+ * @property-read Collection|DetectionProfile[] $detectionProfiles
+ * @property-read int|null $detection_profiles_count
+ * @method static Builder|AiPrediction newModelQuery()
+ * @method static Builder|AiPrediction newQuery()
+ * @method static Builder|AiPrediction query()
+ * @method static Builder|AiPrediction whereConfidence($value)
+ * @method static Builder|AiPrediction whereCreatedAt($value)
+ * @method static Builder|AiPrediction whereDetectionEventId($value)
+ * @method static Builder|AiPrediction whereId($value)
+ * @method static Builder|AiPrediction whereObjectClass($value)
+ * @method static Builder|AiPrediction whereUpdatedAt($value)
+ * @method static Builder|AiPrediction whereXMax($value)
+ * @method static Builder|AiPrediction whereXMin($value)
+ * @method static Builder|AiPrediction whereYMax($value)
+ * @method static Builder|AiPrediction whereYMin($value)
  */
 class AiPrediction extends Model
 {

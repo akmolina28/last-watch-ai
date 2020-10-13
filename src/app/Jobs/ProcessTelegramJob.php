@@ -36,7 +36,7 @@ class ProcessTelegramJob implements ShouldQueue
      *
      * @return void
      */
-    public function handle() //todo: resolve client from container
+    public function handle()
     {
         $client = new TelegramClient($this->config->token, $this->config->chat_id);
 

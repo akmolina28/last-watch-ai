@@ -3,19 +3,15 @@
 namespace App\Jobs;
 
 use App\AiPrediction;
-use App\DeepstackClient;
 use App\DeepstackClientInterface;
-use App\Facades\Deepstack;
 use App\DeepstackResult;
 use App\DetectionEvent;
-use App\DetectionMask;
 use App\DetectionProfile;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 
@@ -23,7 +19,7 @@ class ProcessDetectionEventJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $event;
+    public DetectionEvent $event;
 
     /**
      * Create a new job instance.
@@ -43,7 +39,7 @@ class ProcessDetectionEventJob implements ShouldQueue
      */
     public function handle(DeepstackClientInterface $client)
     {
-        $path = Storage::disk('public')->path($this->event->image_file_name);
+        $path = Storage::path($this->event->image_file_name);
 
         $response = $client->detection($path);
 

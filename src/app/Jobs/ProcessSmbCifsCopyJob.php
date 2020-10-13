@@ -10,16 +10,15 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ProcessSmbCifsCopyJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $event;
-    protected $config;
-    protected $profile;
+    protected DetectionEvent $event;
+    protected SmbCifsCopyConfig $config;
+    protected DetectionProfile $profile;
 
     /**
      * Create a new job instance.
@@ -40,7 +39,7 @@ class ProcessSmbCifsCopyJob implements ShouldQueue
      *
      * @return void
      */
-    public function handle() //todo: resolve client from container
+    public function handle()
     {
         $localPath = Storage::path($this->event->image_file_name);
         $destPath = $this->event->image_file_name;
@@ -52,6 +51,6 @@ class ProcessSmbCifsCopyJob implements ShouldQueue
 
         $cmd = 'smbclient '.$this->config->servicename.' -U '.$this->config->user.'%'.$this->config->password.' -c \'cd "'.$this->config->remote_dest.'" ; put "'.$localPath.'" "'.$destPath.'"\'';
 
-        $result = shell_exec($cmd);
+        shell_exec($cmd);
     }
 }

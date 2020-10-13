@@ -36,8 +36,8 @@ class ProcessWebRequestJob implements ShouldQueue
      *
      * @return void
      */
-    public function handle() //todo: resolve client from container
+    public function handle()
     {
-        $response = Http::get($this->config->url);
+        Http::get($this->config->url);
     }
 }

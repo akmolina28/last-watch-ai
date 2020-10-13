@@ -5,21 +5,19 @@ namespace App\Jobs;
 use App\DetectionEvent;
 use App\DetectionProfile;
 use App\FolderCopyConfig;
-use App\TelegramClient;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 
 class ProcessFolderCopyJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $event;
-    protected $config;
-    protected $profile;
+    protected DetectionEvent $event;
+    protected FolderCopyConfig $config;
+    protected DetectionProfile $profile;
 
     /**
      * Create a new job instance.
@@ -40,7 +38,7 @@ class ProcessFolderCopyJob implements ShouldQueue
      *
      * @return void
      */
-    public function handle() //todo: resolve client from container
+    public function handle()
     {
         $basename = basename($this->event->image_file_name);
         $ext = pathinfo($this->event->image_file_name, PATHINFO_EXTENSION);

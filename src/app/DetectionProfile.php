@@ -2,6 +2,8 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -14,6 +16,59 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * DetectionProfile
  *
  * @mixin Eloquent
+ * @property int $id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property string $name
+ * @property string $slug
+ * @property string $file_pattern
+ * @property array $object_classes
+ * @property string $min_confidence
+ * @property int $use_regex
+ * @property int $use_mask
+ * @property int $is_enabled
+ * @property Carbon|null $deleted_at
+ * @property int $is_scheduled
+ * @property string|null $start_time
+ * @property string|null $end_time
+ * @property int $use_smart_filter
+ * @property string $smart_filter_precision
+ * @property-read Collection|AiPrediction[] $aiPredictions
+ * @property-read int|null $ai_predictions_count
+ * @property-read Collection|FolderCopyConfig[] $folderCopyConfigs
+ * @property-read int|null $folder_copy_configs_count
+ * @property-read mixed $status
+ * @property-read Collection|DetectionEvent[] $patternMatchedEvents
+ * @property-read int|null $pattern_matched_events_count
+ * @property-read Collection|SmbCifsCopyConfig[] $smbCifsCopyConfigs
+ * @property-read int|null $smb_cifs_copy_configs_count
+ * @property-read Collection|TelegramConfig[] $telegramConfigs
+ * @property-read int|null $telegram_configs_count
+ * @property-read Collection|WebRequestConfig[] $webRequestConfigs
+ * @property-read int|null $web_request_configs_count
+ * @method static Builder|DetectionProfile newModelQuery()
+ * @method static Builder|DetectionProfile newQuery()
+ * @method static Builder|DetectionProfile onlyTrashed()
+ * @method static Builder|DetectionProfile query()
+ * @method static Builder|DetectionProfile whereCreatedAt($value)
+ * @method static Builder|DetectionProfile whereDeletedAt($value)
+ * @method static Builder|DetectionProfile whereEndTime($value)
+ * @method static Builder|DetectionProfile whereFilePattern($value)
+ * @method static Builder|DetectionProfile whereId($value)
+ * @method static Builder|DetectionProfile whereIsEnabled($value)
+ * @method static Builder|DetectionProfile whereIsScheduled($value)
+ * @method static Builder|DetectionProfile whereMinConfidence($value)
+ * @method static Builder|DetectionProfile whereName($value)
+ * @method static Builder|DetectionProfile whereObjectClasses($value)
+ * @method static Builder|DetectionProfile whereSlug($value)
+ * @method static Builder|DetectionProfile whereSmartFilterPrecision($value)
+ * @method static Builder|DetectionProfile whereStartTime($value)
+ * @method static Builder|DetectionProfile whereUpdatedAt($value)
+ * @method static Builder|DetectionProfile whereUseMask($value)
+ * @method static Builder|DetectionProfile whereUseRegex($value)
+ * @method static Builder|DetectionProfile whereUseSmartFilter($value)
+ * @method static Builder|DetectionProfile withTrashed()
+ * @method static Builder|DetectionProfile withoutTrashed()
  */
 class DetectionProfile extends Model
 {
