@@ -65,4 +65,25 @@ class DetectionEvent extends Model
     {
         return json_decode($this->deepstack_response);
     }
+
+    public function matchEventToProfiles(Collection $profiles)
+    {
+        $activeMatchedProfiles = 0;
+
+        foreach($profiles as $profile) {
+            $profile_active = $profile->isActive($this->occurred_at);
+            $pattern_match = $profile->pattern_match($this->image_file_name);
+
+            if ($pattern_match) {
+
+                if ($profile_active) {
+                    $activeMatchedProfiles++;
+                }
+
+                $this->patternMatchedProfiles()->attach($profile->id, ['is_profile_active' => $profile_active]);
+            }
+        }
+
+        return $activeMatchedProfiles;
+    }
 }
