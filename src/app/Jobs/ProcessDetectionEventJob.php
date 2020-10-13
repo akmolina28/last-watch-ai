@@ -76,24 +76,13 @@ class ProcessDetectionEventJob implements ShouldQueue
 
             foreach($relevantProfiles as $profile) {
 
-                $object_not_masked = false;
-
-                if ($profile->use_mask) {
-                    $mask = new DetectionMask($profile->slug.'.png');
-                    $object_not_masked = $mask->is_object_outside_mask(
-                        $aiPrediction->x_min,
-                        $aiPrediction->x_max,
-                        $aiPrediction->y_min,
-                        $aiPrediction->y_max
-                    );
-                }
-                else {
-                    $object_not_masked = true;
-                }
+                $maskName = $profile->slug.'.png';
+                $maskPath = Storage::path('masks/'.$maskName);
+                $isMasked = $profile->use_mask && $aiPrediction->isMasked($maskPath);
 
                 $objectFiltered = false;
 
-                if ($object_not_masked && $profile->use_smart_filter) {
+                if (!$isMasked && $profile->use_smart_filter) {
                     $profileId = $profile->id;
                     $lastDetectionEvent = DetectionEvent::where('id', '!=', $this->event->id)
                         ->whereHas('detectionProfiles', function ($q) use ($profileId) {
@@ -106,11 +95,11 @@ class ProcessDetectionEventJob implements ShouldQueue
                 }
 
                 $profile->aiPredictions()->attach($aiPrediction->id, [
-                    'is_masked' => !$object_not_masked,
+                    'is_masked' => $isMasked,
                     'is_smart_filtered' => $objectFiltered
                 ]);
 
-                if ($object_not_masked && !$objectFiltered) {
+                if (!$isMasked && !$objectFiltered) {
                     if(!in_array($profile, $matchedProfiles)) {
                         array_push($matchedProfiles, $profile);
                     }

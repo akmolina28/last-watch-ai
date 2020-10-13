@@ -45,4 +45,50 @@ class AiPrediction extends Model
 
         return round($ratio, 4);
     }
+
+    public function isMasked($pathToMaskPng) {
+        $detectionPoints = [
+            [-1, -1],
+            [-1, -1],
+            [-1, -1],
+            [-1, -1],
+            [-1, -1],
+            [-1, -1],
+            [-1, -1],
+            [-1, -1],
+            [-1, -1],
+        ];
+
+        $k = 0;
+
+        for ($i = 1; $i <= 3; $i++) {
+            for ($j = 1; $j <= 3; $j++) {
+                $x = $this->x_min + ($this->x_max - $this->x_min) * $i * 0.25;
+                $y = $this->y_min + ($this->y_max - $this->y_min) * $j * 0.25;
+
+                $detectionPoints[$k] = [$x, $y];
+                $k++;
+            }
+        }
+
+        $im = imagecreatefrompng($pathToMaskPng);
+        $outsideMaskCount = 0;
+        $outsideMaskThreshold = 5;
+        for ($i = 0; $i < 9; $i++) {
+            $x = $detectionPoints[$i][0];
+            $y = $detectionPoints[$i][1];
+            $rgba = imagecolorat($im,$x,$y);
+            $alpha = ($rgba & 0x7F000000) >> 24;
+
+            // 0 is opaque, 127 is transparent
+            if ($alpha > 117) {
+                $outsideMaskCount++;
+                if ($outsideMaskCount >= $outsideMaskThreshold) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
 }

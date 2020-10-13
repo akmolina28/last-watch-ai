@@ -6,6 +6,7 @@ use App\AiPrediction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 use App\DetectionProfile;
 
@@ -68,5 +69,81 @@ class AiPredictionTest extends TestCase
 
         $this->assertEquals(0.5, $predictionA->percentageOverlap($predictionB));
         $this->assertEquals(0.5, $predictionB->percentageOverlap($predictionA));
+    }
+
+    /**
+     * @test
+     */
+    public function a_completely_masked_prediction_is_masked()
+    {
+        $prediction = new AiPrediction([
+            'object_class'=> 'person',
+            'confidence' => '1.00',
+            'x_min' => 295,
+            'x_max' => 451,
+            'y_min' => 95,
+            'y_max' => 523
+        ]);
+
+        $path = Storage::disk('public_testing')->path('masks/test-mask3.png');
+
+        $this->assertTrue($prediction->isMasked($path));
+    }
+
+    /**
+     * @test
+     */
+    public function a_mostly_masked_prediction_is_masked()
+    {
+        $prediction = new AiPrediction([
+            'object_class'=> 'person',
+            'confidence' => '1.00',
+            'x_min' => 295,
+            'x_max' => 451,
+            'y_min' => 95,
+            'y_max' => 523
+        ]);
+
+        $path = Storage::disk('public_testing')->path('masks/test-mask2.png');
+
+        $this->assertTrue($prediction->isMasked($path));
+    }
+
+    /**
+     * @test
+     */
+    public function a_mostly_unmasked_prediction_is_not_masked()
+    {
+        $prediction = new AiPrediction([
+            'object_class'=> 'person',
+            'confidence' => '1.00',
+            'x_min' => 295,
+            'x_max' => 451,
+            'y_min' => 95,
+            'y_max' => 523
+        ]);
+
+        $path = Storage::disk('public_testing')->path('masks/test-mask1.png');
+
+        $this->assertFalse($prediction->isMasked($path));
+    }
+
+    /**
+     * @test
+     */
+    public function a_completely_unmasked_prediction_is_not_masked()
+    {
+        $prediction = new AiPrediction([
+            'object_class'=> 'person',
+            'confidence' => '1.00',
+            'x_min' => 295,
+            'x_max' => 451,
+            'y_min' => 95,
+            'y_max' => 523
+        ]);
+
+        $path = Storage::disk('public_testing')->path('masks/test-mask4.png');
+
+        $this->assertFalse($prediction->isMasked($path));
     }
 }

@@ -1,3 +1,5 @@
 *
 !public/
+!public_testing/events/*.jpg
+!public_testing/masks/*.png
 !.gitignore

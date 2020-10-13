@@ -4,13 +4,14 @@ namespace App;
 
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class DetectionMask
 {
     protected $png_file_path;
 
     public function __construct($png_file_name) {
-        $this->png_file_path = public_path('storage/masks/'.$png_file_name);
+        $this->png_file_path = Storage::path('masks/'.$png_file_name);
     }
 
     public function is_object_outside_mask($x_min, $x_max, $y_min, $y_max) {
