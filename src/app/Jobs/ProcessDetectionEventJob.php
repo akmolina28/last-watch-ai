@@ -94,7 +94,15 @@ class ProcessDetectionEventJob implements ShouldQueue
                 $objectFiltered = false;
 
                 if ($object_not_masked && $profile->use_smart_filter) {
-                    $objectFiltered = $profile->isPredictionSmartFiltered($aiPrediction);
+                    $profileId = $profile->id;
+                    $lastDetectionEvent = DetectionEvent::where('id', '!=', $this->event->id)
+                        ->whereHas('detectionProfiles', function ($q) use ($profileId) {
+                            $q->where('detection_profile_id', '=', $profileId);
+                        })->latest()->first();
+
+                    if ($lastDetectionEvent) {
+                        $objectFiltered = $profile->isPredictionSmartFiltered($aiPrediction, $lastDetectionEvent);
+                    }
                 }
 
                 $profile->aiPredictions()->attach($aiPrediction->id, [

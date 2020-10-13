@@ -129,7 +129,6 @@ class DetectionTest extends TestCase
         $this->assertCount(3, $event->detectionProfiles);
 
         foreach ($event->detectionProfiles as $profile) {
-//            $profile->refresh();
             $this->assertEquals(1, $profile->ai_prediction_detection_profile->is_smart_filtered);
         }
     }

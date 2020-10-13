@@ -56,7 +56,8 @@ class DetectionProfile extends Model
 
     public function aiPredictions()
     {
-        return $this->belongsToMany('App\AiPrediction')->withPivot('is_masked');
+        return $this->belongsToMany('App\AiPrediction')
+            ->withPivot(['is_masked', 'is_smart_filtered']);
     }
 
     public function telegramConfigs()
@@ -136,7 +137,7 @@ class DetectionProfile extends Model
         return false;
     }
 
-    public function isPredictionSmartFiltered(AiPrediction $prediction)
+    public function isPredictionSmartFiltered(AiPrediction $prediction, DetectionEvent $lastDetectionEvent)
     {
         $precision = 0.95;
 
@@ -144,21 +145,25 @@ class DetectionProfile extends Model
             return false;
         }
 
-        $lastDetectionEvent = $this->getLatestRelevantEvent();
-
         if ($lastDetectionEvent == null) {
             return false;
         }
+
+        $id = $this->id;
+
+        Log::info('detectionEventId='.$lastDetectionEvent->id);
 
         // get predictions with the same object class
         $filterCandidates = $lastDetectionEvent
             ->aiPredictions()
             ->where('object_class', '=', $prediction->object_class)
-            ->whereHas('detectionProfiles', function ($q) {
+            ->whereHas('detectionProfiles', function ($q) use ($id) {
                 return $q
-                    ->where('detection_profile_id', '=', $this->id)
+                    ->where('detection_profile_id', '=', $id)
                     ->where('ai_prediction_detection_profile.is_masked', '=', false);
             })->get();
+
+        Log::info('fc='.count($filterCandidates));
 
         // see if any of the predictions overlap with the new prediction
         foreach ($filterCandidates as $candidate) {
@@ -168,13 +173,5 @@ class DetectionProfile extends Model
         }
 
         return false;
-    }
-
-    public function getLatestRelevantEvent() {
-        $id = $this->id;
-
-        return DetectionEvent::whereHas('detectionProfiles', function ($q) use ($id) {
-            $q->where('detection_profile_id', '=', $id);
-        })->latest()->first();
     }
 }

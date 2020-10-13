@@ -194,6 +194,23 @@ class ApiTest extends TestCase
             ]);
         }
 
+        // make 1 event relevant but smart-filtered
+        $events = factory(DetectionEvent::class, 1)
+            ->create()
+            ->each(function ($event) use ($profile) {
+                $event->aiPredictions()->createMany(
+                    factory(AiPrediction::class, 3)->make()->toArray()
+                );
+                $event->patternMatchedProfiles()->attach($profile->id);
+            });
+
+        foreach ($events as $event) {
+            $prediction = $event->aiPredictions()->first();
+            $prediction->detectionProfiles()->attach($profile->id, [
+                'is_smart_filtered' => true
+            ]);
+        }
+
         // make 2 events matched but not relevant
         $events = factory(DetectionEvent::class, 2)
             ->create()
@@ -319,7 +336,7 @@ class ApiTest extends TestCase
                         'detection_profiles_count'
                     ]]
             ])
-            ->assertJsonCount(5, 'data');
+            ->assertJsonCount(6, 'data');
     }
 
     /**

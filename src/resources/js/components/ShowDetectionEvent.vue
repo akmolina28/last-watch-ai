@@ -49,6 +49,7 @@
                             <div v-if="getPredictions(profile).length > 0">
                                 <li v-for="prediction in getPredictions(profile)">
                                     <span v-if="prediction.is_masked">(masked)</span>
+                                    <span v-else-if="prediction.is_smart_filtered">(filtered)</span>
                                     {{ prediction.object_class }} - {{ prediction.confidence | percentage }}
                                 </li>
                             </div>
@@ -135,11 +136,11 @@
                     });
             },
 
-            hasUnmaskedPredictions(profile) {
+            hasUnmaskedUnfilteredPredictions(profile) {
                 let predictions = this.getPredictions(profile);
 
                 for (let i = 0; i < predictions.length; i++) {
-                    if (!predictions[i].is_masked) {
+                    if (!predictions[i].is_masked && !predictions[i].is_smart_filtered) {
                         return true;
                     }
                 }
@@ -155,6 +156,7 @@
                     for (let j = 0; j < prediction.detection_profiles.length; j++) {
                         if (prediction.detection_profiles[j].id === profile.id) {
                             prediction.is_masked = prediction.detection_profiles[j].is_masked;
+                            prediction.is_smart_filtered = prediction.detection_profiles[j].is_smart_filtered;
                             predictions.push(prediction);
                             break;
                         }
@@ -170,6 +172,7 @@
                     this.selectedProfile = {};
                     this.highlight = false;
                     this.event.ai_predictions.forEach(p => p.is_masked = false);
+                    this.event.ai_predictions.forEach(p => p.is_smart_filtered = false);
                 }
                 else {
                     this.selectedProfile = profile;
@@ -184,7 +187,7 @@
                     return "ban";
                 }
 
-                if (this.hasUnmaskedPredictions(profile)) {
+                if (this.hasUnmaskedUnfilteredPredictions(profile)) {
                     return 'check';
                 }
 
@@ -233,7 +236,7 @@
                         width: prediction.x_max - prediction.x_min,
                         height: prediction.y_max - prediction.y_min,
                         lineWidth: 4,
-                        strokeStyle: prediction.is_masked ? 'gray' : color,
+                        strokeStyle: prediction.is_masked || prediction.is_smart_filtered ? 'gray' : color,
                         fillStyle: 'rgba(0, 0, 0, 0)'
                     }));
                 });

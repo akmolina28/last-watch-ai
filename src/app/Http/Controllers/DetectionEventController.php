@@ -12,7 +12,8 @@ class DetectionEventController extends Controller
         $query = DetectionEvent::query()
             ->withCount([
                 'detectionProfiles' => function ($q) {
-                    $q->where('ai_prediction_detection_profile.is_masked', '=', false);
+                    $q->where('ai_prediction_detection_profile.is_masked', '=', false)
+                        ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false);
                 },
                 'patternMatchedProfiles'
             ]);
@@ -25,7 +26,8 @@ class DetectionEventController extends Controller
                 $query->whereHas('detectionProfiles', function ($q) use ($profileId) {
                     return $q
                         ->where('detection_profile_id', $profileId)
-                        ->where('ai_prediction_detection_profile.is_masked', '=', false);
+                        ->where('ai_prediction_detection_profile.is_masked', '=', false)
+                        ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false);
                 });
             }
 
