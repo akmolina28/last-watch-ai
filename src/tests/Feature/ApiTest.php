@@ -94,6 +94,44 @@ class ApiTest extends TestCase
     /**
      * @test
      */
+    public function api_can_create_a_profile_with_smart_filtering()
+    {
+        $this->json('POST', '/api/profiles', [
+            'name' => 'My Awesome Profile',
+            'file_pattern' => 'camera123',
+            'use_regex' => 'off',
+            'object_classes' => ['car', 'person'],
+            'min_confidence' => 0.42,
+            'use_smart_filter' => 'on',
+            'smart_filter_precision' => 0.69
+        ])
+            ->assertStatus(201)
+            ->assertJsonCount(1)
+            ->assertJson([
+                'data' => [
+                    'name' => 'My Awesome Profile',
+                    'slug' => 'my-awesome-profile',
+                    'file_pattern' => 'camera123',
+                    'use_mask' => false,
+                    'object_classes' => [
+                        0 => 'car',
+                        1 =>'person'
+                    ],
+                    'min_confidence' => 0.42,
+                    'use_smart_filter' => true,
+                    'smart_filter_precision' => 0.69
+                ]
+            ]);
+
+        $profile = DetectionProfile::first();
+
+        $this->assertEquals(1, $profile->use_smart_filter);
+        $this->assertEquals(0.69, $profile->smart_filter_precision);
+    }
+
+    /**
+     * @test
+     */
     public function api_can_delete_a_profile()
     {
         $profile = factory(DetectionProfile::class)->create();

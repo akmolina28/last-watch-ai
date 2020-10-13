@@ -297,7 +297,8 @@ class DetectionProfileTest extends TestCase
     protected function setUpSmartFilterData($predictionVars) {
         // create a profile
         $profile = factory(DetectionProfile::class)->create([
-            'use_smart_filter' => true
+            'use_smart_filter' => true,
+            'smart_filter_precision' => 0.95
         ]);
 
         // create some events that contain the test prediction
@@ -335,7 +336,9 @@ class DetectionProfileTest extends TestCase
         // create the test prediction
         $testPrediction = new AiPrediction($predictionVars);
 
-        $this->assertTrue($profile->isPredictionSmartFiltered($testPrediction));
+        $event = DetectionEvent::latest()->first();
+
+        $this->assertTrue($profile->isPredictionSmartFiltered($testPrediction, $event));
     }
 
     /**
@@ -364,7 +367,9 @@ class DetectionProfileTest extends TestCase
             'confidence' => 0.99
         ]);
 
-        $this->assertTrue($profile->isPredictionSmartFiltered($testPrediction));
+        $event = DetectionEvent::latest()->first();
+
+        $this->assertTrue($profile->isPredictionSmartFiltered($testPrediction, $event));
     }
 
     /**
@@ -393,6 +398,42 @@ class DetectionProfileTest extends TestCase
             'confidence' => 0.99
         ]);
 
-        $this->assertFalse($profile->isPredictionSmartFiltered($testPrediction));
+        $event = DetectionEvent::latest()->first();
+
+        $this->assertFalse($profile->isPredictionSmartFiltered($testPrediction, $event));
+    }
+
+    /**
+     * @test
+     */
+    public function a_profile_can_smart_filter_a_non_precise_prediction() {
+        // prediction to test
+        $predictionVars = [
+            'x_min' => 123,
+            'x_max' => 404,
+            'y_min' => 222,
+            'y_max' => 669,
+            'object_class' => 'person',
+            'confidence' => 0.99
+        ];
+
+        $profile = $this->setUpSmartFilterData($predictionVars);
+
+        $profile->smart_filter_precision = 0.5;
+        $profile->save();
+
+        // create the test prediction
+        $testPrediction = new AiPrediction([
+            'x_min' => $predictionVars['x_min'] + 50,
+            'x_max' => $predictionVars['x_max'] + 50,
+            'y_min' => $predictionVars['y_min'] + 50,
+            'y_max' => $predictionVars['y_max'] + 50,
+            'object_class' => 'person',
+            'confidence' => 0.99
+        ]);
+
+        $event = DetectionEvent::latest()->first();
+
+        $this->assertTrue($profile->isPredictionSmartFiltered($testPrediction, $event));
     }
 }

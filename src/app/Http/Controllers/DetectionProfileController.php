@@ -30,7 +30,9 @@ class DetectionProfileController extends Controller
             'min_confidence' => $request->get('min_confidence'),
             'use_regex' => $request->get('use_regex') == 'on',
             'object_classes' => $request->get('object_classes'),
-            'use_smart_filter' => $request->get('use_smart_filter') == 'on'
+            'use_smart_filter' => $request->get('use_smart_filter') == 'on',
+            'smart_filter_precision' => $request->get('use_smart_filter') == 'on' ?
+                $request->get('smart_filter_precision') : 0
         ]);
 
         $file = $request->file('mask');

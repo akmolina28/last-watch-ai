@@ -20,7 +20,15 @@ class DetectionProfile extends Model
     use HasRelationships;
     use SoftDeletes;
 
-    protected $fillable = ['name', 'file_pattern', 'min_confidence', 'use_regex', 'object_classes', 'use_smart_filter'];
+    protected $fillable = [
+        'name',
+        'file_pattern',
+        'min_confidence',
+        'use_regex',
+        'object_classes',
+        'use_smart_filter',
+        'smart_filter_precision'
+    ];
 
     protected $casts = [
         'object_classes' => 'array'
@@ -139,7 +147,7 @@ class DetectionProfile extends Model
 
     public function isPredictionSmartFiltered(AiPrediction $prediction, DetectionEvent $lastDetectionEvent)
     {
-        $precision = 0.95;
+        $precision = $this->smart_filter_precision ?? 0.80;
 
         if (!$this->use_smart_filter) {
             return false;

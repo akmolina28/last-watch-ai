@@ -88,6 +88,25 @@
                 </div>
             </div>
 
+            <b-field label="Smart Filter Precision" grouped>
+                <b-input
+                    v-model="smart_filter_precision"
+                    type="number"
+                    step="0.01"
+                    name="smart_filter_precision"
+                    :disabled="!use_smart_filter">
+                </b-input>
+            </b-field>
+            <b-field>
+                <b-slider
+                    v-model="smart_filter_precision"
+                    :min="0.01"
+                    :max="0.99"
+                    :step="0.01"
+                    :disabled="!use_smart_filter">
+                </b-slider>
+            </b-field>
+
             <div class="field">
                 <label class="label" for="min_confidence">Minimum Confidence</label>
 
@@ -120,17 +139,16 @@
                 min_confidence: 0.45,
                 use_regex: false,
                 use_smart_filter: false,
+                smart_filter_precision: 0.85,
                 mask: {},
                 objectClasses: [],
                 errors: [],
-                allObjectClasses: [],
-                telegramConfigs: []
+                allObjectClasses: []
             }
         },
 
         created() {
             axios.get('/api/objectClasses').then(({data}) => this.allObjectClasses = data);
-            axios.get('/api/telegram').then(({data}) => this.telegramConfigs = data);
         },
 
         methods:{
