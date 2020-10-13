@@ -80,6 +80,13 @@
                 </div>
             </div>
 
+            <div class="field mb-5">
+                <label class="label" for="use_smart_filter">Smart Filter</label>
+
+                <div class="control">
+                    <input v-model="use_smart_filter" type="checkbox" name="use_smart_filter" id="use_smart_filter">
+                </div>
+            </div>
 
             <div class="field">
                 <label class="label" for="min_confidence">Minimum Confidence</label>
@@ -112,6 +119,7 @@
                 file_pattern: '',
                 min_confidence: 0.45,
                 use_regex: false,
+                use_smart_filter: false,
                 mask: {},
                 objectClasses: [],
                 errors: [],

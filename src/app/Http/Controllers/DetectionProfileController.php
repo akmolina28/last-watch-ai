@@ -29,7 +29,8 @@ class DetectionProfileController extends Controller
             'file_pattern' => $request->get('file_pattern'),
             'min_confidence' => $request->get('min_confidence'),
             'use_regex' => $request->get('use_regex') == 'on',
-            'object_classes' => $request->get('object_classes')
+            'object_classes' => $request->get('object_classes'),
+            'use_smart_filter' => $request->get('use_smart_filter') == 'on'
         ]);
 
         $file = $request->file('mask');

@@ -39,9 +39,14 @@
                 {{ props.row.file_pattern }}
             </b-table-column>
 
-            <b-table-column field="use_regex" label="Use Regex" v-slot="props">
+            <b-table-column field="use_regex" label="Regex" v-slot="props">
                 <b-icon v-if="props.row.use_regex" icon="check"></b-icon>
             </b-table-column>
+
+            <b-table-column field="use_smart_filter" label="Smart Filter" v-slot="props">
+                <b-icon v-if="props.row.use_smart_filter" icon="check"></b-icon>
+            </b-table-column>
+
 
             <b-table-column field="object_classes" label="Object Classes" v-slot="props">
                 {{ props.row.object_classes.join('|') }}
