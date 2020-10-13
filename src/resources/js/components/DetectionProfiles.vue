@@ -85,6 +85,13 @@
                     </b-dropdown-item>
                 </b-dropdown>
             </b-table-column>
+            <b-table-column field="delete" label="Delete" v-slot="props">
+                <button @click="deleteProfile(props.row)" :class="'button is-danger is-outlined' + (props.row.isDeleting ? ' is-loading' : '')">
+                    <span class="icon is-small">
+                        <b-icon icon="trash"></b-icon>
+                    </span>
+                </button>
+            </b-table-column>
         </b-table>
 
         <div class="container is-spaced">
