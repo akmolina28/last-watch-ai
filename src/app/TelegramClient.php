@@ -26,7 +26,7 @@ class TelegramClient
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            "Content-Type:multipart/form-data"
+            'Content-Type:multipart/form-data'
         ));
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

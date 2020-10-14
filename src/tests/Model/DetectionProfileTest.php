@@ -78,7 +78,7 @@ class DetectionProfileTest extends TestCase
 
         $file_name = 'driveway_camera.20200825_180814020.jpg';
 
-        $this->assertTrue($profile->pattern_match($file_name));
+        $this->assertTrue($profile->patternMatch($file_name));
     }
 
     /**
@@ -93,7 +93,7 @@ class DetectionProfileTest extends TestCase
 
         $file_name = 'driveway_camera.20200825_180814020.jpg';
 
-        $this->assertFalse($profile->pattern_match($file_name));
+        $this->assertFalse($profile->patternMatch($file_name));
     }
 
     /**
@@ -108,7 +108,7 @@ class DetectionProfileTest extends TestCase
 
         $file_name = 'driveway_camera.20200825_180814020.jpg';
 
-        $this->assertTrue($profile->pattern_match($file_name));
+        $this->assertTrue($profile->patternMatch($file_name));
     }
 
     /**
@@ -123,7 +123,7 @@ class DetectionProfileTest extends TestCase
 
         $file_name = 'driveway_camera.20200825_180814020.jpg';
 
-        $this->assertFalse($profile->pattern_match($file_name));
+        $this->assertFalse($profile->patternMatch($file_name));
     }
 
     /**

@@ -49,7 +49,12 @@ class ProcessSmbCifsCopyJob implements ShouldQueue
             $destPath = $this->profile->slug.'.'.$ext;
         }
 
-        $cmd = 'smbclient '.$this->config->servicename.' -U '.$this->config->user.'%'.$this->config->password.' -c \'cd "'.$this->config->remote_dest.'" ; put "'.$localPath.'" "'.$destPath.'"\'';
+        // todo: use format string
+        $cmd = 'smbclient '
+            .$this->config->servicename
+            .' -U '.$this->config->user.'%'.$this->config->password
+            .' -c \'cd "'.$this->config->remote_dest
+            .'" ; put "'.$localPath.'" "'.$destPath.'"\'';
 
         shell_exec($cmd);
     }

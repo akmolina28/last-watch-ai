@@ -22,7 +22,8 @@ class DetectionEventResource extends JsonResource
             'occurred_at' => $this->occurred_at,
             'ai_predictions' => AiPredictionResource::collection($this->whenLoaded('aiPredictions')),
             'detection_profiles_count' => $this->detection_profiles_count,
-            'pattern_matched_profiles' => DetectionProfileResource::collection($this->whenLoaded('patternMatchedProfiles'))
+            'pattern_matched_profiles' =>
+                DetectionProfileResource::collection($this->whenLoaded('patternMatchedProfiles'))
         ];
     }
 }

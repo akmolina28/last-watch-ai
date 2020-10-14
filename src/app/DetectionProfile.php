@@ -147,7 +147,7 @@ class DetectionProfile extends Model
         $this->attributes['slug'] = Str::slug($value, '-');
     }
 
-    public function pattern_match($file_name)
+    public function patternMatch($file_name)
     {
         if ($this->use_regex) {
             return preg_match($this->file_pattern, $file_name) == 1;

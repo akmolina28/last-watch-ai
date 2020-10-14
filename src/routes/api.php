@@ -49,4 +49,4 @@ Route::get('/automations/smbCifsCopy', 'AutomationController@smbCifsCopyConfigIn
 
 Route::post('/automations/smbCifsCopy', 'AutomationController@makeSmbCifsCopyConfig');
 
-Route::any("/{any}", 'ErrorController@catchAll')->where('any', '.*');
+Route::any('/{any}', 'ErrorController@catchAll')->where('any', '.*');

@@ -115,7 +115,12 @@ class DetectionProfileController extends Controller
                 $join->where('ac.automation_config_type', '=', $type);
                 $join->where('ac.detection_profile_id', '=', $profile->id);
             })
-                ->select($type.'.id as id', DB::raw("'".$type."' as type"), 'ac.detection_profile_id as detection_profile_id', 'name');
+                ->select(
+                    $type.'.id as id',
+                    DB::raw("'".$type."' as type"),
+                    'ac.detection_profile_id as detection_profile_id',
+                    'name'
+                );
 
             if ($union) {
                 $query = $query->unionAll($q);

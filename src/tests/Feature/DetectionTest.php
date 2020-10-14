@@ -152,7 +152,8 @@ class DetectionTest extends TestCase
         $this->assertCount(3, $event->detectionProfiles);
 
         // only 2 unmasked predictions
-        $this->assertCount(2, $event->detectionProfiles()->where('ai_prediction_detection_profile.is_masked', '=', false)->get());
+        $this->assertCount(2, $event->detectionProfiles()
+            ->where('ai_prediction_detection_profile.is_masked', '=', false)->get());
     }
 
     /**
