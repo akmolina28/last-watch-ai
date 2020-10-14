@@ -12,4 +12,3 @@ $factory->define(DetectionEvent::class, function (Faker $faker) {
         'occurred_at' => $faker->dateTimeBetween('-30 days', 'now')
     ];
 });
-

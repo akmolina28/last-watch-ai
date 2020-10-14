@@ -2,11 +2,14 @@
 
 namespace App;
 
+use Illuminate\Http\Request;
 use \Spatie\WebhookClient\SignatureValidator\SignatureValidator;
+use Spatie\WebhookClient\WebhookConfig;
 
-class AlwaysTrueSignatureValidator implements SignatureValidator {
+class AlwaysTrueSignatureValidator implements SignatureValidator
+{
 
-    public function isValid(\Illuminate\Http\Request $request, \Spatie\WebhookClient\WebhookConfig $config): bool
+    public function isValid(Request $request, WebhookConfig $config): bool
     {
         return true;
     }

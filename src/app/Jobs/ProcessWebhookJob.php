@@ -32,7 +32,8 @@ class ProcessWebhookJob extends SpatieProcessWebhookJob
      * @return mixed
      * @throws WebhookRequestException
      */
-    protected function getImageFileNameFromRequest() {
+    protected function getImageFileNameFromRequest()
+    {
 
         if (array_key_exists('file', $this->webhookCall->payload)) {
             return $imageFileName = $this->webhookCall->payload['file'];

@@ -14,7 +14,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 
-
 class ProcessDetectionEventJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -70,8 +69,7 @@ class ProcessDetectionEventJob implements ShouldQueue
                 ->where('min_confidence', '<=', $prediction->confidence)
                 ->get();
 
-            foreach($relevantProfiles as $profile) {
-
+            foreach ($relevantProfiles as $profile) {
                 $maskName = $profile->slug.'.png';
                 $maskPath = Storage::path('masks/'.$maskName);
                 $isMasked = $profile->use_mask && $aiPrediction->isMasked($maskPath);
@@ -96,7 +94,7 @@ class ProcessDetectionEventJob implements ShouldQueue
                 ]);
 
                 if (!$isMasked && !$objectFiltered) {
-                    if(!in_array($profile, $matchedProfiles)) {
+                    if (!in_array($profile, $matchedProfiles)) {
                         array_push($matchedProfiles, $profile);
                     }
                 }
@@ -113,11 +111,11 @@ class ProcessDetectionEventJob implements ShouldQueue
                 ProcessWebRequestJob::dispatch($this->event, $config);
             }
 
-            foreach($profile->folderCopyConfigs as $config) {
+            foreach ($profile->folderCopyConfigs as $config) {
                 ProcessFolderCopyJob::dispatch($this->event, $config, $profile);
             }
 
-            foreach($profile->smbCifsCopyConfigs as $config) {
+            foreach ($profile->smbCifsCopyConfigs as $config) {
                 ProcessSmbCifsCopyJob::dispatch($this->event, $config, $profile);
             }
         }

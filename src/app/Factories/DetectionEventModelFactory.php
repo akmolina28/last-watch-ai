@@ -3,7 +3,6 @@
 
 namespace App\Factories;
 
-
 use App\DetectionEvent;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;

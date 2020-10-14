@@ -31,12 +31,14 @@ class WebHookTest extends TestCase
         $this->setUpTestImage();
     }
 
-    protected function setUpTestImage() {
+    protected function setUpTestImage()
+    {
         $imageFile = UploadedFile::fake()->image('testimage.jpg', 640, 480)->size(128);
-        $imageFile->storeAs('events','testimage.jpg');
+        $imageFile->storeAs('events', 'testimage.jpg');
     }
 
-    protected function handleWebhookJob(Carbon $occurred_at = null) {
+    protected function handleWebhookJob(Carbon $occurred_at = null)
+    {
         $webhookCall = new WebhookCall();
         $webhookCall->payload = [
             'file' => 'testimage.jpg'
@@ -64,7 +66,8 @@ class WebHookTest extends TestCase
     /**
      * @test
      */
-    public function webhook_job_can_create_non_matched_detection_event() {
+    public function webhook_job_can_create_non_matched_detection_event()
+    {
         $this->handleWebhookJob();
 
         // see that detection event was generated
@@ -77,7 +80,8 @@ class WebHookTest extends TestCase
     /**
      * @test
      */
-    public function webhook_can_create_a_detection_event_with_one_match() {
+    public function webhook_can_create_a_detection_event_with_one_match()
+    {
         // create some dummy profiles
         factory(DetectionProfile::class, 5)->create([
             'file_pattern' => 'fakepattern123'
@@ -108,7 +112,8 @@ class WebHookTest extends TestCase
     /**
      * @test
      */
-    public function webhook_can_create_a_detection_event_with_many_matches() {
+    public function webhook_can_create_a_detection_event_with_many_matches()
+    {
         // create some dummy profiles
         factory(DetectionProfile::class, 5)->create([
             'file_pattern' => 'fakepattern123'
@@ -138,7 +143,8 @@ class WebHookTest extends TestCase
     /**
      * @test
      */
-    public function webhook_job_does_not_push_detection_job_for_inactive_profile() {
+    public function webhook_job_does_not_push_detection_job_for_inactive_profile()
+    {
         // create a profile to match the event
         $profile = factory(DetectionProfile::class)->make();
         $profile->file_pattern = 'testimage';

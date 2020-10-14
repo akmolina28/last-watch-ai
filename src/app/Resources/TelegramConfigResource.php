@@ -3,7 +3,6 @@
 
 namespace App\Resources;
 
-
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class TelegramConfigResource extends JsonResource

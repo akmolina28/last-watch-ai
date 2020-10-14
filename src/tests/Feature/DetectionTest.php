@@ -23,12 +23,13 @@ class DetectionTest extends TestCase
 
         Queue::fake();
 
-        app()->bind(DeepstackClient::class, function() {
+        app()->bind(DeepstackClient::class, function () {
             return new FakeDeepstackClient();
         });
     }
 
-    protected function handleDetectionJob(DetectionEvent $event) {
+    protected function handleDetectionJob(DetectionEvent $event)
+    {
         $job = new ProcessDetectionEventJob($event);
         $job->handle(new FakeDeepstackClient());
     }

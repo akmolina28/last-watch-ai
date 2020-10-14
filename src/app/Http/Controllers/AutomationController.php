@@ -14,13 +14,15 @@ use Illuminate\Http\Request;
 
 class AutomationController extends Controller
 {
-    public function telegramConfigIndex() {
+    public function telegramConfigIndex()
+    {
         return TelegramConfigResource::collection(
             TelegramConfig::with(['detectionProfiles'])->orderByDesc('created_at')->get()
         );
     }
 
-    public function makeTelegramConfig(Request $request) {
+    public function makeTelegramConfig(Request $request)
+    {
         $request->validate([
             'name' => 'required|unique:telegram_configs',
             'token' => 'required',
@@ -36,13 +38,15 @@ class AutomationController extends Controller
         return TelegramConfigResource::make($config);
     }
 
-    public function webRequestConfigIndex() {
+    public function webRequestConfigIndex()
+    {
         return WebRequestConfigResource::collection(
             WebRequestConfig::with(['detectionProfiles'])->orderByDesc('created_at')->get()
         );
     }
 
-    public function makeWebRequestConfig(Request $request) {
+    public function makeWebRequestConfig(Request $request)
+    {
         $request->validate([
             'name' => 'required|unique:web_request_configs',
             'url' => 'required',
@@ -56,13 +60,15 @@ class AutomationController extends Controller
         return WebRequestConfigResource::make($config);
     }
 
-    public function folderCopyConfigIndex() {
+    public function folderCopyConfigIndex()
+    {
         return FolderCopyConfigResource::collection(
             FolderCopyConfig::with(['detectionProfiles'])->orderByDesc('created_at')->get()
         );
     }
 
-    public function makeFolderCopyConfig(Request $request) {
+    public function makeFolderCopyConfig(Request $request)
+    {
         $request->validate([
             'name' => 'required|unique:folder_copy_configs',
             'copy_to' => 'required'
@@ -77,13 +83,15 @@ class AutomationController extends Controller
         return FolderCopyConfigResource::make($config);
     }
 
-    public function smbCifsCopyConfigIndex() {
+    public function smbCifsCopyConfigIndex()
+    {
         return SmbCifsCopyConfigResource::collection(
             SmbCifsCopyConfig::with(['detectionProfiles'])->orderByDesc('created_at')->get()
         );
     }
 
-    public function makeSmbCifsCopyConfig(Request $request) {
+    public function makeSmbCifsCopyConfig(Request $request)
+    {
         $request->validate([
             'name' => 'required|unique:folder_copy_configs',
             'servicename' => 'required',

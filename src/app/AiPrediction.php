@@ -75,7 +75,8 @@ class AiPrediction extends Model
         return round($ratio, 4);
     }
 
-    public function isMasked($pathToMaskPng) {
+    public function isMasked($pathToMaskPng)
+    {
         $detectionPoints = [
             [-1, -1],
             [-1, -1],
@@ -106,7 +107,7 @@ class AiPrediction extends Model
         for ($i = 0; $i < 9; $i++) {
             $x = $detectionPoints[$i][0];
             $y = $detectionPoints[$i][1];
-            $rgba = imagecolorat($im,$x,$y);
+            $rgba = imagecolorat($im, $x, $y);
             $alpha = ($rgba & 0x7F000000) >> 24;
 
             // 0 is opaque, 127 is transparent

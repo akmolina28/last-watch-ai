@@ -70,12 +70,11 @@ class DetectionEvent extends Model
     {
         $activeMatchedProfiles = 0;
 
-        foreach($profiles as $profile) {
+        foreach ($profiles as $profile) {
             $profile_active = $profile->isActive($this->occurred_at);
             $pattern_match = $profile->pattern_match($this->image_file_name);
 
             if ($pattern_match) {
-
                 if ($profile_active) {
                     $activeMatchedProfiles++;
                 }

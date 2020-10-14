@@ -8,7 +8,8 @@ use Illuminate\Http\Request;
 
 class DetectionEventController extends Controller
 {
-    public function index(Request $request) {
+    public function index(Request $request)
+    {
         $query = DetectionEvent::query()
             ->withCount([
                 'detectionProfiles' => function ($q) {
@@ -19,7 +20,6 @@ class DetectionEventController extends Controller
             ]);
 
         if ($request->has('profileId')) {
-
             $profileId = $request->get('profileId');
 
             if ($request->has('relevant')) {
@@ -29,17 +29,12 @@ class DetectionEventController extends Controller
                         ->where('ai_prediction_detection_profile.is_masked', '=', false)
                         ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false);
                 });
-            }
-
-            else {
-                $query->whereHas('patternMatchedProfiles', function($q) use ($profileId) {
+            } else {
+                $query->whereHas('patternMatchedProfiles', function ($q) use ($profileId) {
                     return $q->where('detection_profile_id', $profileId);
                 });
             }
-        }
-
-        else if ($request->has('relevant')) {
-
+        } elseif ($request->has('relevant')) {
             $query->having('detection_profiles_count', '>', 0);
         }
 
@@ -50,12 +45,13 @@ class DetectionEventController extends Controller
         );
     }
 
-    public function show(DetectionEvent $event) {
+    public function show(DetectionEvent $event)
+    {
         $event->load([
-            'aiPredictions.detectionProfiles' => function($query) {
+            'aiPredictions.detectionProfiles' => function ($query) {
                 $query->withTrashed();
             },
-            'patternMatchedProfiles' => function($query) {
+            'patternMatchedProfiles' => function ($query) {
                 $query->withTrashed();
             }
         ]);

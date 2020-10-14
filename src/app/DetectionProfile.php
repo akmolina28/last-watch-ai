@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Eloquent;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
@@ -96,8 +95,7 @@ class DetectionProfile extends Model
                 return 'as_scheduled';
             }
             return 'enabled';
-        }
-        else {
+        } else {
             return 'disabled';
         }
     }
@@ -153,13 +151,13 @@ class DetectionProfile extends Model
     {
         if ($this->use_regex) {
             return preg_match($this->file_pattern, $file_name) == 1;
-        }
-        else {
+        } else {
             return strpos($file_name, $this->file_pattern) !== false;
         }
     }
 
-    public function timeToInt($time) {
+    public function timeToInt($time)
+    {
         $hour = substr($time, 0, 2);
         $minute = substr($time, 3, 2);
 
@@ -177,8 +175,7 @@ class DetectionProfile extends Model
             if ($now >= $start && $now < $end) {
                 return true;
             }
-        }
-        else {
+        } else {
             if ($now >= $start || $now < $end) {
                 return true;
             }
@@ -192,8 +189,7 @@ class DetectionProfile extends Model
         if ($this->is_enabled) {
             if ($this->is_scheduled) {
                 return $this->isActiveForDate($date);
-            }
-            else {
+            } else {
                 return true;
             }
         }

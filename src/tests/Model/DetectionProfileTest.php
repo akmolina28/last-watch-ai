@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Model;
 
 use App\AiPrediction;
 use App\DetectionEvent;
@@ -294,7 +294,8 @@ class DetectionProfileTest extends TestCase
         $this->assertFalse($profile->isActive($date5));
     }
 
-    protected function setUpSmartFilterData($predictionVars) {
+    protected function setUpSmartFilterData($predictionVars)
+    {
         // create a profile
         $profile = factory(DetectionProfile::class)->create([
             'use_smart_filter' => true,
@@ -309,7 +310,7 @@ class DetectionProfileTest extends TestCase
 
         // link each prediction to the profile
         foreach ($events as $event) {
-            foreach($event->aiPredictions as $prediction) {
+            foreach ($event->aiPredictions as $prediction) {
                 $profile->aiPredictions()->attach($prediction->id);
             }
         }
@@ -320,7 +321,8 @@ class DetectionProfileTest extends TestCase
     /**
      * @test
      */
-    public function a_profile_can_smart_filter_the_same_prediction() {
+    public function a_profile_can_smart_filter_the_same_prediction()
+    {
         // prediction to test
         $predictionVars = [
             'x_min' => 123,
@@ -344,7 +346,8 @@ class DetectionProfileTest extends TestCase
     /**
      * @test
      */
-    public function a_profile_can_smart_filter_a_similar_prediction() {
+    public function a_profile_can_smart_filter_a_similar_prediction()
+    {
         // prediction to test
         $predictionVars = [
             'x_min' => 123,
@@ -375,7 +378,8 @@ class DetectionProfileTest extends TestCase
     /**
      * @test
      */
-    public function a_profile_can_not_smart_filter_a_non_similar_prediction() {
+    public function a_profile_can_not_smart_filter_a_non_similar_prediction()
+    {
         // prediction to test
         $predictionVars = [
             'x_min' => 123,
@@ -406,7 +410,8 @@ class DetectionProfileTest extends TestCase
     /**
      * @test
      */
-    public function a_profile_can_smart_filter_a_non_precise_prediction() {
+    public function a_profile_can_smart_filter_a_non_precise_prediction()
+    {
         // prediction to test
         $predictionVars = [
             'x_min' => 123,

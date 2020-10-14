@@ -2,20 +2,21 @@
 
 namespace App;
 
-
 use CURLFile;
-use Illuminate\Support\Facades\Log;
 
-class TelegramClient {
+class TelegramClient
+{
     private $token;
     private $chat_id;
 
-    public function __construct($token, $chat_id) {
+    public function __construct($token, $chat_id)
+    {
         $this->token = $token;
         $this->chat_id = $chat_id;
     }
 
-    public function sendPhoto($photo_path) {
+    public function sendPhoto($photo_path)
+    {
         $url = 'https://api.telegram.org/bot'.$this->token.'/sendPhoto?chat_id='.$this->chat_id;
 
         $post_fields = array(
@@ -30,6 +31,6 @@ class TelegramClient {
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields);
-        $output = curl_exec($ch);
+        curl_exec($ch);
     }
 }

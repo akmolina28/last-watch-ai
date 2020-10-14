@@ -16,4 +16,3 @@ use Illuminate\Support\Facades\Route;
 Route::webhooks('/webhook-receiving-url');
 
 Route::get('/{any}', 'SpaController@index')->where('any', '.*');
-
