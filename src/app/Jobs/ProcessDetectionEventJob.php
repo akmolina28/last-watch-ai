@@ -80,7 +80,8 @@ class ProcessDetectionEventJob implements ShouldQueue
                     $profileId = $profile->id;
                     $lastDetectionEvent = DetectionEvent::where('id', '!=', $this->event->id)
                         ->whereHas('detectionProfiles', function ($q) use ($profileId) {
-                            $q->where('detection_profile_id', '=', $profileId);
+                            $q->where('detection_profile_id', '=', $profileId)
+                                ->where('ai_prediction_detection_profile.is_masked', '=', false);
                         })->latest()->first();
 
                     if ($lastDetectionEvent) {
