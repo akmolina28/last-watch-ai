@@ -21,18 +21,19 @@ class DetectionProfileController extends Controller
         $request->validate([
             'name' => 'required|unique:detection_profiles,name,NULL,id,deleted_at,NULL',
             'file_pattern' => 'required',
-            'min_confidence' => 'required',
-            'object_classes' => 'required'
+            'min_confidence' => 'required|numeric|between:0,1',
+            'object_classes' => 'required',
+            'smart_filter_precision' => 'numeric|between:0,1'
         ]);
 
         $profile = DetectionProfile::make([
             'name' => $request->get('name'),
             'file_pattern' => $request->get('file_pattern'),
             'min_confidence' => $request->get('min_confidence'),
-            'use_regex' => $request->get('use_regex') == 'on',
+            'use_regex' => $request->get('use_regex') === 'true',
             'object_classes' => $request->get('object_classes'),
-            'use_smart_filter' => $request->get('use_smart_filter') == 'on',
-            'smart_filter_precision' => $request->get('use_smart_filter') == 'on' ?
+            'use_smart_filter' => $request->get('use_smart_filter') === 'true',
+            'smart_filter_precision' => $request->get('use_smart_filter') === 'true' ?
                 $request->get('smart_filter_precision') : 0
         ]);
 

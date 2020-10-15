@@ -1,131 +1,119 @@
 <template>
     <div class="component-wrapper">
-        <nav class="breadcrumb" aria-label="breadcrumbs">
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/profiles">Detection Profiles</a></li>
-                <li class="is-active"><a href="#" aria-current="page">Create</a></li>
-            </ul>
-        </nav>
+        <div class="columns">
+            <div class="column is-one-third">
+                <nav class="breadcrumb" aria-label="breadcrumbs">
+                    <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/profiles">Detection Profiles</a></li>
+                    <li class="is-active"><a href="#" aria-current="page">Create</a></li>
+                    </ul>
+                </nav>
 
-        <title-header>
-            <template v-slot:title>
-                Create Profile
-            </template>
-        </title-header>
+                <title-header>
+                    <template v-slot:title>
+                        Create Profile
+                    </template>
+                    <template v-slot:subtitle>
+                        Configure the file watcher and AI
+                    </template>
+                </title-header>
 
-        <form @submit="checkForm" method="POST" action="/profiles" enctype="multipart/form-data" ref="profileForm">
+                <form @submit.prevent="processForm">
 
-            <div class="field">
-                <label class="label" for="name">Name</label>
+                    <b-field label="Name">
+                        <b-input v-model="name" placeholder="Unique name" name="name" required></b-input>
+                    </b-field>
 
-                <div class="control">
-                    <input
-                        v-model="name"
-                        class="input"
-                        type="text"
-                        name="name"
-                        id="name">
-                </div>
-            </div>
+                    <b-field label="File Pattern" class="mb-6" grouped>
+                        <b-input v-model="file_pattern" placeholder="Pattern match string" name="file_pattern" expanded required></b-input>
+                        <b-switch v-model="use_regex">Use Regex</b-switch>
+                    </b-field>
 
-            <div class="field">
-                <label class="label" for="file_pattern">File Pattern</label>
+                    <p class="heading is-size-4">AI Settings</p>
 
-                <div class="control">
-                    <input
-                        v-model="file_pattern"
-                        class="input"
-                        type="text"
-                        name="file_pattern"
-                        id="file_pattern">
-                </div>
-            </div>
+                    <b-field label="Relevant Objects">
+                        <b-select
+                            required
+                            multiple
+                            native-size="8"
+                            v-model="object_classes">
+                            <option v-for="objectClass in allObjectClasses" :value="objectClass">{{ objectClass }}</option>
+                        </b-select>
+                    </b-field>
 
-            <div class="field mb-5">
-                <label class="label" for="use_regex">Use Regex</label>
+                    <b-field label="AI Confidence">
+                        <b-input v-model="min_confidence"
+                                 type="number"
+                                 :min="0.01"
+                                 :max="1"
+                                 :step="0.01"></b-input>
+                    </b-field>
 
-                <div class="control">
-                    <input v-model="use_regex" type="checkbox" name="use_regex" id="use_regex">
-                </div>
-            </div>
+                    <b-field class="mb-6">
+                        <b-slider
+                            v-model="min_confidence"
+                            :min="0"
+                            :max="1"
+                            :step="0.01">
+                        </b-slider>
+                    </b-field>
 
-            <h2 class="heading has-text-weight-bold is-size-5">Relevance</h2>
+                    <p class="heading is-size-4">Advanced Filtering</p>
 
-            <div class="field">
-                <label class="label" for="object_classes[]">Object Classes</label>
+                    <label class="label">Mask File</label>
 
-                <div class="control select is-multiple">
-                    <select v-model="objectClasses" name="object_classes[]" multiple>
-                        <option v-for="objectClass in allObjectClasses" :value="objectClass">{{ objectClass }}</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="field">
-                <label class="label" for="mask">Mask File</label>
-
-                <div class="file">
-                    <label class="file-label">
-                        <input @change="evt=>mask = evt.target.files[0]" class="file-input" type="file" name="mask" accept="image/x-png">
-                        <span class="file-cta">
-                                <span class="file-icon">
-                                    <b-icon icon="upload"></b-icon>
-                                </span>
-                                <span class="file-label">
-                                    Choose a file…
-                                </span>
+                    <b-field class="file is-primary" :class="{'has-name': !!mask}">
+                        <b-upload v-model="mask" class="file-label">
+                            <span class="file-cta">
+                                <b-icon class="file-icon" icon="upload"></b-icon>
+                                <span class="file-label">Click to upload</span>
                             </span>
-                    </label>
-                </div>
+                            <span class="file-name" v-if="mask">
+                                {{ mask.name }}
+                            </span>
+                        </b-upload>
+                    </b-field>
+
+                    <b-field label="Smart Filter" grouped>
+                        <b-switch v-model="use_smart_filter"> </b-switch>
+
+                        <b-field grouped label="Precision" label-position="on-border">
+                            <b-input
+                                v-model="smart_filter_precision"
+                                type="number"
+                                :min="0.01"
+                                :max="0.99"
+                                :step="0.01"
+                                name="smart_filter_precision"
+                                :disabled="!use_smart_filter">
+                            </b-input>
+                        </b-field>
+                    </b-field>
+
+                    <b-field class="mb-6">
+                        <b-slider
+                            v-model="smart_filter_precision"
+                            :min="0.01"
+                            :max="0.99"
+                            :step="0.01"
+                            :disabled="!use_smart_filter">
+                        </b-slider>
+                    </b-field>
+
+                    <b-field position="is-right">
+                        <a class="button is-primary is-outlined mr-2" type="submit" href="/profiles">Go back</a>
+
+                        <b-button type="is-primary"
+                            :loading="isSaving"
+                            icon-left="save"
+                            native-type="submit">
+                            Save Profile
+                        </b-button>
+                    </b-field>
+                </form>
             </div>
-
-            <div class="field mb-5">
-                <label class="label" for="use_smart_filter">Smart Filter</label>
-
-                <div class="control">
-                    <input v-model="use_smart_filter" type="checkbox" name="use_smart_filter" id="use_smart_filter">
-                </div>
-            </div>
-
-            <b-field label="Smart Filter Precision" grouped>
-                <b-input
-                    v-model="smart_filter_precision"
-                    type="number"
-                    step="0.01"
-                    name="smart_filter_precision"
-                    :disabled="!use_smart_filter">
-                </b-input>
-            </b-field>
-            <b-field>
-                <b-slider
-                    v-model="smart_filter_precision"
-                    :min="0.01"
-                    :max="0.99"
-                    :step="0.01"
-                    :disabled="!use_smart_filter">
-                </b-slider>
-            </b-field>
-
-            <div class="field">
-                <label class="label" for="min_confidence">Minimum Confidence</label>
-
-                <div class="control">
-                    <input
-                        v-model="min_confidence"
-                        class="input"
-                        type="text"
-                        name="min_confidence"
-                        id="min_confidence">
-                </div>
-            </div>
-
-            <div class="field is-grouped">
-                <div class="control">
-                    <button class="button is-link" type="submit">Submit</button>
-                </div>
-            </div>
-        </form>
+        </div>
     </div>
 </template>
 
@@ -139,11 +127,11 @@
                 min_confidence: 0.45,
                 use_regex: false,
                 use_smart_filter: false,
-                smart_filter_precision: 0.85,
-                mask: {},
-                objectClasses: [],
-                errors: [],
-                allObjectClasses: []
+                smart_filter_precision: 0.65,
+                mask: null,
+                object_classes: [],
+                allObjectClasses: [],
+                isSaving: false
             }
         },
 
@@ -151,51 +139,55 @@
             axios.get('/api/objectClasses').then(({data}) => this.allObjectClasses = data);
         },
 
-        methods:{
-            submitForm: function () {
-                let formData = new FormData(this.$refs.profileForm);
-                axios.post('/api/profiles', formData).then(response => {
+        methods: {
+
+            handleSubmitErrors: function(e) {
+                let msg = e.response.data.message;
+
+                if (e.response.data.errors) {
+                    msg += ' ' + e.response.data.errors[Object.keys(e.response.data.errors)[0]][0];
+                }
+
+                this.$buefy.toast.open({
+                    duration: 10000,
+                    message: msg,
+                    type: 'is-danger'
+                })
+            },
+
+            processForm: function() {
+                if (this.isSaving) {
+                    return;
+                }
+
+                this.isSaving = true;
+
+                let formData = new FormData();
+
+                formData.append('name', this.name);
+                formData.append('file_pattern', this.file_pattern);
+                formData.append('min_confidence', this.min_confidence);
+                formData.append('use_regex', this.use_regex);
+                formData.append('use_smart_filter', this.use_smart_filter);
+                formData.append('smart_filter_precision', this.smart_filter_precision);
+                formData.append('mask', this.mask);
+                formData.append('object_classes[]', this.object_classes);
+
+                axios.post('/api/profiles', formData, {
+                    headers: {
+                        'enctype': 'multipart/form-data'
+                    }
+
+                }).then(response => {
                     let id = response.data.data.id;
                     this.$router.push(`/profiles/${id}/automations`);
+
+                }).catch(e => {
+                    this.handleSubmitErrors(e);
+
+                }).finally(() => {
+                    this.isSaving = false;
                 });
-            },
-            checkForm: function (e) {
-                let confidenceMin = 0;
-                let confidenceMax = 1;
-
-                if (this.name &&
-                    this.file_pattern &&
-                    this.min_confidence &&
-                    this.min_confidence >= confidenceMin &&
-                    this.min_confidence < confidenceMax &&
-                    this.objectClasses.length > 0) {
-
-                    this.submitForm();
-                }
-
-                else {
-                    this.errors = [];
-
-                    if (!this.name) {
-                        this.errors.push('Name required.');
-                    }
-                    if (!this.file_pattern) {
-                        this.errors.push('File Pattern required.')
-                    }
-                    if (!this.min_confidence) {
-                        this.errors.push('Age required.');
-                    }
-                    if (!(this.min_confidence >= confidenceMin && this.min_confidence < confidenceMax)) {
-                        this.errors.push('Min Confidence must be between 0 and 1.');
-                    }
-                    if (this.objectClasses.length === 0) {
-                        this.errors.push('Must select at least one Object Class.');
-                    }
-
-                    alert(this.errors.join(' '));
-                }
-
-                e.preventDefault();
             }
         }
     }
