@@ -27,9 +27,11 @@ Route::get('/profiles/{profile}/automations', 'DetectionProfileController@showAu
 
 Route::post('/profiles/{profile}/automations', 'DetectionProfileController@updateAutomations');
 
+Route::get('/objectClasses', 'DeepstackController@showObjectClasses');
+
 Route::get('/events', 'DetectionEventController@index');
 
-Route::get('/objectClasses', 'DeepstackController@showObjectClasses');
+Route::get('/events/latest', 'DetectionEventController@showLatest');
 
 Route::get('/events/{event}', 'DetectionEventController@show');
 
@@ -48,5 +50,7 @@ Route::post('/automations/folderCopy', 'AutomationController@makeFolderCopyConfi
 Route::get('/automations/smbCifsCopy', 'AutomationController@smbCifsCopyConfigIndex');
 
 Route::post('/automations/smbCifsCopy', 'AutomationController@makeSmbCifsCopyConfig');
+
+Route::get('/statistics', 'StatisticsController@index');
 
 Route::any('/{any}', 'ErrorController@catchAll')->where('any', '.*');

@@ -57,4 +57,14 @@ class DetectionEventController extends Controller
         ]);
         return DetectionEventResource::make($event);
     }
+
+    public function showLatest()
+    {
+        $event = DetectionEvent::whereHas('detectionProfiles', function ($q) {
+            return $q->where('ai_prediction_detection_profile.is_masked', '=', false)
+                ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false);
+        })->orderByDesc('occurred_at')->first();
+
+        return $this->show($event);
+    }
 }

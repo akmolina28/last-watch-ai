@@ -3,7 +3,7 @@ import VueRouter from 'vue-router';
 let routes = [
     {
         path: '/',
-        redirect: '/profiles'
+        component: require('./components/Home').default,
     },
     {
         path: '/profiles',

@@ -12,6 +12,7 @@ use App\WebRequestConfig;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -99,10 +100,10 @@ class ApiTest extends TestCase
         $this->json('POST', '/api/profiles', [
             'name' => 'My Awesome Profile',
             'file_pattern' => 'camera123',
-            'use_regex' => 'off',
+            'use_regex' => 'false',
             'object_classes' => ['car', 'person'],
             'min_confidence' => 0.42,
-            'use_smart_filter' => 'on',
+            'use_smart_filter' => 'true',
             'smart_filter_precision' => 0.69
         ])
             ->assertStatus(201)
@@ -302,6 +303,41 @@ class ApiTest extends TestCase
                     ]]
             ])
             ->assertJsonCount(10, 'data');
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_latest_relevant_event()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+        $this->setUpEvents($profile);
+
+        // add a latest event
+        $event = factory(DetectionEvent::class)->create([
+            'occurred_at' => Date::tomorrow()
+        ]);
+
+        $event->aiPredictions()->createMany(
+            factory(AiPrediction::class, 3)->make()->toArray()
+        );
+
+        $event->patternMatchedProfiles()->attach($profile->id);
+
+        $prediction = $event->aiPredictions()->first();
+        $prediction->detectionProfiles()->attach($profile->id, [
+            'is_masked' => false
+        ]);
+
+        $response = $this->get('/api/events/latest');
+
+        $response
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'id' => $event->id
+                ]
+            ]);
     }
 
     /**
@@ -1134,6 +1170,58 @@ class ApiTest extends TestCase
         $this->assertEquals('as_scheduled', $profile->status);
         $this->assertEquals('23:45', $profile->start_time);
         $this->assertEquals('12:34', $profile->end_time);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_home_page_statistics_24_hrs()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+        $this->setUpEvents($profile);
+
+        // put all events within the last 24 hours
+        foreach (DetectionEvent::all() as $event) {
+            $event->occurred_at = Date::now()->addHours(-1);
+            $event->save();
+        }
+
+        $response = $this->get('/api/statistics');
+
+        $response
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'relevant_events' => 4,
+                    'total_events' => 11
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_home_page_statistics_24_hrs_empty()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+        $this->setUpEvents($profile);
+
+        // put all events outside the last 24 hours
+        foreach (DetectionEvent::all() as $event) {
+            $event->occurred_at = Date::now()->addHours(-36);
+            $event->save();
+        }
+
+        $response = $this->get('/api/statistics');
+
+        $response
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'relevant_events' => 0,
+                    'total_events' => 0
+                ]
+            ]);
     }
 
     /**
