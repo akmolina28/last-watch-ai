@@ -35,6 +35,10 @@ Route::get('/events/latest', 'DetectionEventController@showLatest');
 
 Route::get('/events/{event}', 'DetectionEventController@show');
 
+Route::get('/events/{event}/prev', 'DetectionEventController@findPrev');
+
+Route::get('/events/{event}/next', 'DetectionEventController@findNext');
+
 Route::get('/automations/telegram', 'AutomationController@telegramConfigIndex');
 
 Route::post('/automations/telegram', 'AutomationController@makeTelegramConfig');

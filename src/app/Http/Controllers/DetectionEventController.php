@@ -67,4 +67,54 @@ class DetectionEventController extends Controller
 
         return $this->show($event);
     }
+
+    public function findNext(DetectionEvent $event)
+    {
+        $matchedProfile = $event->patternMatchedProfiles()->first();
+
+        if (!$matchedProfile) {
+            return response()->json(['message' => 'Not Found.'], 404);
+        }
+
+        $profileId = $matchedProfile->id;
+
+        $next = DetectionEvent::
+            whereHas('patternMatchedProfiles', function ($q) use ($profileId) {
+                return $q->where('pattern_match.detection_profile_id', '=', $profileId);
+            })
+            ->where('occurred_at', '>=', $event->occurred_at)
+            ->where('id', '!=', $event->id)
+            ->orderBy('occurred_at')->first();
+
+        if (!$next) {
+            return response()->json(['message' => 'Not Found.'], 404);
+        }
+
+        return DetectionEventResource::make($next);
+    }
+
+    public function findPrev(DetectionEvent $event)
+    {
+        $matchedProfile = $event->patternMatchedProfiles()->first();
+
+        if (!$matchedProfile) {
+            return response()->json(['message' => 'Not Found.'], 404);
+        }
+
+        $profileId = $matchedProfile->id;
+
+        $prev = DetectionEvent::
+            whereHas('patternMatchedProfiles', function ($q) use ($profileId) {
+                return $q->where('pattern_match.detection_profile_id', '=', $profileId);
+            })
+            ->where('occurred_at', '<=', $event->occurred_at)
+            ->where('id', '!=', $event->id)
+            ->orderByDesc('occurred_at')->first();
+
+        if (!$prev) {
+            return response()->json(['message' => 'Not Found.'], 404);
+        }
+
+        return DetectionEventResource::make($prev);
+    }
 }

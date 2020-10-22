@@ -1227,6 +1227,89 @@ class ApiTest extends TestCase
     /**
      * @test
      */
+    public function api_can_get_prev_event() {
+        $profile = factory(DetectionProfile::class)->create();
+
+        $first = factory(DetectionEvent::class)->create([
+            'occurred_at' => Date::now()->addHours(-5)
+        ]);
+        $first->patternMatchedProfiles()->attach($profile->id);
+
+        $second = factory(DetectionEvent::class)->create([
+            'occurred_at' => Date::now()->addHours(-4)
+        ]);
+        $second->patternMatchedProfiles()->attach($profile->id);
+
+        $third = factory(DetectionEvent::class)->create([
+            'occurred_at' => Date::now()->addHours(-3)
+        ]);
+        $third->patternMatchedProfiles()->attach($profile->id);
+
+        $fourth = factory(DetectionEvent::class)->create([
+            'occurred_at' => Date::now()->addHours(-2)
+        ]);
+        $fourth->patternMatchedProfiles()->attach($profile->id);
+
+        $this->json('GET', '/api/events/'.$first->id.'/prev')
+            ->assertStatus(404);
+
+        $this->json('GET', '/api/events/'.$second->id.'/prev')
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'id' => $first->id
+                ]
+            ]);
+
+        $this->json('GET', '/api/events/'.$third->id.'/prev')
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'id' => $second->id
+                ]
+            ]);
+
+        $this->json('GET', '/api/events/'.$fourth->id.'/prev')
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'id' => $third->id
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_prev_event_for_profile() {
+        $profile = factory(DetectionProfile::class)->create();
+
+        $first = factory(DetectionEvent::class)->create([
+            'occurred_at' => Date::now()->addHours(-5)
+        ]);
+        $first->patternMatchedProfiles()->attach($profile->id);
+
+        factory(DetectionEvent::class)->create([
+            'occurred_at' => Date::now()->addHours(-4)
+        ]);
+
+        $third = factory(DetectionEvent::class)->create([
+            'occurred_at' => Date::now()->addHours(-3)
+        ]);
+        $third->patternMatchedProfiles()->attach($profile->id);
+
+        $this->json('GET', '/api/events/'.$third->id.'/prev')
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'id' => $first->id
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     */
     public function api_throws_422_if_profile_status_update_invalid()
     {
         $profile = factory(DetectionProfile::class)->create();

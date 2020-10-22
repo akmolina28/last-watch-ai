@@ -1,12 +1,28 @@
 <template>
     <div class="component-container">
-        <nav class="breadcrumb" aria-label="breadcrumbs">
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/events">Detection Events</a></li>
-                <li class="is-active"><a href="#" aria-current="page">Details</a></li>
-            </ul>
-        </nav>
+        <div class="lw-breadcrumb">
+            <nav class="breadcrumb" aria-label="breadcrumbs">
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/events">Detection Events</a></li>
+                    <li class="is-active"><a href="#" aria-current="page">Details</a></li>
+                </ul>
+            </nav>
+            <nav class="lw-prev-next">
+                <a v-if="prevEvent" :href="prevEvent.id">
+                    ←
+                </a>
+                <span v-else>
+                    ←
+                </span>
+                <a v-if="nextEvent" :href="nextEvent.id">
+                    →
+                </a>
+                <span v-else>
+                  →
+                </span>
+            </nav>
+        </div>
         <title-header>
             <template v-slot:title>
                 Detection Event
@@ -81,6 +97,8 @@
         data() {
             return {
                 event: {},
+                nextEvent: null,
+                prevEvent: null,
                 predictions: [],
                 profiles: [],
                 selectedProfile: {},
@@ -133,6 +151,16 @@
                         });
 
                         this.draw();
+                    });
+
+                axios.get(`/api/events/${this.id}/prev`)
+                    .then(response => {
+                        this.prevEvent = response.data.data;
+                    });
+
+                axios.get(`/api/events/${this.id}/next`)
+                    .then(response => {
+                        this.nextEvent = response.data.data;
                     });
             },
 

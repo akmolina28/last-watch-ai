@@ -48,3 +48,22 @@ a.dropdown-item.is-active .icon,
 button.dropdown-item.is-active .icon {
     color: #fff;
 }
+
+.lw-breadcrumb {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 3rem;
+}
+
+.lw-breadcrumb .breadcrumb:not(:last-child) {
+    margin-bottom: 0;
+}
+
+.lw-prev-next {
+    align-items: flex-start;
+    color: #b5b5b5;
+    flex-grow: 0;
+    flex-shrink: 0;
+    margin-left: .5rem;
+    text-align: center;
+}

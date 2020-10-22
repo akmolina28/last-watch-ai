@@ -40,8 +40,6 @@ class DetectionEvent extends Model
 {
     use HasRelationships;
 
-    protected $dates = ['occurred_at'];
-
     protected $fillable = ['image_file_name', 'deepstack_response', 'image_dimensions', 'occurred_at'];
 
     public function detectionProfiles()
