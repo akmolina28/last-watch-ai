@@ -137,7 +137,7 @@
                 return this.event ? '/storage/' + this.event.image_file_name : '';
             },
             relevant() {
-                if (this.event) {
+                if (this.event && this.event.ai_predictions) {
                     for (let i = 0; i < this.event.ai_predictions.length; i++) {
                         let prediction = this.event.ai_predictions[i];
                         for (let j = 0; j < prediction.detection_profiles.length; j++) {
