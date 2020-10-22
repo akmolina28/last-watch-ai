@@ -100,7 +100,7 @@
                 </b-navbar>
 
             <div class="container main-container">
-                <div class="container lead">
+                <div class="lead">
                     <router-view></router-view>
                 </div>
             </div>

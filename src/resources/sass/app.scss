@@ -67,3 +67,17 @@ button.dropdown-item.is-active .icon {
     margin-left: .5rem;
     text-align: center;
 }
+
+.lw-header #meta {
+    margin-top: -.5rem;
+}
+
+.field.is-grouped>.control:not(:last-child) {
+    margin-bottom: 0;
+    margin-right: .75rem;
+}
+
+.field.is-grouped.is-grouped-multiline>.control:last-child,
+.field.is-grouped.is-grouped-multiline>.control:not(:last-child) {
+    margin-bottom: .75rem;
+}

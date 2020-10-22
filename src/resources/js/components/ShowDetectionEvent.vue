@@ -30,10 +30,19 @@
             <template v-slot:subtitle>
                 {{ event.image_file_name }}
             </template>
+            <template v-slot:meta>
+                <div class="control">
+                    <div class="tags has-addons">
+                        <span class="tag">Relevant</span>
+                        <span v-if="relevant" class="tag is-success">Yes</span>
+                        <span v-else class="tag is-danger">No</span>
+                    </div>
+                </div>
+            </template>
         </title-header>
 
         <div class="columns reverse-columns" style="margin-left:-0.75rem;">
-            <div class="column is-one-third">
+            <div v-if="!loading" class="column is-one-third">
                 <div class="content">
                     <span class="icon">
                         <b-icon icon="image"></b-icon>
@@ -102,7 +111,8 @@
                 predictions: [],
                 profiles: [],
                 selectedProfile: {},
-                highlight: false
+                highlight: false,
+                loading: true
             }
         },
 
@@ -125,6 +135,20 @@
             },
             imageFile() {
                 return this.event ? '/storage/' + this.event.image_file_name : '';
+            },
+            relevant() {
+                if (this.event) {
+                    for (let i = 0; i < this.event.ai_predictions.length; i++) {
+                        let prediction = this.event.ai_predictions[i];
+                        for (let j = 0; j < prediction.detection_profiles.length; j++) {
+                            if (!prediction.detection_profiles[j].is_masked &&
+                                !prediction.detection_profiles[j].is_smart_filtered) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                return false;
             }
         },
 
@@ -150,6 +174,7 @@
                             return p.id;
                         });
 
+                        this.loading = false;
                         this.draw();
                     });
 
