@@ -35,6 +35,8 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @method static Builder|DetectionEvent whereImageFileName($value)
  * @method static Builder|DetectionEvent whereOccurredAt($value)
  * @method static Builder|DetectionEvent whereUpdatedAt($value)
+ * @property-read Collection|\App\DetectionEventAutomationResult[] $automations
+ * @property-read int|null $automations_count
  */
 class DetectionEvent extends Model
 {
@@ -57,6 +59,11 @@ class DetectionEvent extends Model
     public function aiPredictions()
     {
         return $this->hasMany('App\AiPrediction');
+    }
+
+    public function automationResults()
+    {
+        return $this->hasMany('App\DetectionEventAutomationResult');
     }
 
     public function getDeepstackResultAttribute()
@@ -83,4 +90,6 @@ class DetectionEvent extends Model
 
         return $activeMatchedProfiles;
     }
+
+//    public function saveAutomationResult($profileId, $)
 }

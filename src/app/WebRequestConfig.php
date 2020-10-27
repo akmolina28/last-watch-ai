@@ -3,10 +3,12 @@
 namespace App;
 
 use Eloquent;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Http;
 
 /**
  * DetectionProfile
@@ -28,12 +30,29 @@ use Illuminate\Support\Carbon;
  * @method static Builder|WebRequestConfig whereUpdatedAt($value)
  * @method static Builder|WebRequestConfig whereUrl($value)
  */
-class WebRequestConfig extends Model
+class WebRequestConfig extends Model implements AutomationConfigInterface
 {
     protected $fillable = ['name', 'url'];
 
     public function detectionProfiles()
     {
         return $this->morphToMany('App\DetectionProfile', 'automation_config');
+    }
+
+    public function run(DetectionEvent $event, DetectionProfile $profile) : DetectionEventAutomationResult
+    {
+        try {
+            $response = Http::get($this->url);
+            $isError = $response->status() != 200;
+            $responseText = 'OK';
+        } catch (Exception $exception) {
+            $isError = true;
+            $responseText = $exception->getMessage();
+        }
+
+        return new DetectionEventAutomationResult([
+            'is_error' => $isError,
+            'response_text' => $responseText
+        ]);
     }
 }

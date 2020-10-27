@@ -68,6 +68,8 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @method static Builder|DetectionProfile whereUseSmartFilter($value)
  * @method static Builder|DetectionProfile withTrashed()
  * @method static Builder|DetectionProfile withoutTrashed()
+ * @property-read Collection|\App\AutomationConfig[] $automations
+ * @property-read int|null $automations_count
  */
 class DetectionProfile extends Model
 {
@@ -121,9 +123,15 @@ class DetectionProfile extends Model
             ->withPivot(['is_masked', 'is_smart_filtered']);
     }
 
+    public function automations()
+    {
+        return $this->hasMany('App\AutomationConfig');
+    }
+
     public function telegramConfigs()
     {
-        return $this->morphedByMany('App\TelegramConfig', 'automation_config');
+        return $this->morphedByMany('App\TelegramConfig', 'automation_config')
+            ->withPivot(['automation_config_id', 'automation_config_type', 'id']);
     }
 
     public function webRequestConfigs()

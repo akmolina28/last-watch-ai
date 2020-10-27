@@ -53,7 +53,8 @@ class DetectionEventController extends Controller
             },
             'patternMatchedProfiles' => function ($query) {
                 $query->withTrashed();
-            }
+            },
+            'automationResults'
         ]);
         return DetectionEventResource::make($event);
     }

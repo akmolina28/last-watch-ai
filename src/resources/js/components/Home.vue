@@ -12,19 +12,36 @@
             <template v-slot:subtitle>
                 Computer vision-based automations
             </template>
+            <template v-slot:meta>
+                <div class="control">
+                    <div class="tags has-addons">
+                        <span class="tag">Relevant Events Today</span>
+                        <span :class="'tag is-success' + (statistics.relevant_events === 0 ? ' is-light' : '')">{{ statistics.relevant_events }}</span>
+                    </div>
+                </div>
+                <div class="control">
+                    <div class="tags has-addons">
+                        <span class="tag">Total Events Processed Today</span>
+                        <span class="tag is-primary is-light">{{ statistics.total_events }}</span>
+                    </div>
+                </div>
+                <div class="control">
+                    <div class="tags has-addons">
+                        <span class="tag">Automation Errors Today</span>
+                        <a href="/errors" :class="'tag is-danger' + (statistics.total_errors === 0 ? ' is-light' : '')">{{ statistics.total_errors }}</a>
+                    </div>
+                </div>
+            </template>
         </title-header>
 
         <div class="columns" style="margin-left:-0.75rem;">
             <div class="column is-one-third">
-                <p class="title is-size-4">Latest Event</p>
-                <p class="subtitle is-size-5">{{ event.occurred_at | dateStrRelative }}</p>
+                <p class="title is-size-4">Latest Event - {{ event.occurred_at | dateStrRelative }}</p>
+                <p class="subtitle is-size-6">{{ event.image_file_name }}</p>
 
                 <a :href="`events/${event.id}`">
                     <img alt="Event Image" :src="'storage/' + event.image_file_name"/>
                 </a>
-
-                <p class="is-size-5"><strong>Relevant Events Today:</strong> {{ statistics.relevant_events }}</p>
-                <p class="is-size-6">Total Events Today: {{ statistics.total_events }}</p>
             </div>
         </div>
     </div>
@@ -56,6 +73,7 @@
                     .then((response) => {
                         this.statistics = response.data.data;
                     });
+
             }
         }
     }

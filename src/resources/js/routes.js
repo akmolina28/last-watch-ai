@@ -49,6 +49,10 @@ let routes = [
         path: '/automations/webRequest/',
         component: require('./components/WebRequestConfigs').default,
         props: true
+    },
+    {
+        path: '/errors/',
+        component: require('./components/Errors').default
     }
 ]
 

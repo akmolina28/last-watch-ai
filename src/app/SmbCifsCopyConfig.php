@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * DetectionProfile
@@ -36,12 +37,38 @@ use Illuminate\Support\Carbon;
  * @method static Builder|SmbCifsCopyConfig whereUpdatedAt($value)
  * @method static Builder|SmbCifsCopyConfig whereUser($value)
  */
-class SmbCifsCopyConfig extends Model
+class SmbCifsCopyConfig extends Model implements AutomationConfigInterface
 {
     protected $fillable = ['name', 'servicename', 'user', 'password', 'remote_dest', 'overwrite'];
 
     public function detectionProfiles()
     {
         return $this->morphToMany('App\DetectionProfile', 'automation_config');
+    }
+
+    public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
+    {
+        $localPath = Storage::path($event->image_file_name);
+        $destPath = $event->image_file_name;
+
+        if ($this->overwrite) {
+            $ext = pathinfo($event->image_file_name, PATHINFO_EXTENSION);
+            $destPath = $profile->slug.'.'.$ext;
+        }
+
+        // todo: use format string
+        // todo: use facade so this can be mocked
+        $cmd = 'smbclient '
+            .$this->servicename
+            .' -U '.$this->user.'%'.$this->password
+            .' -c \'cd "'.$this->remote_dest
+            .'" ; put "'.$localPath.'" "'.$destPath.'"\'';
+
+        $response = shell_exec($cmd);
+
+        return new DetectionEventAutomationResult([
+            'response_text' => $response,
+            'is_error' => 0,
+        ]);
     }
 }

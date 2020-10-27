@@ -30,12 +30,32 @@ use Illuminate\Support\Carbon;
  * @method static Builder|FolderCopyConfig whereOverwrite($value)
  * @method static Builder|FolderCopyConfig whereUpdatedAt($value)
  */
-class FolderCopyConfig extends Model
+class FolderCopyConfig extends Model implements AutomationConfigInterface
 {
     protected $fillable = ['name', 'copy_to', 'overwrite'];
 
     public function detectionProfiles()
     {
         return $this->morphToMany('App\DetectionProfile', 'automation_config');
+    }
+
+    public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
+    {
+        $basename = basename($event->image_file_name);
+        $ext = pathinfo($event->image_file_name, PATHINFO_EXTENSION);
+
+        if ($this->overwrite) {
+            $basename = $profile->slug.'.'.$ext;
+        }
+
+        $src = $event->image_file_name;
+        $dest = $this->copy_to.$basename;
+
+        $success = copy($src, $dest);
+
+        return new DetectionEventAutomationResult([
+            'response_text' => $success ? '' : 'Failed to copy '.$src.' to '.$dest,
+            'is_error' => !$success,
+        ]);
     }
 }

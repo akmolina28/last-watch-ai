@@ -35,7 +35,19 @@
                     <div class="tags has-addons">
                         <span class="tag">Relevant</span>
                         <span v-if="relevant" class="tag is-success">Yes</span>
-                        <span v-else class="tag is-danger">No</span>
+                        <span v-else class="tag is-success is-light">No</span>
+                    </div>
+                </div>
+                <div class="control">
+                    <div class="tags has-addons">
+                        <span class="tag">Automations Run</span>
+                        <a :class="'tag is-success' + (automations === 0 ? ' is-light' : '')">{{ automations }}</a>
+                    </div>
+                </div>
+                <div v-if="automationErrors > 0" class="control">
+                    <div class="tags has-addons">
+                        <span class="tag">Automation Errors</span>
+                        <a class="tag is-danger">{{ automationErrors }}</a>
                     </div>
                 </div>
             </template>
@@ -121,6 +133,18 @@
         },
 
         computed: {
+            automations() {
+                if (this.event && this.event.automations) {
+                    return this.event.automations.filter(a => !a.is_error).length;
+                }
+                return 0;
+            },
+            automationErrors() {
+                if (this.event && this.event.automations) {
+                    return this.event.automations.filter(a => a.is_error).length;
+                }
+                return 0;
+            },
             imageWidth() {
                 if (this.event && this.event.image_dimensions) {
                     return parseInt(this.event.image_dimensions.substring(0, this.event.image_dimensions.indexOf('x')));

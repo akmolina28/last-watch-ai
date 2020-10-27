@@ -3,10 +3,13 @@
 namespace App\Jobs;
 
 use App\AiPrediction;
+use App\AutomationConfig;
 use App\DeepstackClientInterface;
 use App\DeepstackResult;
 use App\DetectionEvent;
+use App\DetectionEventAutomationResult;
 use App\DetectionProfile;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -102,22 +105,22 @@ class ProcessDetectionEventJob implements ShouldQueue
             }
         }
 
+        /* @var $profile DetectionProfile */
         foreach ($matchedProfiles as $profile) {
-            $profile->load(['telegramConfigs']);
-            foreach ($profile->telegramConfigs as $config) {
-                ProcessTelegramJob::dispatch($this->event, $config);
-            }
+            /* @var $automation AutomationConfig */
+            foreach ($profile->automations as $automation) {
+                try {
+                    $result = $automation->run($this->event, $profile);
+                } catch (Exception $exception) {
+                    $result = new DetectionEventAutomationResult([
+                        'is_error' => 1,
+                        'response_text' => $exception->getMessage()
+                    ]);
+                }
 
-            foreach ($profile->webRequestConfigs as $config) {
-                ProcessWebRequestJob::dispatch($this->event, $config);
-            }
-
-            foreach ($profile->folderCopyConfigs as $config) {
-                ProcessFolderCopyJob::dispatch($this->event, $config, $profile);
-            }
-
-            foreach ($profile->smbCifsCopyConfigs as $config) {
-                ProcessSmbCifsCopyJob::dispatch($this->event, $config, $profile);
+                $result->detection_event_id = $this->event->id;
+                $result->automation_config_id = $automation->id;
+                $result->save();
             }
         }
     }

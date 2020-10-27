@@ -81,7 +81,6 @@
         </pagination>
     </div>
 
-
 </template>
 
 <script>

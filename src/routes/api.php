@@ -57,4 +57,6 @@ Route::post('/automations/smbCifsCopy', 'AutomationController@makeSmbCifsCopyCon
 
 Route::get('/statistics', 'StatisticsController@index');
 
+Route::get('/errors', 'StatisticsController@errors');
+
 Route::any('/{any}', 'ErrorController@catchAll')->where('any', '.*');

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\AiPrediction;
+use App\AutomationConfig;
 use App\DetectionEvent;
 use App\DetectionProfile;
 use App\FolderCopyConfig;
@@ -72,7 +73,7 @@ class ApiTest extends TestCase
             'name' => 'My Awesome Profile',
             'file_pattern' => 'camera123',
             'use_regex' => false,
-            'object_classes' => ['car', 'person'],
+            'object_classes[]' => ['car', 'person'],
             'min_confidence' => 0.42
         ])
             ->assertStatus(201)
@@ -101,7 +102,7 @@ class ApiTest extends TestCase
             'name' => 'My Awesome Profile',
             'file_pattern' => 'camera123',
             'use_regex' => 'false',
-            'object_classes' => ['car', 'person'],
+            'object_classes[]' => ['car', 'person'],
             'min_confidence' => 0.42,
             'use_smart_filter' => 'true',
             'smart_filter_precision' => 0.69
@@ -163,7 +164,7 @@ class ApiTest extends TestCase
             'name' => $profileName,
             'file_pattern' => 'camera123',
             'use_regex' => false,
-            'object_classes' => ['car', 'person'],
+            'object_classes[]' => ['car', 'person'],
             'min_confidence' => 0.42
         ])
             ->assertStatus(201);
@@ -427,6 +428,43 @@ class ApiTest extends TestCase
                     'image_file_name' => $event->image_file_name,
                     'image_dimensions' => $event->image_dimensions,
                     'detection_profiles_count' => 0
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_a_detection_event_with_automation_results()
+    {
+        $event = factory(DetectionEvent::class)->create();
+
+        $config = factory(TelegramConfig::class)->create();
+
+        $profile = factory(DetectionProfile::class)->create();
+
+        $config = AutomationConfig::create([
+            'detection_profile_id' => $profile->id,
+            'automation_config_type' => 'telegram_configs',
+            'automation_config_id' => $config->id,
+        ]);
+
+        $event->automationResults()->create([
+            'automation_config_id' => $config->id,
+            'is_error' => 0,
+            'response_text' => 'testing123'
+        ]);
+
+        $this->get('/api/events/'.$event->id)
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'automationResults' => [
+                        0 => [
+                            'is_error' => 0,
+                            'response_text' => 'testing123'
+                        ]
+                    ]
                 ]
             ]);
     }
@@ -1172,6 +1210,45 @@ class ApiTest extends TestCase
         $this->assertEquals('12:34', $profile->end_time);
     }
 
+
+
+    /**
+     * @test
+     */
+    public function api_can_get_event_automation_errors()
+    {
+        $event = factory(DetectionEvent::class)->create();
+
+        $telegramConfig = factory(TelegramConfig::class)->create();
+
+        $profile = factory(DetectionProfile::class)->create();
+
+        $config = AutomationConfig::create([
+            'detection_profile_id' => $profile->id,
+            'automation_config_type' => 'telegram_configs',
+            'automation_config_id' => $telegramConfig->id,
+        ]);
+
+        $event->automationResults()->create([
+            'automation_config_id' => $config->id,
+            'is_error' => 1,
+            'response_text' => 'testing123'
+        ]);
+
+        $this->json('GET', '/api/errors')
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    0 => [
+                        'automation_config_id' => $config->id,
+                        'is_error' => 1,
+                        'response_text' => 'testing123',
+                        'automation_config_type' => 'telegram_configs',
+                    ]
+                ]
+            ]);
+    }
+
     /**
      * @test
      */
@@ -1193,7 +1270,8 @@ class ApiTest extends TestCase
             ->assertJson([
                 'data' => [
                     'relevant_events' => 4,
-                    'total_events' => 11
+                    'total_events' => 11,
+                    'total_errors' => 0
                 ]
             ]);
     }
@@ -1219,7 +1297,8 @@ class ApiTest extends TestCase
             ->assertJson([
                 'data' => [
                     'relevant_events' => 0,
-                    'total_events' => 0
+                    'total_events' => 0,
+                    'total_errors' => 0
                 ]
             ]);
     }
@@ -1227,7 +1306,8 @@ class ApiTest extends TestCase
     /**
      * @test
      */
-    public function api_can_get_prev_event() {
+    public function api_can_get_prev_event()
+    {
         $profile = factory(DetectionProfile::class)->create();
 
         $first = factory(DetectionEvent::class)->create([
@@ -1281,7 +1361,8 @@ class ApiTest extends TestCase
     /**
      * @test
      */
-    public function api_can_get_prev_event_for_profile() {
+    public function api_can_get_prev_event_for_profile()
+    {
         $profile = factory(DetectionProfile::class)->create();
 
         $first = factory(DetectionEvent::class)->create([

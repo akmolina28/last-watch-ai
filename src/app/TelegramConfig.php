@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * DetectionProfile
@@ -30,12 +31,26 @@ use Illuminate\Support\Carbon;
  * @method static Builder|TelegramConfig whereToken($value)
  * @method static Builder|TelegramConfig whereUpdatedAt($value)
  */
-class TelegramConfig extends Model
+class TelegramConfig extends Model implements AutomationConfigInterface
 {
     protected $fillable = ['name', 'token', 'chat_id'];
 
     public function detectionProfiles()
     {
         return $this->morphToMany('App\DetectionProfile', 'automation_config');
+    }
+
+    public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
+    {
+        $client = new TelegramClient($this->token, $this->chat_id);
+
+        $response = $client->sendPhoto(Storage::path($event->image_file_name));
+
+        $responseJson = json_decode($response);
+
+        return new DetectionEventAutomationResult([
+            'response_text' => $response,
+            'is_error' => !$responseJson->ok,
+        ]);
     }
 }
