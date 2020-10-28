@@ -55,17 +55,19 @@
 
         <div class="columns reverse-columns" style="margin-left:-0.75rem;">
             <div v-if="!loading" class="column is-one-third">
-                <div class="content">
-                    <span class="icon">
-                        <b-icon icon="image"></b-icon>
-                    </span>
-                    <a :href="imageFile" download>{{ event.image_file_name }}</a>
-                </div>
                 <div class="content" :title="event.occurred_at | dateStr">
                     <span class="icon">
                         <b-icon icon="clock"></b-icon>
                     </span>
                     <span>{{ event.occurred_at | dateStrRelative }}</span>
+                </div>
+                <div class="content">
+                    <a :href="imageFile" download>
+                        <span class="icon">
+                            <b-icon icon="image"></b-icon>
+                        </span>
+                        <span>Download Image File</span>
+                    </a>
                 </div>
                 <b-menu class="mb-4">
                     <b-menu-list label="Matched Profiles">
