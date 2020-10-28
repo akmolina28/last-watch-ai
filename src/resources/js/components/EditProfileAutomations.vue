@@ -21,11 +21,6 @@
         <div class="columns">
             <div class="column is-one-third">
 
-                <div v-if="automationSuccess" class="notification is-primary" style="position:sticky; top:10px;">
-                    <button class="delete" @click="automationSuccess = false"></button>
-                    automation updated!
-                </div>
-
                 <p v-if="configTypes.length === 0">
                     No automations have been set up yet.
                 </p>
@@ -64,8 +59,7 @@
         data() {
             return {
                 automationConfigs: [],
-                profile: {},
-                automationSuccess: false
+                profile: {}
             }
         },
 
@@ -110,7 +104,6 @@
             },
 
             updateAutomationConfig(event, id, type) {
-                this.automationSuccess = false;
                 let checked = event.target.checked;
 
                 let formData = new FormData();
@@ -119,9 +112,18 @@
                 formData.append('value', checked);
 
                 axios.post(`/api/profiles/${this.id}/automations`, formData)
-                    .then(() => this.automationSuccess = true)
-                    .catch(err => {
+                    .then(() => {
+                        this.$buefy.toast.open({
+                            message: 'Automations saved!',
+                            type: 'is-success'
+                        });
+                    })
+                    .catch(() => {
                         event.target.checked = !checked;
+                        this.$buefy.toast.open({
+                            message: 'Something went wrong',
+                            type: 'is-danger'
+                        });
                     });
             }
         }
