@@ -7,6 +7,7 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * App\AutomationConfig
@@ -32,6 +33,8 @@ use Illuminate\Database\Eloquent\Relations\Relation;
  */
 class AutomationConfig extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'automation_config_id',
         'automation_config_type',

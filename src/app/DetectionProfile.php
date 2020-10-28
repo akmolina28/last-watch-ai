@@ -128,27 +128,6 @@ class DetectionProfile extends Model
         return $this->hasMany('App\AutomationConfig');
     }
 
-    public function telegramConfigs()
-    {
-        return $this->morphedByMany('App\TelegramConfig', 'automation_config')
-            ->withPivot(['automation_config_id', 'automation_config_type', 'id']);
-    }
-
-    public function webRequestConfigs()
-    {
-        return $this->morphedByMany('App\WebRequestConfig', 'automation_config');
-    }
-
-    public function folderCopyConfigs()
-    {
-        return $this->morphedByMany('App\FolderCopyConfig', 'automation_config');
-    }
-
-    public function smbCifsCopyConfigs()
-    {
-        return $this->morphedByMany('App\SmbCifsCopyConfig', 'automation_config');
-    }
-
     public function setNameAttribute($value)
     {
         $this->attributes['name'] = $value;

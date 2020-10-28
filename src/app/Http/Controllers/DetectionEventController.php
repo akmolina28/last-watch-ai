@@ -49,10 +49,10 @@ class DetectionEventController extends Controller
     {
         $event->load([
             'aiPredictions.detectionProfiles' => function ($query) {
-                $query->withTrashed();
+                return $query->withTrashed();
             },
             'patternMatchedProfiles' => function ($query) {
-                $query->withTrashed();
+                return $query->withTrashed();
             },
             'automationResults'
         ]);

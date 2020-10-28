@@ -829,87 +829,8 @@ class ApiTest extends TestCase
         ])
             ->assertStatus(200);
 
-        $profile->load(['telegramConfigs']);
-
-        $this->assertCount(1, $profile->telegramConfigs);
-        $this->assertEquals($config->name, $profile->telegramConfigs()->first()->name);
-    }
-
-    /**
-     * @test
-     */
-    public function api_can_attach_a_telegram_automation_multiple_times()
-    {
-        $profile = factory(DetectionProfile::class)->create();
-
-        $config = factory(TelegramConfig::class)->create();
-
-        $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'telegram_configs',
-            'id' => $config->id,
-            'value' => true
-        ])
-            ->assertStatus(200);
-
-        $profile->load(['telegramConfigs']);
-
-        $this->assertCount(1, $profile->telegramConfigs);
-        $this->assertEquals($config->name, $profile->telegramConfigs()->first()->name);
-
-        $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'telegram_configs',
-            'id' => $config->id,
-            'value' => true
-        ]);
-
-        $profile->load(['telegramConfigs']);
-
-        $this->assertCount(1, $profile->telegramConfigs);
-        $this->assertEquals($config->name, $profile->telegramConfigs()->first()->name);
-    }
-
-    /**
-     * @test
-     */
-    public function api_can_detach_a_telegram_automation()
-    {
-        $profile = factory(DetectionProfile::class)->create();
-
-        $config = factory(TelegramConfig::class)->create();
-
-        $profile->telegramConfigs()->attach($config->id);
-
-        $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'telegram_configs',
-            'id' => $config->id,
-            'value' => false
-        ])
-            ->assertStatus(200);
-
-        $profile->load(['telegramConfigs']);
-
-        $this->assertCount(0, $profile->telegramConfigs);
-    }
-    /**
-     * @test
-     */
-    public function api_can_attach_a_web_request_automation()
-    {
-        $profile = factory(DetectionProfile::class)->create();
-
-        $config = factory(WebRequestConfig::class)->create();
-
-        $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'web_request_configs',
-            'id' => $config->id,
-            'value' => true
-        ])
-            ->assertStatus(200);
-
-        $profile->load(['webRequestConfigs']);
-
-        $this->assertCount(1, $profile->webRequestConfigs);
-        $this->assertEquals($config->name, $profile->webRequestConfigs()->first()->name);
+        $this->assertCount(1, AutomationConfig::all());
+        $this->assertEquals($config->id, AutomationConfig::first()->automation_config_id);
     }
 
     /**
@@ -928,10 +849,8 @@ class ApiTest extends TestCase
         ])
             ->assertStatus(200);
 
-        $profile->load(['webRequestConfigs']);
-
-        $this->assertCount(1, $profile->webRequestConfigs);
-        $this->assertEquals($config->name, $profile->webRequestConfigs()->first()->name);
+        $this->assertCount(1, AutomationConfig::all());
+        $this->assertEquals($config->id, AutomationConfig::first()->automation_config_id);
 
         $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
             'type' => 'web_request_configs',
@@ -939,10 +858,8 @@ class ApiTest extends TestCase
             'value' => true
         ]);
 
-        $profile->load(['webRequestConfigs']);
-
-        $this->assertCount(1, $profile->webRequestConfigs);
-        $this->assertEquals($config->name, $profile->webRequestConfigs()->first()->name);
+        $this->assertCount(1, AutomationConfig::all());
+        $this->assertEquals($config->id, AutomationConfig::first()->automation_config_id);
     }
 
     /**
@@ -954,7 +871,11 @@ class ApiTest extends TestCase
 
         $config = factory(WebRequestConfig::class)->create();
 
-        $profile->webRequestConfigs()->attach($config->id);
+        AutomationConfig::create([
+            'detection_profile_id' => $profile->id,
+            'automation_config_type' => 'web_request_configs',
+            'automation_config_id' => $config->id
+        ]);
 
         $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
             'type' => 'web_request_configs',
@@ -963,121 +884,42 @@ class ApiTest extends TestCase
         ])
             ->assertStatus(200);
 
-        $profile->load(['webRequestConfigs']);
-
-        $this->assertCount(0, $profile->webRequestConfigs);
+        $this->assertCount(0, AutomationConfig::all());
+        $this->assertCount(1, AutomationConfig::withTrashed()->get());
     }
 
     /**
      * @test
      */
-    public function api_can_attach_a_folder_copy_automation_multiple_times()
+    public function api_can_reattach_a_web_request_automation()
     {
         $profile = factory(DetectionProfile::class)->create();
 
-        $config = factory(FolderCopyConfig::class)->create();
+        $config = factory(WebRequestConfig::class)->create();
 
         $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'folder_copy_configs',
+            'type' => 'web_request_configs',
             'id' => $config->id,
             'value' => true
         ])
             ->assertStatus(200);
 
-        $profile->load(['folderCopyConfigs']);
-
-        $this->assertCount(1, $profile->folderCopyConfigs);
-        $this->assertEquals($config->name, $profile->folderCopyConfigs()->first()->name);
-
         $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'folder_copy_configs',
-            'id' => $config->id,
-            'value' => true
-        ]);
-
-        $profile->load(['folderCopyConfigs']);
-
-        $this->assertCount(1, $profile->folderCopyConfigs);
-        $this->assertEquals($config->name, $profile->folderCopyConfigs()->first()->name);
-    }
-
-    /**
-     * @test
-     */
-    public function api_can_detach_a_folder_copy_automation()
-    {
-        $profile = factory(DetectionProfile::class)->create();
-
-        $config = factory(FolderCopyConfig::class)->create();
-
-        $profile->folderCopyConfigs()->attach($config->id);
-
-        $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'folder_copy_configs',
+            'type' => 'web_request_configs',
             'id' => $config->id,
             'value' => false
         ])
             ->assertStatus(200);
 
-        $profile->load(['folderCopyConfigs']);
-
-        $this->assertCount(0, $profile->folderCopyConfigs);
-    }
-
-    /**
-     * @test
-     */
-    public function api_can_attach_a_smb_cifs_copy_automation_multiple_times()
-    {
-        $profile = factory(DetectionProfile::class)->create();
-
-        $config = factory(SmbCifsCopyConfig::class)->create();
-
         $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'smb_cifs_copy_configs',
+            'type' => 'web_request_configs',
             'id' => $config->id,
             'value' => true
         ])
             ->assertStatus(200);
 
-        $profile->load(['smbCifsCopyConfigs']);
-
-        $this->assertCount(1, $profile->smbCifsCopyConfigs);
-        $this->assertEquals($config->name, $profile->smbCifsCopyConfigs()->first()->name);
-
-        $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'smb_cifs_copy_configs',
-            'id' => $config->id,
-            'value' => true
-        ]);
-
-        $profile->load(['smbCifsCopyConfigs']);
-
-        $this->assertCount(1, $profile->smbCifsCopyConfigs);
-        $this->assertEquals($config->name, $profile->smbCifsCopyConfigs()->first()->name);
-    }
-
-    /**
-     * @test
-     */
-    public function api_can_detach_a_smb_cifs_copy_automation()
-    {
-        $profile = factory(DetectionProfile::class)->create();
-
-        $config = factory(SmbCifsCopyConfig::class)->create();
-
-        $profile->smbCifsCopyConfigs()->attach($config->id);
-
-        $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'smb_cifs_copy_configs',
-            'id' => $config->id,
-            'value' => false
-        ])
-            ->assertStatus(200);
-
-        $profile->load(['smbCifsCopyConfigs']);
-
-        $this->assertCount(0, $profile->smbCifsCopyConfigs);
+        $this->assertCount(1, AutomationConfig::all());
+        $this->assertEquals($config->id, AutomationConfig::first()->automation_config_id);
     }
 
     /**
@@ -1240,10 +1082,12 @@ class ApiTest extends TestCase
             ->assertJson([
                 'data' => [
                     0 => [
-                        'automation_config_id' => $config->id,
                         'is_error' => 1,
                         'response_text' => 'testing123',
-                        'automation_config_type' => 'telegram_configs',
+                        'automation_config_id' => $config->id,
+                        'automation_config' => [
+                            'automation_config_type' => 'telegram_configs'
+                        ]
                     ]
                 ]
             ]);

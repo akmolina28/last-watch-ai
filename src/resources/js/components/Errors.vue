@@ -23,11 +23,11 @@
             class="mb-3">
 
             <b-table-column field="automation_config_type" label="Automation Type" v-slot="props">
-                {{ props.row.automation_config_type }}
+                {{ props.row.automation_config.automation_config_type.replace('_configs', '') }}
             </b-table-column>
 
             <b-table-column field="image_file_name" label="Event" v-slot="props">
-                {{ props.row.image_file_name }}
+                {{ props.row.detection_event.image_file_name }}
             </b-table-column>
 
             <b-table-column field="response_text" label="Error" v-slot="props">

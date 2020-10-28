@@ -21,13 +21,12 @@ class DetectionEventAutomationResultResource extends JsonResource
             'is_error' => $this->is_error,
             'response_text' => $this->response_text,
             'detection_event_id' => $this->detection_event_id,
-            'image_file_name' =>
-                $this->whenLoaded('detectionEvent', $this->detectionEvent->image_file_name),
-            'automation_config_id' =>
-                $this->whenLoaded('automationConfig', $this->automationConfig->id),
-            'automation_config_type' =>
-                $this->whenLoaded('automationConfig', $this->automationConfig->automation_config_type),
-            'created_at' => $this->created_at
+            'created_at' => $this->created_at,
+            'automation_config_id' => $this->automation_config_id,
+            'automation_config' =>
+                AutomationConfigResource::make($this->whenLoaded('automationConfig')),
+            'detection_event' =>
+                DetectionEventResource::make($this->whenLoaded('detectionEvent'))
         ];
     }
 }

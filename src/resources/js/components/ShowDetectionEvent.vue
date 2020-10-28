@@ -47,7 +47,7 @@
                 <div v-if="automationErrors > 0" class="control">
                     <div class="tags has-addons">
                         <span class="tag">Automation Errors</span>
-                        <a class="tag is-danger">{{ automationErrors }}</a>
+                        <a href="/errors" class="tag is-danger">{{ automationErrors }}</a>
                     </div>
                 </div>
             </template>
@@ -134,14 +134,14 @@
 
         computed: {
             automations() {
-                if (this.event && this.event.automations) {
-                    return this.event.automations.filter(a => !a.is_error).length;
+                if (this.event && this.event.automationResults) {
+                    return this.event.automationResults.filter(a => !a.is_error).length;
                 }
                 return 0;
             },
             automationErrors() {
-                if (this.event && this.event.automations) {
-                    return this.event.automations.filter(a => a.is_error).length;
+                if (this.event && this.event.automationResults) {
+                    return this.event.automationResults.filter(a => a.is_error).length;
                 }
                 return 0;
             },

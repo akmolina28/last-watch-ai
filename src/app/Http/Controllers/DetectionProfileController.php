@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\AutomationConfig;
 use App\DetectionProfile;
-use App\Resources\AutomationConfigResource;
 use App\Resources\DetectionProfileResource;
+use App\Resources\ProfileAutomationConfigResource;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -30,10 +31,10 @@ class DetectionProfileController extends Controller
             'name' => $request->get('name'),
             'file_pattern' => $request->get('file_pattern'),
             'min_confidence' => $request->get('min_confidence'),
-            'use_regex' => $request->get('use_regex') === 'true',
+            'use_regex' => $request->get('use_regex'),
             'object_classes' => $request->get('object_classes[]'),
-            'use_smart_filter' => $request->get('use_smart_filter') === 'true',
-            'smart_filter_precision' => $request->get('use_smart_filter') === 'true' ?
+            'use_smart_filter' => $request->get('use_smart_filter'),
+            'smart_filter_precision' => $request->get('use_smart_filter') ?
                 $request->get('smart_filter_precision') : 0
         ]);
 
@@ -114,6 +115,7 @@ class DetectionProfileController extends Controller
             ::leftJoin('automation_configs as ac', function ($join) use ($type, $profile) {
                 $join->on('ac.automation_config_id', '=', $type.'.id');
                 $join->where('ac.automation_config_type', '=', $type);
+                $join->whereNull('ac.deleted_at');
                 $join->where('ac.detection_profile_id', '=', $profile->id);
             })
                 ->select(
@@ -131,7 +133,7 @@ class DetectionProfileController extends Controller
             }
         }
 
-        return AutomationConfigResource::collection($query->get());
+        return ProfileAutomationConfigResource::collection($query->get());
     }
 
     public function updateAutomations(DetectionProfile $profile)
@@ -141,21 +143,21 @@ class DetectionProfileController extends Controller
         $value = request()->get('value');
 
         if ($value == 'true') {
-            $count = DB::table('automation_configs')->where([
+            $count = AutomationConfig::where([
                 ['detection_profile_id', '=', $profile->id],
                 ['automation_config_id', '=', $id],
                 ['automation_config_type', '=', $type],
             ])->count();
 
             if ($count == 0) {
-                DB::table('automation_configs')->insert([
+                AutomationConfig::create([
                     'detection_profile_id' => $profile->id,
                     'automation_config_id' => $id,
                     'automation_config_type' => $type,
                 ]);
             }
         } else {
-            DB::table('automation_configs')->where([
+            AutomationConfig::where([
                 ['detection_profile_id', '=', $profile->id],
                 ['automation_config_id', '=', $id],
                 ['automation_config_type', '=', $type],

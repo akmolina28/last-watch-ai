@@ -43,9 +43,13 @@ class StatisticsController extends Controller
 
     public function errors()
     {
-        $errors = DetectionEventAutomationResult::with(['automationConfig', 'detectionEvent'])
+        $errors = DetectionEventAutomationResult::with([
+            'automationConfig' => function ($q) {
+                return $q->withTrashed();
+            },
+            'detectionEvent'
+        ])
             ->where('is_error', '=', 1)
-            ->where('created_at', '>', Date::now()->addDays(-1)->format('Y-m-d H:i:s'))
             ->latest()
             ->paginate(10);
 
