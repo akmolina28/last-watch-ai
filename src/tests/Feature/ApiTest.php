@@ -101,10 +101,10 @@ class ApiTest extends TestCase
         $this->json('POST', '/api/profiles', [
             'name' => 'My Awesome Profile',
             'file_pattern' => 'camera123',
-            'use_regex' => 'false',
+            'use_regex' => false,
             'object_classes[]' => ['car', 'person'],
             'min_confidence' => 0.42,
-            'use_smart_filter' => 'true',
+            'use_smart_filter' => true,
             'smart_filter_precision' => 0.69
         ])
             ->assertStatus(201)
@@ -1228,6 +1228,22 @@ class ApiTest extends TestCase
             ->assertJson([
                 'data' => [
                     'id' => $first->id
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_profile_for_editing()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+
+        $this->json('GET', '/api/profiles/'.$profile->id.'/edit')
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'id' => $profile->id
                 ]
             ]);
     }
