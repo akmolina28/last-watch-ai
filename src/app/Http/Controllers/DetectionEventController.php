@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\DetectionEvent;
 use App\Resources\DetectionEventResource;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class DetectionEventController extends Controller
@@ -61,10 +62,15 @@ class DetectionEventController extends Controller
 
     public function showLatest()
     {
-        $event = DetectionEvent::whereHas('detectionProfiles', function ($q) {
-            return $q->where('ai_prediction_detection_profile.is_masked', '=', false)
-                ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false);
-        })->orderByDesc('occurred_at')->first();
+        try {
+            $event = DetectionEvent::whereHas('detectionProfiles', function ($q) {
+                return $q->where('ai_prediction_detection_profile.is_masked', '=', false)
+                    ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false);
+            })->orderByDesc('occurred_at')->firstOrFail();
+        }
+        catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Model not found.'], 204);
+        }
 
         return $this->show($event);
     }

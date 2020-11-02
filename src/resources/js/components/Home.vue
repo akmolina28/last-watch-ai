@@ -34,7 +34,7 @@
             </template>
         </title-header>
 
-        <div class="columns" style="margin-left:-0.75rem;">
+        <div v-if="event" class="columns" style="margin-left:-0.75rem;">
             <div class="column is-one-third">
                 <p class="title is-size-4">Latest Event - {{ event.occurred_at | dateStrRelative }}</p>
                 <p class="subtitle is-size-6">{{ event.image_file_name }}</p>
@@ -53,7 +53,7 @@
 
         data() {
             return {
-                event: {},
+                event: null,
                 statistics: {}
             }
         },
@@ -67,6 +67,9 @@
                 axios.get('/api/events/latest')
                     .then((response) => {
                         this.event = response.data.data;
+                    })
+                    .catch(error => {
+                        console.log(error);
                     });
 
                 axios.get('/api/statistics')
