@@ -76,7 +76,7 @@
                                             <b-icon pack="fab" class="media-left fa-lg" icon="telegram-plane"></b-icon>
                                             <div class="media-content">
                                                 <h3>Telegram</h3>
-                                                <small>Upload images to Samba share</small>
+                                                <small>Send images to a Telegram bot</small>
                                             </div>
                                         </div>
                                     </router-link>
