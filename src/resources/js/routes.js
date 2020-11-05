@@ -16,6 +16,11 @@ let routes = [
         props: true
     },
     {
+        path: '/profiles/:id/edit',
+        component: require('./components/CreateDetectionProfile').default,
+        props: true
+    },
+    {
         path: '/profiles/:id/automations',
         component: require('./components/EditProfileAutomations').default,
         props: true

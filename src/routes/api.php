@@ -19,6 +19,10 @@ Route::post('/profiles', 'DetectionProfileController@make');
 
 Route::get('/profiles/{profile}', 'DetectionProfileController@show');
 
+Route::get('/profiles/{profile}/edit', 'DetectionProfileController@edit');
+
+Route::patch('/profiles/{profile}', 'DetectionProfileController@update');
+
 Route::delete('/profiles/{profile}', 'DetectionProfileController@destroy');
 
 Route::put('/profiles/{profile}/status', 'DetectionProfileController@updateStatus');

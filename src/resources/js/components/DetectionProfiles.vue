@@ -90,7 +90,14 @@
                     </b-dropdown-item>
                 </b-dropdown>
             </b-table-column>
-            <b-table-column field="delete" label="Delete" v-slot="props">
+            <b-table-column field="delete" label="" v-slot="props">
+                <a :href="`/profiles/${props.row.id}/edit`" class="button is-primary is-outlined">
+                    <span class="icon is-small">
+                        <b-icon icon="edit"></b-icon>
+                    </span>
+                </a>
+            </b-table-column>
+            <b-table-column field="delete" label="" v-slot="props">
                 <button @click="deleteProfile(props.row)" :class="'button is-danger is-outlined' + (props.row.isDeleting ? ' is-loading' : '')">
                     <span class="icon is-small">
                         <b-icon icon="trash"></b-icon>

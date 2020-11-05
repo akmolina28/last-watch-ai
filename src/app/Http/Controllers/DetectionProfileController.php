@@ -9,6 +9,7 @@ use App\Resources\ProfileAutomationConfigResource;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class DetectionProfileController extends Controller
 {
@@ -17,15 +18,25 @@ class DetectionProfileController extends Controller
         return DetectionProfileResource::collection(DetectionProfile::paginate(10));
     }
 
-    public function make(Request $request)
+    protected function validateRequest()
     {
-        $request->validate([
-            'name' => 'required|unique:detection_profiles,name,NULL,id,deleted_at,NULL',
+        $id = 'id';
+        if (request()->has('id')) {
+            $id = request()->get('id');
+        }
+
+        request()->validate([
+            'name' => "required|unique:detection_profiles,name,{$id},id,deleted_at,NULL",
             'file_pattern' => 'required',
             'min_confidence' => 'required|numeric|between:0,1',
             'object_classes[]' => 'required',
             'smart_filter_precision' => 'numeric|between:0,1'
         ]);
+    }
+
+    public function make(Request $request)
+    {
+        $this->validateRequest();
 
         $profile = DetectionProfile::make([
             'name' => $request->get('name'),
@@ -33,7 +44,7 @@ class DetectionProfileController extends Controller
             'min_confidence' => $request->get('min_confidence'),
             'use_regex' => $request->get('use_regex'),
             'object_classes' => $request->get('object_classes[]'),
-            'use_smart_filter' => $request->has('use_smart_filter') ? $request->has('use_smart_filter') : 0,
+            'use_smart_filter' => $request->has('use_smart_filter') ? $request->get('use_smart_filter') : 0,
             'smart_filter_precision' => $request->get('use_smart_filter') ?
                 $request->get('smart_filter_precision') : 0
         ]);
@@ -51,7 +62,30 @@ class DetectionProfileController extends Controller
         return DetectionProfileResource::make($profile);
     }
 
+    public function update(DetectionProfile $profile)
+    {
+        $this->validateRequest();
+
+        $profile->name = request()->get('name');
+        $profile->file_pattern = request()->get('file_pattern');
+        $profile->min_confidence = request()->get('min_confidence');
+        $profile->use_regex = request()->get('use_regex');
+        $profile->object_classes = request()->get('object_classes[]');
+        $profile->use_smart_filter = request()->has('use_smart_filter') ? request()->get('use_smart_filter') : false;
+        $profile->smart_filter_precision = request()->has('use_smart_filter') ?
+            request()->get('smart_filter_precision') : 0;
+
+        $profile->save();
+
+        return DetectionProfileResource::make($profile);
+    }
+
     public function show(DetectionProfile $profile)
+    {
+        return DetectionProfileResource::make($profile);
+    }
+
+    public function edit(DetectionProfile $profile)
     {
         return DetectionProfileResource::make($profile);
     }

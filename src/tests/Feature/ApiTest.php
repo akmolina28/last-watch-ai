@@ -1243,9 +1243,55 @@ class ApiTest extends TestCase
             ->assertStatus(200)
             ->assertJson([
                 'data' => [
-                    'id' => $profile->id
+                    'id' => $profile->id,
+                    'name' => $profile->name
                 ]
             ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_update_a_profile()
+    {
+        $profile = factory(DetectionProfile::class)->create([
+            'name' => 'testing123',
+            'file_pattern' => 'testing123',
+            'use_regex' => false,
+            'min_confidence' => 0.55,
+            'object_classes' => ['person', 'car'],
+            'use_smart_filter' => false,
+            'smart_filter_precision' => 0.42
+        ]);
+
+        $this->json('PATCH', '/api/profiles/'.$profile->id, [
+            'id' => $profile->id,
+            'name' => 'testing123',
+            'file_pattern' => '/\btesting456\b/',
+            'use_regex' => true,
+            'object_classes[]' => ['dog', 'cat'],
+            'min_confidence' => 0.69,
+            'use_smart_filter' => true,
+            'smart_filter_precision' => 0.77
+        ])
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'name' => 'testing123'
+                ]
+            ]);
+
+        $profile->refresh();
+
+        $this->assertEquals('testing123', $profile->name);
+        $this->assertEquals('/\btesting456\b/', $profile->file_pattern);
+        $this->assertTrue($profile->use_regex);
+        $this->assertContains('dog', $profile->object_classes);
+        $this->assertContains('cat', $profile->object_classes);
+        $this->assertCount(2, $profile->object_classes);
+        $this->assertTrue($profile->use_smart_filter);
+        $this->assertEquals(0.69, $profile->min_confidence);
+        $this->assertEquals(0.77, $profile->smart_filter_precision);
     }
 
     /**

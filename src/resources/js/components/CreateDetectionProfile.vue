@@ -12,7 +12,7 @@
 
                 <title-header>
                     <template v-slot:title>
-                        Create Profile
+                        {{ pageTitle }}
                     </template>
                     <template v-slot:subtitle>
                         Configure the file watcher and AI
@@ -22,7 +22,7 @@
                 <form @submit.prevent="processForm">
 
                     <b-field label="Name">
-                        <b-input v-model="name" placeholder="Unique name" name="name" required></b-input>
+                        <b-input v-model="name" placeholder="Unique name" name="name" :disabled="isEditing" required></b-input>
                     </b-field>
 
                     <b-field label="File Pattern" class="mb-6" grouped>
@@ -120,6 +120,7 @@
 <script>
     export default {
         name: "CreateDetectionProfile",
+        props: ['id'],
         data() {
             return {
                 name: '',
@@ -137,6 +138,29 @@
 
         created() {
             axios.get('/api/objectClasses').then(({data}) => this.allObjectClasses = data);
+
+            if (this.isEditing) {
+                axios.get(`/api/profiles/${this.id}/edit`).then(({data}) => {
+                    let profile = data.data;
+
+                    this.name = profile.name;
+                    this.file_pattern = profile.file_pattern;
+                    this.min_confidence = parseFloat(profile.min_confidence);
+                    this.use_regex = profile.use_regex;
+                    this.object_classes = profile.object_classes;
+                    this.use_smart_filter = profile.use_smart_filter;
+                    this.smart_filter_precision = parseFloat(profile.smart_filter_precision);
+                });
+            }
+        },
+
+        computed: {
+            isEditing() {
+                return this.id != null;
+            },
+            pageTitle() {
+                return this.id != null ? "Edit Profile" : "Create Profile";
+            }
         },
 
         methods: {
@@ -163,6 +187,7 @@
                 this.isSaving = true;
 
                 let formData = {
+                    'id': this.id,
                     'name': this.name,
                     'file_pattern': this.file_pattern,
                     'min_confidence': this.min_confidence,
@@ -173,21 +198,39 @@
                     'object_classes[]': this.object_classes,
                 }
 
-                axios.post('/api/profiles', formData, {
-                    headers: {
-                        'enctype': 'multipart/form-data'
-                    }
+                if (this.isEditing) {
+                    axios.patch(`/api/profiles/${this.id}`, formData, {
+                        headers: {
+                            'enctype': 'multipart/form-data'
+                        }
+                    }).then(() => {
+                        this.$router.push(`/profiles`);
 
-                }).then(response => {
-                    let id = response.data.data.id;
-                    this.$router.push(`/profiles/${id}/automations`);
+                    }).catch(e => {
+                        this.handleSubmitErrors(e);
 
-                }).catch(e => {
-                    this.handleSubmitErrors(e);
+                    }).finally(() => {
+                        this.isSaving = false;
+                    });
+                }
+                else {
+                    axios.post('/api/profiles', formData, {
+                        headers: {
+                            'enctype': 'multipart/form-data'
+                        }
 
-                }).finally(() => {
-                    this.isSaving = false;
-                });
+                    }).then(response => {
+                        let id = response.data.data.id;
+                        this.$router.push(`/profiles/${id}/automations`);
+
+                    }).catch(e => {
+                        this.handleSubmitErrors(e);
+
+                    }).finally(() => {
+                        this.isSaving = false;
+                    });
+                }
+
             }
         }
     }

@@ -87,7 +87,9 @@ class DetectionProfile extends Model
     ];
 
     protected $casts = [
-        'object_classes' => 'array'
+        'object_classes' => 'array',
+        'use_regex' => 'boolean',
+        'use_smart_filter' => 'boolean'
     ];
 
     public function getStatusAttribute()
