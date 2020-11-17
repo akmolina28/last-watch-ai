@@ -146,7 +146,7 @@ services:
     restart: unless-stopped
     environment:
       - WATCH_FOLDER=/var/www/app/storage/app/public/events
-      - WEBHOOK_URL=http://nginx:80/webhook-receiving-url
+      - WEBHOOK_URL=http://lw_nginx:80/webhook-receiving-url
     networks:
       - laravel
 
