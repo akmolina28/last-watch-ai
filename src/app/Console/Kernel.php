@@ -35,7 +35,7 @@ class Kernel extends ConsoleKernel
                     ->delete();
             }
 
-        })->daily();
+        })->twiceDaily();
     }
 
     /**
