@@ -41,6 +41,11 @@ class StatisticsController extends Controller
         ]], 200);
     }
 
+    public function isAlive()
+    {
+        return response()->json(['message' => 'Alive.'], 200);
+    }
+
     public function errors()
     {
         $errors = DetectionEventAutomationResult::with([

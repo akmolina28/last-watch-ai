@@ -1297,6 +1297,15 @@ class ApiTest extends TestCase
     /**
      * @test
      */
+    public function api_is_alive()
+    {
+        $this->json('GET', '/api/alive')
+            ->assertStatus(200);
+    }
+
+    /**
+     * @test
+     */
     public function api_throws_422_if_profile_status_update_invalid()
     {
         $profile = factory(DetectionProfile::class)->create();
