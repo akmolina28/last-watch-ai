@@ -224,4 +224,15 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         'Deepstack' => App\Facades\DeepstackFacade::class
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Data Retention Period
+    |--------------------------------------------------------------------------
+    |
+    | How many days of data to retain (0 for unlimited)
+    |
+    */
+
+    'data_retention_days' => env('DATA_RETENTION_DAYS', 7),
 ];

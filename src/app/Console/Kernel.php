@@ -2,8 +2,10 @@
 
 namespace App\Console;
 
+use App\DetectionEvent;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Date;
 
 class Kernel extends ConsoleKernel
 {
@@ -24,7 +26,16 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->call(function () {
+            if (config('app.data_retention_days') > 0) {
+                $days = config('app.data_retention_days');
+                DetectionEvent::
+                    where('occurred_at', '<', Date::now()
+                        ->addDays(-1 * $days)->format('Y-m-d H:i:s'))
+                    ->delete();
+            }
+
+        })->daily();
     }
 
     /**

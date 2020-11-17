@@ -6,7 +6,7 @@ networks:
 services:
   site:
     image: nginx:stable
-    container_name: nginx
+    container_name: lw_nginx
     restart: unless-stopped
     ports:
       - "8080:80"
@@ -20,12 +20,13 @@ services:
       - deepstack
       - watcher
       - queue
+      - scheduler
     networks:
       - laravel
 
   mysql:
     image: mysql:5.7.29
-    container_name: mysql
+    container_name: lw_mysql
     restart: unless-stopped
     tty: true
     ports:
@@ -46,7 +47,7 @@ services:
     build:
       context: .
       dockerfile: php.dockerfile
-    container_name: php
+    container_name: lw_php
     restart: unless-stopped
     ports:
       - "9000:9000"
@@ -56,9 +57,18 @@ services:
     networks:
       - laravel
 
+  scheduler:
+    image: mcuadros/ofelia:latest
+    container_name: lw_scheduler
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./scheduler/config.ini:/etc/ofelia/config.ini
+    depends_on:
+      - php
+
   queue:
     image: akmolina28/laravel-queue-worker
-    container_name: queue
+    container_name: lw_queue
     restart: unless-stopped
     tty: true
     environment:
@@ -72,7 +82,7 @@ services:
 
   composer:
     image: composer:latest
-    container_name: composer
+    container_name: lw_composer
     volumes:
       - ./src:/var/www/app
     working_dir: /var/www/app
@@ -84,7 +94,7 @@ services:
 
   npm:
     image: node:13.7
-    container_name: npm
+    container_name: lw_npm
     volumes:
       - ./src:/var/www/app
     working_dir: /var/www/app
@@ -94,7 +104,7 @@ services:
     build:
       context: .
       dockerfile: php.dockerfile
-    container_name: artisan
+    container_name: lw_artisan
     volumes:
       - ./src:/var/www/app
     depends_on:
@@ -106,6 +116,7 @@ services:
 
   deepstack:
     image: deepquestai/deepstack
+    container_name: lw_deepstack
     restart: unless-stopped
     volumes:
       - localstorage:/datastore
@@ -118,6 +129,7 @@ services:
 
   deepstack_testing:
     image: deepquestai/deepstack
+    container_name: lw_deepstack_testing
     volumes:
       - localstorage:/datastore
     environment:
@@ -127,6 +139,7 @@ services:
 
   watcher:
     image: akmolina28/webhook-folder-watcher
+    container_name: lw_watcher
     volumes:
       - ./src:/var/www/app
       - ${WATCH_FOLDER}:/var/www/app/storage/app/public/events
@@ -139,7 +152,7 @@ services:
 
   mysql_testing:
     image: mysql:5.7.29
-    container_name: mysql_testing
+    container_name: lw_mysql_testing
     tty: true
     ports:
       - "33066:3306"
