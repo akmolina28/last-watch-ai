@@ -19,6 +19,8 @@ class WebRequestConfigResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'url' => $this->url,
+            'is_post' => $this->is_post,
+            'body_json' => $this->body_json,
             'detection_profiles' => DetectionProfileResource::collection($this->whenLoaded('detectionProfiles'))
         ];
     }

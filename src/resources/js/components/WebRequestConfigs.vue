@@ -22,6 +22,8 @@
                     <tr>
                         <th>Name</th>
                         <th>Url</th>
+                        <th>Post</th>
+                        <th>Body</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -31,46 +33,84 @@
                     <tr v-for="config in webRequestConfigs">
                         <td>{{ config.name }}</td>
                         <td>{{ config.url }}</td>
+                        <td>
+                            <b-icon v-if="config.is_post" icon="check"></b-icon>
+                        </td>
+                        <td>
+                            <span :title="config.body_json">{{ config.body_json | truncate }}</span>
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
         <div class="box is-6">
             <p class="subtitle">New Config</p>
-            <form @submit="checkForm" method="POST" action="/automations/webRequests" ref="webRequestForm">
 
-                <div class="field">
-                    <label class="label" for="name">Name</label>
+            <form @submit.prevent="processForm">
+                <b-field label="Name">
+                    <b-input v-model="name" placeholder="Unique name" name="name" required></b-input>
+                </b-field>
 
-                    <div class="control">
-                        <input
-                            v-model="name"
-                            class="input"
-                            type="text"
-                            name="name"
-                            id="name">
-                    </div>
-                </div>
+                <b-field label="Headers (json)">
+                    <b-input v-model="headersJson" name="headersJson" type="textarea"></b-input>
+                </b-field>
 
-                <div class="field">
-                    <label class="label" for="url">URL</label>
+                <b-field label="URL">
+                    <b-input v-model="url" placeholder="http://some.site/api" name="url" required></b-input>
+                </b-field>
 
-                    <div class="control">
-                        <input
-                            v-model="url"
-                            class="input"
-                            type="text"
-                            name="url"
-                            id="url">
-                    </div>
-                </div>
+                <b-field label="POST">
+                    <b-switch v-model="isPost" @input="changePost"/>
+                </b-field>
 
-                <div class="field is-grouped">
-                    <div class="control">
-                        <button class="button is-link" type="submit">Submit</button>
-                    </div>
-                </div>
+                <b-field label="Body (json)">
+                    <b-input v-model="bodyJson" name="bodyJson" type="textarea" :disabled="!isPost"></b-input>
+                </b-field>
+
+                <b-button type="is-primary"
+                          :loading="isSaving"
+                          icon-left="save"
+                          native-type="submit">
+                    Save Profile
+                </b-button>
             </form>
+
+<!--            <form @submit="checkForm" method="POST" action="/automations/webRequests" ref="webRequestForm">-->
+
+<!--                <div class="field">-->
+<!--                    <label class="label" for="name">Name</label>-->
+
+<!--                    <div class="control">-->
+<!--                        <input-->
+<!--                            v-model="name"-->
+<!--                            class="input"-->
+<!--                            type="text"-->
+<!--                            name="name"-->
+<!--                            id="name">-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                <div class="field">-->
+<!--                    <label class="label" for="url">URL</label>-->
+
+<!--                    <div class="control">-->
+<!--                        <input-->
+<!--                            v-model="url"-->
+<!--                            class="input"-->
+<!--                            type="text"-->
+<!--                            name="url"-->
+<!--                            id="url">-->
+<!--                    </div>-->
+<!--                </div>-->
+
+
+
+<!--                <div class="field is-grouped">-->
+<!--                    <div class="control">-->
+<!--                        <button class="button is-link" type="submit">Submit</button>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </form>-->
         </div>
     </div>
 </template>
@@ -83,12 +123,27 @@
             return {
                 webRequestConfigs: [],
                 name: '',
-                url: ''
+                url: '',
+                isPost: false,
+                bodyJson: '',
+                headersJson: '',
+                isSaving: false
             }
         },
 
         mounted() {
             this.getData();
+        },
+
+        filters: {
+            truncate(value) {
+                let val = value ?? '';
+                let ret = val.substring(0, 19);
+                if (val.length > 19) {
+                    ret += '...';
+                }
+                return ret;
+            }
         },
 
         methods: {
@@ -98,16 +153,34 @@
                 });
             },
 
-            submitForm: function () {
-                let formData = new FormData(this.$refs.webRequestForm);
+            changePost() {
+                this.bodyJson = '';
+            },
+
+            processForm: function () {
+                let formData = {
+                    'name': this.name,
+                    'url': this.url,
+                    'is_post': this.isPost,
+                    'body_json': this.bodyJson,
+                    'headers_json': this.headersJson
+                }
+
+                this.isSaving = true;
                 axios.post('/api/automations/webRequest', formData)
                     .then(response => {
                         this.webRequestConfigs.push(response.data.data);
                         this.name = '';
                         this.url = '';
+                        this.isPost = false;
+                        this.bodyJson = '';
+                        this.headersJson = '';
                     })
                     .catch(err => {
                         console.log(err.response);
+                    })
+                    .finally(() => {
+                        this.isSaving = false;
                     })
             },
 

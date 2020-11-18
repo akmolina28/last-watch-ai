@@ -88,7 +88,7 @@
                                             <b-icon class="media-left fa-lg" icon="globe-americas"></b-icon>
                                             <div class="media-content">
                                                 <h3>Web Request</h3>
-                                                <small>Make Http GET requests</small>
+                                                <small>Make Http GET/POST requests</small>
                                             </div>
                                         </div>
                                     </router-link>
