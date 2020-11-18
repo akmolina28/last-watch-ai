@@ -74,43 +74,6 @@
                     Save Profile
                 </b-button>
             </form>
-
-<!--            <form @submit="checkForm" method="POST" action="/automations/webRequests" ref="webRequestForm">-->
-
-<!--                <div class="field">-->
-<!--                    <label class="label" for="name">Name</label>-->
-
-<!--                    <div class="control">-->
-<!--                        <input-->
-<!--                            v-model="name"-->
-<!--                            class="input"-->
-<!--                            type="text"-->
-<!--                            name="name"-->
-<!--                            id="name">-->
-<!--                    </div>-->
-<!--                </div>-->
-
-<!--                <div class="field">-->
-<!--                    <label class="label" for="url">URL</label>-->
-
-<!--                    <div class="control">-->
-<!--                        <input-->
-<!--                            v-model="url"-->
-<!--                            class="input"-->
-<!--                            type="text"-->
-<!--                            name="url"-->
-<!--                            id="url">-->
-<!--                    </div>-->
-<!--                </div>-->
-
-
-
-<!--                <div class="field is-grouped">-->
-<!--                    <div class="control">-->
-<!--                        <button class="button is-link" type="submit">Submit</button>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </form>-->
         </div>
     </div>
 </template>
