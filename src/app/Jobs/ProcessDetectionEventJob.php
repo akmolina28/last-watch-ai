@@ -37,6 +37,7 @@ class ProcessDetectionEventJob implements ShouldQueue
     /**
      * Execute the job.
      *
+     * @param DeepstackClientInterface $client
      * @return void
      */
     public function handle(DeepstackClientInterface $client)
@@ -50,7 +51,7 @@ class ProcessDetectionEventJob implements ShouldQueue
 
         $result = new DeepstackResult($response);
 
-        $matchedProfiles = [];
+        $relevantProfiles = [];
 
         foreach ($result->getPredictions() as $prediction) {
             $aiPrediction = AiPrediction::create([
@@ -63,7 +64,7 @@ class ProcessDetectionEventJob implements ShouldQueue
                 'detection_event_id' => $this->event->id
             ]);
 
-            $relevantProfiles = DetectionProfile::
+            $matchedProfiles = DetectionProfile::
                 whereHas('patternMatchedEvents', function ($query) {
                     $query->where('detection_event_id', '=', $this->event->id)
                         ->where('is_profile_active', '=', 1);
@@ -72,7 +73,7 @@ class ProcessDetectionEventJob implements ShouldQueue
                 ->where('min_confidence', '<=', $prediction->confidence)
                 ->get();
 
-            foreach ($relevantProfiles as $profile) {
+            foreach ($matchedProfiles as $profile) {
                 $maskName = $profile->slug.'.png';
                 $maskPath = Storage::path('masks/'.$maskName);
                 $isMasked = $profile->use_mask && $aiPrediction->isMasked($maskPath);
@@ -97,16 +98,36 @@ class ProcessDetectionEventJob implements ShouldQueue
                     'is_smart_filtered' => $objectFiltered
                 ]);
 
-                if (!$isMasked && !$objectFiltered) {
-                    if (!in_array($profile, $matchedProfiles)) {
-                        array_push($matchedProfiles, $profile);
+                if (!$isMasked && !$objectFiltered && !$profile->is_negative) {
+                    if (!in_array($profile, $relevantProfiles)) {
+                        array_push($relevantProfiles, $profile);
                     }
                 }
             }
         }
 
+        // profiles with negative flag set which didn't have any relevant objects
+        $negativeProfiles = DetectionProfile
+            ::where('is_negative', '=', 1)
+            ->whereHas('patternMatchedEvents', function ($query) {
+                $query
+                    ->where('detection_event_id', '=', $this->event->id)
+                    ->where('is_profile_active', '=', 1);
+            })
+            ->whereDoesntHave('detectionEvents', function ($query) {
+                $query
+                    ->where('detection_events.id', '=', $this->event->id)
+                    ->where('ai_prediction_detection_profile.is_masked', '=', 0)
+                    ->where('ai_prediction_detection_profile.is_smart_filtered', '=', 0);
+            })
+            ->get();
+
+        foreach($negativeProfiles as $profile) {
+            array_push($relevantProfiles, $profile);
+        }
+
         /* @var $profile DetectionProfile */
-        foreach ($matchedProfiles as $profile) {
+        foreach ($relevantProfiles as $profile) {
             /* @var $automation AutomationConfig */
             foreach ($profile->automations as $automation) {
                 try {

@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 /**
  * WebRequestConfig
@@ -52,12 +51,9 @@ class WebRequestConfig extends Model implements AutomationConfigInterface
         $headers = $this->headers_json ? json_decode($this->headers_json, true) : [];
 
         if ($this->is_post) {
-            Log::info('post');
-
             return $this->postRequest($headers);
         }
         else {
-            Log::info('get');
             return $this->getRequest($headers);
         }
     }

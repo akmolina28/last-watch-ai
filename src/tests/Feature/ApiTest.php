@@ -134,6 +134,30 @@ class ApiTest extends TestCase
     /**
      * @test
      */
+    public function api_can_create_a_negative_profile()
+    {
+        $this->json('POST', '/api/profiles', [
+            'name' => 'My Awesome Profile',
+            'file_pattern' => 'camera123',
+            'use_regex' => false,
+            'object_classes[]' => ['car', 'person'],
+            'min_confidence' => 0.42,
+            'use_smart_filter' => false,
+            'is_negative' => true
+        ])
+            ->assertStatus(201)
+            ->assertJsonCount(1)
+            ->assertJson([
+                'data' => [
+                    'name' => 'My Awesome Profile',
+                    'is_negative' => true
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     */
     public function api_can_delete_a_profile()
     {
         $profile = factory(DetectionProfile::class)->create();

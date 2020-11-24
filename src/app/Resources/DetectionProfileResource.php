@@ -24,6 +24,7 @@ class DetectionProfileResource extends JsonResource
             'min_confidence' => $this->min_confidence,
             'use_mask' => $this->use_mask,
             'use_regex' => $this->use_regex,
+            'is_negative' => $this->is_negative,
             'use_smart_filter' => $this->use_smart_filter,
             'smart_filter_precision' => $this->smart_filter_precision,
             'status' => $this->status,

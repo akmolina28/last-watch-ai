@@ -40,6 +40,9 @@
                             v-model="object_classes">
                             <option v-for="objectClass in allObjectClasses" :value="objectClass">{{ objectClass }}</option>
                         </b-select>
+                        <div class="ml-2">
+                            <b-switch v-model="is_negative">Negative Relevance</b-switch>
+                        </div>
                     </b-field>
 
                     <b-field label="AI Confidence">
@@ -132,7 +135,8 @@
                 mask: null,
                 object_classes: [],
                 allObjectClasses: [],
-                isSaving: false
+                isSaving: false,
+                is_negative: false
             }
         },
 
@@ -150,6 +154,7 @@
                     this.object_classes = profile.object_classes;
                     this.use_smart_filter = profile.use_smart_filter;
                     this.smart_filter_precision = parseFloat(profile.smart_filter_precision);
+                    this.is_negative = profile.is_negative;
                 });
             }
         },
@@ -196,6 +201,7 @@
                     'smart_filter_precision': this.smart_filter_precision,
                     'mask': this.mask,
                     'object_classes[]': this.object_classes,
+                    'is_negative': this.is_negative
                 }
 
                 if (this.isEditing) {

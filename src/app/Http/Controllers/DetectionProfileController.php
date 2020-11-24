@@ -9,7 +9,6 @@ use App\Resources\ProfileAutomationConfigResource;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class DetectionProfileController extends Controller
 {
@@ -42,7 +41,8 @@ class DetectionProfileController extends Controller
             'name' => $request->get('name'),
             'file_pattern' => $request->get('file_pattern'),
             'min_confidence' => $request->get('min_confidence'),
-            'use_regex' => $request->get('use_regex'),
+            'use_regex' => $request->get('use_regex', false),
+            'is_negative' => $request->get('is_negative', false),
             'object_classes' => $request->get('object_classes[]'),
             'use_smart_filter' => $request->has('use_smart_filter') ? $request->get('use_smart_filter') : 0,
             'smart_filter_precision' => $request->get('use_smart_filter') ?
@@ -74,6 +74,7 @@ class DetectionProfileController extends Controller
         $profile->use_smart_filter = request()->has('use_smart_filter') ? request()->get('use_smart_filter') : false;
         $profile->smart_filter_precision = request()->has('use_smart_filter') ?
             request()->get('smart_filter_precision') : 0;
+        $profile->is_negative = request()->get('is_negative', false);
 
         $profile->save();
 

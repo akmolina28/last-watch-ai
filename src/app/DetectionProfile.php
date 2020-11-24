@@ -26,6 +26,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @property int $use_regex
  * @property int $use_mask
  * @property int $is_enabled
+ * @property int $is_negative
  * @property Carbon|null $deleted_at
  * @property int $is_scheduled
  * @property string|null $start_time
@@ -83,13 +84,15 @@ class DetectionProfile extends Model
         'use_regex',
         'object_classes',
         'use_smart_filter',
-        'smart_filter_precision'
+        'smart_filter_precision',
+        'is_negative',
     ];
 
     protected $casts = [
         'object_classes' => 'array',
         'use_regex' => 'boolean',
-        'use_smart_filter' => 'boolean'
+        'use_smart_filter' => 'boolean',
+        'is_negative' => 'boolean',
     ];
 
     public function getStatusAttribute()
@@ -116,7 +119,8 @@ class DetectionProfile extends Model
             ['ai_prediction_detection_profile', AiPrediction::class],
             [null, null, 'id'],
             [null, 'ai_prediction_id', 'detection_event_id']
-        );
+        )
+            ->withPivot('ai_prediction_detection_profile', ['is_masked', 'is_smart_filtered']);
     }
 
     public function aiPredictions()

@@ -4,7 +4,6 @@ namespace App;
 
 class DeepstackResult
 {
-
     public $response;
 
     public function __construct($response)
