@@ -191,18 +191,30 @@
 
                 this.isSaving = true;
 
-                let formData = {
-                    'id': this.id,
-                    'name': this.name,
-                    'file_pattern': this.file_pattern,
-                    'min_confidence': this.min_confidence,
-                    'use_regex': this.use_regex,
-                    'use_smart_filter': this.use_smart_filter,
-                    'smart_filter_precision': this.smart_filter_precision,
-                    'mask': this.mask,
-                    'object_classes[]': this.object_classes,
-                    'is_negative': this.is_negative
-                }
+                let formData = new FormData();
+                //     = {
+                //     'id': this.id,
+                //     'name': this.name,
+                //     'file_pattern': this.file_pattern,
+                //     'min_confidence': this.min_confidence,
+                //     'use_regex': this.use_regex,
+                //     'use_smart_filter': this.use_smart_filter,
+                //     'smart_filter_precision': this.smart_filter_precision,
+                //     'mask': this.mask,
+                //     'object_classes[]': this.object_classes,
+                //     'is_negative': this.is_negative
+                // }
+
+                formData.append('id', this.id);
+                formData.append('name', this.name);
+                formData.append('file_pattern', this.file_pattern);
+                formData.append('min_confidence', this.min_confidence);
+                formData.append('use_regex', this.use_regex);
+                formData.append('use_smart_filter', this.use_smart_filter);
+                formData.append('smart_filter_precision', this.smart_filter_precision);
+                formData.append('mask', this.mask);
+                formData.append('object_classes', JSON.stringify(this.object_classes));
+                formData.append('is_negative', this.is_negative);
 
                 if (this.isEditing) {
                     axios.patch(`/api/profiles/${this.id}`, formData, {

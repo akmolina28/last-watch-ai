@@ -37,17 +37,15 @@ class WebRequestAutomationTest extends TestCase
 
         $event = factory(DetectionEvent::class)->create();
 
-        $mockResponse = new Response(new \GuzzleHttp\Psr7\Response(200));
-
-        Http::shouldReceive('get')
-            ->once()
-            ->with($url)
-            ->andReturn($mockResponse);
+        Http::fake([
+            $url => Http::response(['message' => 'OK.'], 200),
+        ]);
 
         $result = $profile->automations()->first()->run($event, $profile);
 
         $this->assertNotNull($result);
-        $this->assertEquals(0, $result->is_error);
+        $this->assertEquals(false, $result->is_error);
+        $this->assertEquals('{"message":"OK."}', $result->response_text);
     }
 
 
@@ -72,16 +70,14 @@ class WebRequestAutomationTest extends TestCase
 
         $event = factory(DetectionEvent::class)->create();
 
-        $mockResponse = new Response(new \GuzzleHttp\Psr7\Response(404));
-
-        Http::shouldReceive('get')
-            ->once()
-            ->with($url)
-            ->andReturn($mockResponse);
+        Http::fake([
+            $url => Http::response(['message' => 'not found.'], 404),
+        ]);
 
         $result = $profile->automations()->first()->run($event, $profile);
 
         $this->assertNotNull($result);
         $this->assertEquals(1, $result->is_error);
+        $this->assertEquals('{"message":"not found."}', $result->response_text);
     }
 }

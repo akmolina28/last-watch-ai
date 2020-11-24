@@ -28,7 +28,7 @@ class DetectionProfileController extends Controller
             'name' => "required|unique:detection_profiles,name,{$id},id,deleted_at,NULL",
             'file_pattern' => 'required',
             'min_confidence' => 'required|numeric|between:0,1',
-            'object_classes[]' => 'required',
+            'object_classes' => 'required',
             'smart_filter_precision' => 'numeric|between:0,1'
         ]);
     }
@@ -41,11 +41,11 @@ class DetectionProfileController extends Controller
             'name' => $request->get('name'),
             'file_pattern' => $request->get('file_pattern'),
             'min_confidence' => $request->get('min_confidence'),
-            'use_regex' => $request->get('use_regex', false),
-            'is_negative' => $request->get('is_negative', false),
-            'object_classes' => $request->get('object_classes[]'),
-            'use_smart_filter' => $request->has('use_smart_filter') ? $request->get('use_smart_filter') : 0,
-            'smart_filter_precision' => $request->get('use_smart_filter') ?
+            'use_regex' => $request->get('use_regex', 'false') === 'true',
+            'is_negative' => $request->get('is_negative', 'false') === 'true',
+            'object_classes' => json_decode($request->get('object_classes')),
+            'use_smart_filter' => $request->get('use_smart_filter', 'false') === 'true',
+            'smart_filter_precision' => $request->get('use_smart_filter', 'false') === 'true' ?
                 $request->get('smart_filter_precision') : 0
         ]);
 
@@ -69,12 +69,12 @@ class DetectionProfileController extends Controller
         $profile->name = request()->get('name');
         $profile->file_pattern = request()->get('file_pattern');
         $profile->min_confidence = request()->get('min_confidence');
-        $profile->use_regex = request()->get('use_regex');
-        $profile->object_classes = request()->get('object_classes[]');
-        $profile->use_smart_filter = request()->has('use_smart_filter') ? request()->get('use_smart_filter') : false;
-        $profile->smart_filter_precision = request()->has('use_smart_filter') ?
+        $profile->use_regex = request()->get('use_regex', 'false') === 'true';
+        $profile->object_classes = json_decode(request()->get('object_classes'));
+        $profile->use_smart_filter = request()->get('use_smart_filter', 'false') === 'true';
+        $profile->smart_filter_precision = request()->get('use_smart_filter', 'false') === 'true' ?
             request()->get('smart_filter_precision') : 0;
-        $profile->is_negative = request()->get('is_negative', false);
+        $profile->is_negative = request()->get('is_negative', 'false') === 'true';
 
         $profile->save();
 

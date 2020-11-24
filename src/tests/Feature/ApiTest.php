@@ -14,6 +14,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -73,7 +74,7 @@ class ApiTest extends TestCase
             'name' => 'My Awesome Profile',
             'file_pattern' => 'camera123',
             'use_regex' => false,
-            'object_classes[]' => ['car', 'person'],
+            'object_classes' => '["car", "person"]',
             'min_confidence' => 0.42
         ])
             ->assertStatus(201)
@@ -101,10 +102,10 @@ class ApiTest extends TestCase
         $this->json('POST', '/api/profiles', [
             'name' => 'My Awesome Profile',
             'file_pattern' => 'camera123',
-            'use_regex' => false,
-            'object_classes[]' => ['car', 'person'],
+            'use_regex' => 'false',
+            'object_classes' => '["car", "person"]',
             'min_confidence' => 0.42,
-            'use_smart_filter' => true,
+            'use_smart_filter' => 'true',
             'smart_filter_precision' => 0.69
         ])
             ->assertStatus(201)
@@ -139,11 +140,11 @@ class ApiTest extends TestCase
         $this->json('POST', '/api/profiles', [
             'name' => 'My Awesome Profile',
             'file_pattern' => 'camera123',
-            'use_regex' => false,
-            'object_classes[]' => ['car', 'person'],
+            'use_regex' => 'false',
+            'object_classes' => '["car", "person"]',
             'min_confidence' => 0.42,
-            'use_smart_filter' => false,
-            'is_negative' => true
+            'use_smart_filter' => 'false',
+            'is_negative' => 'true'
         ])
             ->assertStatus(201)
             ->assertJsonCount(1)
@@ -188,7 +189,7 @@ class ApiTest extends TestCase
             'name' => $profileName,
             'file_pattern' => 'camera123',
             'use_regex' => false,
-            'object_classes[]' => ['car', 'person'],
+            'object_classes' => '["car", "person"]',
             'min_confidence' => 0.42
         ])
             ->assertStatus(201);
@@ -1292,18 +1293,18 @@ class ApiTest extends TestCase
             'id' => $profile->id,
             'name' => 'testing123',
             'file_pattern' => '/\btesting456\b/',
-            'use_regex' => true,
-            'object_classes[]' => ['dog', 'cat'],
+            'use_regex' => 'true',
+            'object_classes' => '["dog", "cat"]',
             'min_confidence' => 0.69,
-            'use_smart_filter' => true,
+            'use_smart_filter' => 'true',
             'smart_filter_precision' => 0.77
         ])
-            ->assertStatus(200)
             ->assertJson([
                 'data' => [
                     'name' => 'testing123'
                 ]
-            ]);
+            ])
+            ->assertStatus(200);
 
         $profile->refresh();
 
