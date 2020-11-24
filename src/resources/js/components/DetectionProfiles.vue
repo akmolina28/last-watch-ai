@@ -49,7 +49,7 @@
 
 
             <b-table-column field="object_classes" label="Object Classes" v-slot="props">
-                {{ props.row.object_classes.join('|') }}
+                {{ props.row.is_negative ? 'NEG: ' : '' }}{{ props.row.object_classes.join('|') }}
             </b-table-column>
 
             <b-table-column field="min_confidence" label="Min Confidence" v-slot="props">
