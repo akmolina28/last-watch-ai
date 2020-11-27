@@ -33,6 +33,17 @@ class DetectionProfileController extends Controller
         ]);
     }
 
+    protected function saveMask($makeName) {
+        $file = request()->file('mask');
+
+        if ($file) {
+            $file->storeAs('masks', $makeName.'.png', 'public');
+            return true;
+        }
+
+        return false;
+    }
+
     public function make(Request $request)
     {
         $this->validateRequest();
@@ -49,13 +60,7 @@ class DetectionProfileController extends Controller
                 $request->get('smart_filter_precision') : 0
         ]);
 
-        $file = $request->file('mask');
-        if ($file) {
-            $file->storeAs('masks', $profile->slug.'.png', 'public');
-            $profile->use_mask = true;
-        } else {
-            $profile->use_mask = false;
-        }
+        $profile->use_mask = $this->saveMask($profile->slug);
 
         $profile->save();
 
@@ -75,6 +80,11 @@ class DetectionProfileController extends Controller
         $profile->smart_filter_precision = request()->get('use_smart_filter', 'false') === 'true' ?
             request()->get('smart_filter_precision') : 0;
         $profile->is_negative = request()->get('is_negative', 'false') === 'true';
+        $profile->use_mask = request()->get('use_mask', 'false') === 'true';
+
+        if ($profile->use_mask) {
+            $this->saveMask($profile->slug);
+        }
 
         $profile->save();
 

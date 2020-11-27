@@ -66,8 +66,14 @@
 
                     <label class="label">Mask File</label>
 
+                    <div class="box" v-if="display_mask">
+                        <img :src="`/storage/masks/${slug}.png`" :alt="`${slug}.png`" />
+                        <a href="javascript:void(0);" @click="removeMask"><b-icon icon="times"></b-icon> Remove Mask</a>
+                    </div>
+
+
                     <b-field class="file is-primary" :class="{'has-name': !!mask}">
-                        <b-upload v-model="mask" class="file-label">
+                        <b-upload v-model="mask" class="file-label" @input="inputMask">
                             <span class="file-cta">
                                 <b-icon class="file-icon" icon="upload"></b-icon>
                                 <span class="file-label">Click to upload</span>
@@ -136,7 +142,10 @@
                 object_classes: [],
                 allObjectClasses: [],
                 isSaving: false,
-                is_negative: false
+                is_negative: false,
+                use_mask: false,
+                display_mask: false,
+                slug: ''
             }
         },
 
@@ -155,6 +164,12 @@
                     this.use_smart_filter = profile.use_smart_filter;
                     this.smart_filter_precision = parseFloat(profile.smart_filter_precision);
                     this.is_negative = profile.is_negative;
+                    this.slug = profile.slug;
+
+                    if (profile.use_mask) {
+                        this.use_mask = true;
+                        this.display_mask = true;
+                    }
                 });
             }
         },
@@ -169,6 +184,16 @@
         },
 
         methods: {
+
+            removeMask: function () {
+                this.use_mask = false;
+                this.display_mask = false;
+            },
+
+            inputMask: function () {
+                this.use_mask = true;
+                this.display_mask = false;
+            },
 
             handleSubmitErrors: function(e) {
                 let msg = e.response.data.message;
@@ -192,18 +217,6 @@
                 this.isSaving = true;
 
                 let formData = new FormData();
-                //     = {
-                //     'id': this.id,
-                //     'name': this.name,
-                //     'file_pattern': this.file_pattern,
-                //     'min_confidence': this.min_confidence,
-                //     'use_regex': this.use_regex,
-                //     'use_smart_filter': this.use_smart_filter,
-                //     'smart_filter_precision': this.smart_filter_precision,
-                //     'mask': this.mask,
-                //     'object_classes[]': this.object_classes,
-                //     'is_negative': this.is_negative
-                // }
 
                 formData.append('id', this.id);
                 formData.append('name', this.name);
@@ -215,9 +228,11 @@
                 formData.append('mask', this.mask);
                 formData.append('object_classes', JSON.stringify(this.object_classes));
                 formData.append('is_negative', this.is_negative);
+                formData.append('use_mask', this.use_mask);
 
                 if (this.isEditing) {
-                    axios.patch(`/api/profiles/${this.id}`, formData, {
+                    formData.append('_method', 'PATCH');
+                    axios.post(`/api/profiles/${this.id}`, formData, {
                         headers: {
                             'enctype': 'multipart/form-data'
                         }
