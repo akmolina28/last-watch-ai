@@ -67,7 +67,7 @@ return [
     |
     */
 
-    'timezone' => env('LOCAL_TIMEZONE', 'America/New_York'),
+    'timezone' => 'UTC',
 
     /*
     |--------------------------------------------------------------------------
@@ -222,7 +222,7 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-        'Deepstack' => App\Facades\DeepstackFacade::class
+        'Deepstack' => App\Facades\Deepstack::class
     ],
 
     /*

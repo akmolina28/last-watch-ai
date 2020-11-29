@@ -8,11 +8,11 @@ import TitleHeader from './components/TitleHeader';
 Vue.component('title-header', TitleHeader);
 
 Vue.filter('dateStr', function(value) {
-    return moment(value).local();
+    return moment.utc(value).local();
 });
 
 Vue.filter('dateStrRelative', function(value) {
-    return moment(value).local().fromNow();
+    return moment.utc(value).local().fromNow();
 });
 
 new Vue({
