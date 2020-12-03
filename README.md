@@ -115,3 +115,5 @@ The application is made up of several Docker containers. Each container serves a
 To get started with development, follow the steps to install the project from source. Use your favorite IDE to edit the source files and recompile the front-end using Webpack. You can run `docker-compose run --rm npm run watch` to automatically recompile when files are changed.
 
 To execute tests, use the built in phpunit container by running `docker-compose run --rm phpunit`. This container will also stand up separate testing containers for mysql and deepstack to run the feature tests.
+
+<a href="https://www.buymeacoffee.com/akmolina28" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 20px !important;width: 72px !important;" ></a>
