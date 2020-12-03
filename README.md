@@ -1,98 +1,117 @@
 # Last Watch AI
 
-![detection-event2](previews/detection-event2.JPG)
+Last Watch AI is a locally hosted application for creating if-then automations based on computer vision events. Last Watch can be used in tandem with IP camera software to trigger actions if the AI detects certain objects, like cars, people, or animals.
 
-Last Watch AI is a standalone tool for creating if-then automations based on computer vision events. A primary use for this tool is the automation of motion events from NVR software such as Blue Iris. This project was heavily inspired by [gentlepumpkin/bi-aidetection](https://github.com/gentlepumpkin/bi-aidetection).
+This project was heavily inspired by [gentlepumpkin/bi-aidetection](https://github.com/gentlepumpkin/bi-aidetection).
+
+![detection-event3](previews/detection-event3.jpg)
 
 ## How it works
 
-Last Watch watches for new image files and uses AI to check each image for a range of objects such as cars or people. If a relevant object is detected, automations are triggered.
+Last Watch watches for new image files in a configurable directory, then checks each image for a range of objects such as cars or people. Different automations can be set up to trigger if the AI detects relevant objects in the images.
 
-The most common use case is for NVR home security systems. For example, Last Watch can be set up to send Telegram messages when a person is detected on a camera.
-
-Last Watch runs completely "offline". All processing is handled localling using [DeepStack AI Server](https://deepstack.cc/). Last Watch is also platform independent thanks to containerization using Docker.
+A primary use case for Last Watch is to enhance Video Management Systems such as Blue Iris. For example, Last Watch can be set up to send messages and trigger video recording when a person is detected on security camera.
 
 ## Features
 
-Goals of this project:
-
 * Platform Independence - everything runs in Docker containers
-* Extensibility - designed to be forked and added to
-* Web-based Interface - desktop and mobile friendly
-* Web API - everything can be managed with http requests
-* 100% locally hosted
+* Web Interface - desktop and mobile friendly
+* Web API - everything can be managed with REST
+* Offline and locally hosted
+
 
 Supported Automations:
 
 * Telegram - send images to bot
 * Folder Copy - copy images to a local folder
 * Smb/Cifs - upload images to a Samba share (Home Assistant, Synology)
-* Web Request - make http requests
+* Web Request - make http GET and POST requests
 
 ## Installation
 
-** install the latest stable version of Docker first **
+Last Watch has been tested on Windows, Debian, and Arch Linux. Dual-core CPU and 2GB of memory are recommended.
 
-1. Download the latest release zip and extract the files
+[Detailed Windows Setup Guide](https://kleypot.com/last-watch-ai-windows-setup/)
 
-2. Edit .env file at the root level and set the watch folder location as desired
+[Detailed Ubuntu Setup Guide](https://kleypot.com/last-watch-ai-ubuntu-installation-and-upgrading/)
 
-3. Run docker-compose command to start the containers: `docker-compose up -d --build site`
+### Install From Release Build
 
-## Upgrading
+1. Install [Docker](https://docs.docker.com/docker-for-windows/install/) and [Docker Compose](https://docs.docker.com/compose/install/)
 
-1. Download the latest release zip and extract the files
+2. Download the [latest release](https://github.com/akmolina28/last-watch-ai/releases/) un-zip and extract the files
 
-2. Stop all existing containers: `docker-compose down`
+3. Set the watch folder and web port by editing the .env file
 
-3. Copy mysql folder from previous install into the new install folder
+4. Start the containers with Docker Compose
 
-4. Run migrations: `docker-compose run --rm artisan migrate`
+```
+docker-compose up -d --build site
+```
 
-5. Start the containers: `docker-compose up -d --build site`
+### Install From Source
 
-## Usage
+1. Clone the repo
 
-Follow the instructions above to start the containers. Once running, visit http://localhost:8080/ and you should be greeted with this page:
+```
+git clone https://github.com/akmolina28/last-watch-ai.git
 
-![detection-profiles](previews/detection-profiles.jpg)
+cd last-watch-ai
+```
 
-The first step is to create a Detection Profile. A Detection Profile is how you will define triggers for your automations. Once you have created a profile, Last Watch will look for files in the watch folder which match the File Pattern you specified. If the AI finds relevant objects in the matched files, then the automations will be triggered.
+2. Set the watch folder and web port by editing the .env file
 
-Once you save your first profile, you will be redirected to the next step to link the profile to your automations. This page will be empty at first, because you have no automations defined! 
+```
+nano .env
+```
 
-Naturally, the next step is to define some automations. Navigate to one of the Automation pages in the header, for example Telegram:
+3. Build the application
 
-![telegram](previews/telegram.jpg)
+```
+sudo cp src/.env.example src/.env &&
+sudo docker-compose up -d mysql &&
+sudo docker-compose run --rm composer install --optimize-autoloader --no-dev &&
+sudo docker-compose run --rm artisan route:cache &&
+sudo docker-compose run --rm artisan key:generate --force &&
+sudo docker-compose run --rm artisan storage:link &&
+sudo docker-compose run --rm artisan migrate --force &&
+sudo docker-compose run --rm npm install --verbose &&
+sudo docker-compose run --rm npm run prod --verbose
+```
 
-Give the automation a unique name and fill out the configuration details, and Submit it. Now, you can navigate back to the Detection Profiles page and click the link to manage the Automations for your profile.
+4. Start the containers
 
-![automation](previews/automation.jpg)
+```
+sudo docker-compose up -d --build site
+```
 
-Now your automation will show up and you can link it to your profile.
+## User Guide and Documentation
 
-At this point, Last Watch will be looking for files in the watch folder that match the file pattern you specified. If a match is found, a detection event will be generated in the Detection Events page. If a relevant object is detected by the AI, the event will be marked as Relevant and the automations will be triggered.
+[User Guide](https://kleypot.com/last-watch-ai-user-guide/)
 
-## Building from source for development
+API Reference (coming soon)
 
-1. git clone https://github.com/akmolina28/last-watch-ai.git
+Automation Examples:
 
-2. cd last-watch-ai
+* [Car Presence Sensor with Home Assistant and Last Watch AI](https://kleypot.com/vehicle-presence-sensor-with-home-assistant-and-last-watch-ai/)
 
-3. cp src/.env.example src/.env
+## Contributing
 
-4. docker-compose run --rm composer install
+Contributions are welcome and will be credited.
 
-5. docker-compose run --rm artisan key:generate
+## Development and Testing
 
-7. docker-compose run --rm artisan storage:link
+Last Watch is written in PHP on the [Laravel framework](https://laravel.com/) and the interface is written in [Vue.js](https://vuejs.org/). The Laravel application also functions as a headless API such that the interface can be completely bypassed if needed.
 
-8. docker-compose run --rm artisan migrate
+The application is made up of several Docker containers. Each container serves a different purpose:
 
-9. docker-compose run --rm npm install
+* The Nginx, MySQL, and PHP containers make up the LEMP stack to host the Laravel app
+* The Watcher is a node.js app that scans for image files and sends Webhook messages to the Laravel app
+* The Deepstack container hosts the object detection API
+* The Queue container handles [queued jobs](https://laravel.com/docs/8.x/queues) from the Laravel app using Supervisor
+* The Scheduler is a cron-like container that handles [scheduled tasks](https://laravel.com/docs/8.x/scheduling) from the Laravel app
+* NPM, artisan, composer, and testing containers are also defined to help with development and building
 
-11. docker-compose run --rm npm run watch-poll
-
-## Testing
+To get started with development, follow the steps to install the project from source. Use your favorite IDE to edit the source files and recompile the front-end using Webpack. You can run `docker-compose run --rm npm run watch` to automatically recompile when files are changed.
 
 To execute tests, use the built in phpunit container by running `docker-compose run --rm phpunit`. This container will also stand up separate testing containers for mysql and deepstack to run the feature tests.
