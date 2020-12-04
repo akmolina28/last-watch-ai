@@ -149,6 +149,7 @@ services:
     environment:
       - WATCH_FOLDER=/var/www/app/storage/app/public/events
       - WEBHOOK_URL=http://lw_nginx:80/webhook-receiving-url
+      - WATCH_USE_POLLING=${WATCH_USE_POLLING}
     networks:
       - laravel
 
