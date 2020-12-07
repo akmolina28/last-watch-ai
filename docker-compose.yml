@@ -47,6 +47,9 @@ services:
     build:
       context: .
       dockerfile: php.dockerfile
+      args:
+      - USER_ID=${UID}
+      - GROUP_ID=${GID}
     container_name: lw_php
     restart: unless-stopped
     ports:
