@@ -59,9 +59,10 @@ git clone https://github.com/akmolina28/last-watch-ai.git
 cd last-watch-ai
 ```
 
-2. Set the watch folder and web port by editing the .env file
+2. Create the .env file and set your config variables as desired
 
 ```
+cp .env.example .env
 nano .env
 ```
 
