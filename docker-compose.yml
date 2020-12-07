@@ -47,6 +47,9 @@ services:
     build:
       context: .
       dockerfile: php.dockerfile
+      args:
+      - USER_ID=${UID:-1000}
+      - GROUP_ID=${GID:-1000}
     container_name: lw_php
     restart: unless-stopped
     ports:
@@ -120,8 +123,6 @@ services:
     image: deepquestai/deepstack
     container_name: lw_deepstack
     restart: unless-stopped
-    volumes:
-      - localstorage:/datastore
     environment:
       - VISION-DETECTION=True
     networks:
@@ -132,8 +133,6 @@ services:
   deepstack_testing:
     image: deepquestai/deepstack
     container_name: lw_deepstack_testing
-    volumes:
-      - localstorage:/datastore
     environment:
       - VISION-DETECTION=True
     ports:
@@ -179,6 +178,3 @@ services:
       - deepstack_testing
     working_dir: /var/www/app
     entrypoint: ['./vendor/phpunit/phpunit/phpunit']
-
-volumes:
-  localstorage:

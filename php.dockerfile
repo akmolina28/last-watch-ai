@@ -1,5 +1,8 @@
 FROM php:7.4-fpm
 
+ARG USER_ID
+ARG GROUP_ID
+
 WORKDIR /var/www/app
 
 RUN apt-get update && apt-get install -y \
@@ -24,6 +27,6 @@ RUN apt-get update && apt-get install -y \
 
 RUN docker-php-ext-install pdo pdo_mysql
 
-RUN usermod -u 1000 www-data && groupmod -g 1000 www-data
+RUN usermod -u $USER_ID www-data && groupmod -g $GROUP_ID www-data
 
 RUN chown -R www-data:www-data .
