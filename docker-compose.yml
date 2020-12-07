@@ -48,8 +48,8 @@ services:
       context: .
       dockerfile: php.dockerfile
       args:
-      - USER_ID=${UID}
-      - GROUP_ID=${GID}
+      - USER_ID=${UID:-1000}
+      - GROUP_ID=${GID:-1000}
     container_name: lw_php
     restart: unless-stopped
     ports:
