@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 /**
  * WebRequestConfig
@@ -80,7 +79,6 @@ class WebRequestConfig extends Model implements AutomationConfigInterface
 
     protected function getRequest(Array $headers) : DetectionEventAutomationResult
     {
-        Log::info('get request');
         try {
             $response = Http::withHeaders($headers)->get($this->url);
             $isError = $response->status() != 200;
@@ -88,7 +86,6 @@ class WebRequestConfig extends Model implements AutomationConfigInterface
         } catch (Exception $exception) {
             $isError = true;
             $responseText = $exception->getMessage();
-            Log::info($exception->getMessage());
         }
 
         return new DetectionEventAutomationResult([

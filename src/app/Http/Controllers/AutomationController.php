@@ -11,7 +11,6 @@ use App\SmbCifsCopyConfig;
 use App\TelegramConfig;
 use App\WebRequestConfig;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class AutomationController extends Controller
 {
@@ -48,13 +47,10 @@ class AutomationController extends Controller
 
     public function makeWebRequestConfig(Request $request)
     {
-        Log::info($request);
         $request->validate([
             'name' => 'required|unique:web_request_configs',
             'url' => 'required',
         ]);
-        Log::info($request->get('is_post', false));
-        Log::info($request->get('body_json', ''));
 
         $config = WebRequestConfig::create($request->all());
 
