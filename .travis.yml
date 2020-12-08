@@ -17,3 +17,4 @@ script:
   - sudo docker-compose up -d mysql_testing
   - sudo sleep 15
   - sudo docker-compose run --rm phpunit
+
