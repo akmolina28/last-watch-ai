@@ -109,6 +109,9 @@ services:
     build:
       context: .
       dockerfile: php.dockerfile
+      args:
+        - USER_ID=${UID:-1000}
+        - GROUP_ID=${GID:-1000}
     container_name: lw_artisan
     volumes:
       - ./src:/var/www/app
@@ -170,6 +173,9 @@ services:
     build:
       context: .
       dockerfile: php.dockerfile
+      args:
+        - USER_ID=${UID:-1000}
+        - GROUP_ID=${GID:-1000}
     container_name: phpunit
     volumes:
       - ./src:/var/www/app
