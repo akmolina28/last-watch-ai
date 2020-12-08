@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -21,7 +20,7 @@ class TelegramConfigResource extends JsonResource
             'token' => $this->token,
             'chat_id' => $this->chat_id,
             'created_at' => $this->created_at,
-            'detection_profiles' => DetectionProfileResource::collection($this->whenLoaded('detectionProfiles'))
+            'detection_profiles' => DetectionProfileResource::collection($this->whenLoaded('detectionProfiles')),
         ];
     }
 }

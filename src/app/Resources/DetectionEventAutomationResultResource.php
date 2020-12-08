@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Resources;
 
 use Illuminate\Http\Request;
@@ -23,10 +22,8 @@ class DetectionEventAutomationResultResource extends JsonResource
             'detection_event_id' => $this->detection_event_id,
             'created_at' => $this->created_at,
             'automation_config_id' => $this->automation_config_id,
-            'automation_config' =>
-                AutomationConfigResource::make($this->whenLoaded('automationConfig')),
-            'detection_event' =>
-                DetectionEventResource::make($this->whenLoaded('detectionEvent'))
+            'automation_config' => AutomationConfigResource::make($this->whenLoaded('automationConfig')),
+            'detection_event' => DetectionEventResource::make($this->whenLoaded('detectionEvent')),
         ];
     }
 }

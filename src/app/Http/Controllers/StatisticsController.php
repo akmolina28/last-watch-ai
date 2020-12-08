@@ -18,12 +18,12 @@ class StatisticsController extends Controller
             })
             ->whereBetween('occurred_at', [
                 Date::now()->addDays(-1)->format('Y-m-d H:i:s'),
-                Date::now()->format('Y-m-d H:i:s')
+                Date::now()->format('Y-m-d H:i:s'),
             ])->count();
 
         $totalEvents = DetectionEvent::whereBetween('occurred_at', [
             Date::now()->addDays(-1)->format('Y-m-d H:i:s'),
-            Date::now()->format('Y-m-d H:i:s')
+            Date::now()->format('Y-m-d H:i:s'),
         ])->count();
 
         $totalErrors = DetectionEventAutomationResult::where('is_error', '=', 1)
@@ -37,7 +37,7 @@ class StatisticsController extends Controller
         return response()->json(['data' => [
             'relevant_events' => $relevantEvents,
             'total_events' => $totalEvents,
-            'total_errors' => $totalErrors
+            'total_errors' => $totalErrors,
         ]], 200);
     }
 
@@ -52,7 +52,7 @@ class StatisticsController extends Controller
             'automationConfig' => function ($q) {
                 return $q->withTrashed();
             },
-            'detectionEvent'
+            'detectionEvent',
         ])
             ->where('is_error', '=', 1)
             ->latest()

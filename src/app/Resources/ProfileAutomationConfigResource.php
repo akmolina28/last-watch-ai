@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -19,7 +18,7 @@ class ProfileAutomationConfigResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'type' => $this->type,
-            'detection_profile_id' => $this->detection_profile_id
+            'detection_profile_id' => $this->detection_profile_id,
         ];
     }
 }

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -24,7 +23,7 @@ class AiPredictionResource extends JsonResource
             'y_min' => $this->y_min,
             'y_max' => $this->y_max,
             'detection_event' => DetectionEventResource::make($this->whenLoaded('detectionEvent')),
-            'detection_profiles' => DetectionProfileResource::collection($this->whenLoaded('detectionProfiles'))
+            'detection_profiles' => DetectionProfileResource::collection($this->whenLoaded('detectionProfiles')),
         ];
     }
 }

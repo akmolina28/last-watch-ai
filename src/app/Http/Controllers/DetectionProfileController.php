@@ -29,15 +29,17 @@ class DetectionProfileController extends Controller
             'file_pattern' => 'required',
             'min_confidence' => 'required|numeric|between:0,1',
             'object_classes' => 'required',
-            'smart_filter_precision' => 'numeric|between:0,1'
+            'smart_filter_precision' => 'numeric|between:0,1',
         ]);
     }
 
-    protected function saveMask($makeName) {
+    protected function saveMask($makeName)
+    {
         $file = request()->file('mask');
 
         if ($file) {
             $file->storeAs('masks', $makeName.'.png', 'public');
+
             return true;
         }
 
@@ -57,7 +59,7 @@ class DetectionProfileController extends Controller
             'object_classes' => json_decode($request->get('object_classes')),
             'use_smart_filter' => $request->get('use_smart_filter', 'false') === 'true',
             'smart_filter_precision' => $request->get('use_smart_filter', 'false') === 'true' ?
-                $request->get('smart_filter_precision') : 0
+                $request->get('smart_filter_precision') : 0,
         ]);
 
         $profile->use_mask = $this->saveMask($profile->slug);
@@ -104,12 +106,12 @@ class DetectionProfileController extends Controller
     public function destroy(DetectionProfile $profile)
     {
         $profile->delete();
+
         return response()->json(['message' => 'OK'], 200);
     }
 
     public function updateStatus(DetectionProfile $profile)
     {
-
         if (request()->has('status')) {
             $status = request()->get('status');
 
@@ -134,6 +136,7 @@ class DetectionProfileController extends Controller
             }
 
             $profile->save();
+
             return response()->json(['message' => 'OK'], 204);
         }
 

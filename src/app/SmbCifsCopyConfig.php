@@ -10,7 +10,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * DetectionProfile
+ * DetectionProfile.
  *
  * @mixin Eloquent
  * @property int $id

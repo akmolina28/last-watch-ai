@@ -80,7 +80,7 @@ class AiPredictionTest extends TestCase
             'x_min' => 295,
             'x_max' => 451,
             'y_min' => 95,
-            'y_max' => 523
+            'y_max' => 523,
         ]);
 
         $path = Storage::disk('public_testing')->path('masks/test-mask3.png');
@@ -99,7 +99,7 @@ class AiPredictionTest extends TestCase
             'x_min' => 295,
             'x_max' => 451,
             'y_min' => 95,
-            'y_max' => 523
+            'y_max' => 523,
         ]);
 
         $path = Storage::disk('public_testing')->path('masks/test-mask2.png');
@@ -118,7 +118,7 @@ class AiPredictionTest extends TestCase
             'x_min' => 295,
             'x_max' => 451,
             'y_min' => 95,
-            'y_max' => 523
+            'y_max' => 523,
         ]);
 
         $path = Storage::disk('public_testing')->path('masks/test-mask1.png');
@@ -137,7 +137,7 @@ class AiPredictionTest extends TestCase
             'x_min' => 295,
             'x_max' => 451,
             'y_min' => 95,
-            'y_max' => 523
+            'y_max' => 523,
         ]);
 
         $path = Storage::disk('public_testing')->path('masks/test-mask4.png');

@@ -10,7 +10,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 
 /**
- * App\User
+ * App\User.
  *
  * @property int $id
  * @property string $name
