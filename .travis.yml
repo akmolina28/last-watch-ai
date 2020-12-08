@@ -1,0 +1,16 @@
+language: generic
+sudo: required
+
+services:
+  - docker
+
+before_script:
+  - cp .env.travis .env
+  - cp src/.env.example src/.env
+
+script:
+  - sudo docker-compose up -d mysql
+  - sudo docker-compose run --rm composer install --ignore-platform-reqs
+  - sudo docker-compose run --rm artisan key:generate
+  - sudo docker-compose run --rm artisan migrate
+  - sudo docker-compose run --rm phpunit
