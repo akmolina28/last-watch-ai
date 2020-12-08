@@ -14,7 +14,6 @@ class AddCascadeToPatternMatchTable extends Migration
     public function up()
     {
         Schema::table('pattern_match', function (Blueprint $table) {
-
             $table->dropForeign('pattern_match_dtcevt_id');
 
             $table->foreign('detection_event_id', 'pattern_match_dtcevt_id')
@@ -32,7 +31,6 @@ class AddCascadeToPatternMatchTable extends Migration
     public function down()
     {
         Schema::table('pattern_match', function (Blueprint $table) {
-
             $table->dropForeign('pattern_match_dtcevt_id');
 
             $table->foreign('detection_event_id', 'pattern_match_dtcevt_id')

@@ -13,7 +13,6 @@ class AddCascadeToAiPredictions extends Migration
      */
     public function up()
     {
-
         Schema::table('ai_predictions', function (Blueprint $table) {
             $table->dropForeign('ai_predictions_detection_event_id_foreign');
 

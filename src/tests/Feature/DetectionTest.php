@@ -5,8 +5,8 @@ namespace Tests\Feature;
 use App\DeepstackClient;
 use App\DetectionEvent;
 use App\DetectionProfile;
-use App\Mocks\FakeDeepstackClient;
 use App\Jobs\ProcessDetectionEventJob;
+use App\Mocks\FakeDeepstackClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Queue;
@@ -41,7 +41,7 @@ class DetectionTest extends TestCase
     {
         $profile = factory(DetectionProfile::class)->create([
             'object_classes' => ['person', 'dog'],
-            'use_mask' => false
+            'use_mask' => false,
         ]);
 
         $event = factory(DetectionEvent::class)->create();
@@ -67,7 +67,7 @@ class DetectionTest extends TestCase
         // active match
         $profile = factory(DetectionProfile::class)->create([
             'object_classes' => ['person', 'dog'],
-            'use_mask' => false
+            'use_mask' => false,
         ]);
         $event = factory(DetectionEvent::class)->create();
         $event->patternMatchedProfiles()->attach($profile->id);
@@ -75,10 +75,10 @@ class DetectionTest extends TestCase
         // inactive match
         $profile = factory(DetectionProfile::class)->create([
             'object_classes' => ['person', 'dog'],
-            'use_mask' => false
+            'use_mask' => false,
         ]);
         $event->patternMatchedProfiles()->attach($profile->id, [
-            'is_profile_active' => false
+            'is_profile_active' => false,
         ]);
 
         $this->handleDetectionJob($event);
@@ -102,7 +102,7 @@ class DetectionTest extends TestCase
             'object_classes' => ['person', 'dog'],
             'use_mask' => false,
             'use_smart_filter' => true,
-            'smart_filter_precision' => '0.90'
+            'smart_filter_precision' => '0.90',
         ]);
 
         // process an event
@@ -124,8 +124,6 @@ class DetectionTest extends TestCase
         }
     }
 
-
-
     /**
      * @test
      */
@@ -137,7 +135,7 @@ class DetectionTest extends TestCase
         $profile = factory(DetectionProfile::class)->create([
             'object_classes' => ['person', 'dog'],
             'use_mask' => true,
-            'name' => 'test-mask3'
+            'name' => 'test-mask3',
         ]);
 
         // process an event
@@ -164,19 +162,19 @@ class DetectionTest extends TestCase
         // active match
         $personProfile = factory(DetectionProfile::class)->create([
             'object_classes' => ['person'],
-            'use_mask' => false
+            'use_mask' => false,
         ]);
 
         // active match
         $dogProfile = factory(DetectionProfile::class)->create([
             'object_classes' => ['dog'],
-            'use_mask' => false
+            'use_mask' => false,
         ]);
 
         // active match
         $carProfile = factory(DetectionProfile::class)->create([
             'object_classes' => ['car'],
-            'use_mask' => false
+            'use_mask' => false,
         ]);
 
         // process an event
@@ -184,7 +182,7 @@ class DetectionTest extends TestCase
         $event->patternMatchedProfiles()->attach([
             $personProfile->id,
             $dogProfile->id,
-            $carProfile->id
+            $carProfile->id,
         ]);
         $this->handleDetectionJob($event);
 

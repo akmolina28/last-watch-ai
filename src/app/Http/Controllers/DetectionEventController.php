@@ -17,7 +17,7 @@ class DetectionEventController extends Controller
                     $q->where('ai_prediction_detection_profile.is_masked', '=', false)
                         ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false);
                 },
-                'patternMatchedProfiles'
+                'patternMatchedProfiles',
             ]);
 
         if ($request->has('profileId')) {
@@ -55,8 +55,9 @@ class DetectionEventController extends Controller
             'patternMatchedProfiles' => function ($query) {
                 return $query->withTrashed();
             },
-            'automationResults'
+            'automationResults',
         ]);
+
         return DetectionEventResource::make($event);
     }
 
@@ -67,8 +68,7 @@ class DetectionEventController extends Controller
                 return $q->where('ai_prediction_detection_profile.is_masked', '=', false)
                     ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false);
             })->orderByDesc('occurred_at')->firstOrFail();
-        }
-        catch (ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Model not found.'], 204);
         }
 
@@ -79,7 +79,7 @@ class DetectionEventController extends Controller
     {
         $matchedProfile = $event->patternMatchedProfiles()->first();
 
-        if (!$matchedProfile) {
+        if (! $matchedProfile) {
             return response()->json(['message' => 'Not Found.'], 404);
         }
 
@@ -93,7 +93,7 @@ class DetectionEventController extends Controller
             ->where('id', '!=', $event->id)
             ->orderBy('occurred_at')->first();
 
-        if (!$next) {
+        if (! $next) {
             return response()->json(['message' => 'Not Found.'], 404);
         }
 
@@ -104,7 +104,7 @@ class DetectionEventController extends Controller
     {
         $matchedProfile = $event->patternMatchedProfiles()->first();
 
-        if (!$matchedProfile) {
+        if (! $matchedProfile) {
             return response()->json(['message' => 'Not Found.'], 404);
         }
 
@@ -118,7 +118,7 @@ class DetectionEventController extends Controller
             ->where('id', '!=', $event->id)
             ->orderByDesc('occurred_at')->first();
 
-        if (!$prev) {
+        if (! $prev) {
             return response()->json(['message' => 'Not Found.'], 404);
         }
 

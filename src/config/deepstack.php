@@ -20,5 +20,5 @@ return [
         'sheep',
         'cow',
         'bear',
-    ]
+    ],
 ];

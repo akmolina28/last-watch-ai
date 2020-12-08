@@ -61,7 +61,7 @@ class ProcessDetectionEventJob implements ShouldQueue
                 'x_max' => $prediction->x_max,
                 'y_min' => $prediction->y_min,
                 'y_max' => $prediction->y_max,
-                'detection_event_id' => $this->event->id
+                'detection_event_id' => $this->event->id,
             ]);
 
             $matchedProfiles = DetectionProfile::
@@ -80,7 +80,7 @@ class ProcessDetectionEventJob implements ShouldQueue
 
                 $objectFiltered = false;
 
-                if (!$isMasked && $profile->use_smart_filter) {
+                if (! $isMasked && $profile->use_smart_filter) {
                     $profileId = $profile->id;
                     $lastDetectionEvent = DetectionEvent::where('id', '!=', $this->event->id)
                         ->whereHas('detectionProfiles', function ($q) use ($profileId) {
@@ -95,11 +95,11 @@ class ProcessDetectionEventJob implements ShouldQueue
 
                 $profile->aiPredictions()->attach($aiPrediction->id, [
                     'is_masked' => $isMasked,
-                    'is_smart_filtered' => $objectFiltered
+                    'is_smart_filtered' => $objectFiltered,
                 ]);
 
-                if (!$isMasked && !$objectFiltered && !$profile->is_negative) {
-                    if (!in_array($profile, $relevantProfiles)) {
+                if (! $isMasked && ! $objectFiltered && ! $profile->is_negative) {
+                    if (! in_array($profile, $relevantProfiles)) {
                         array_push($relevantProfiles, $profile);
                     }
                 }
@@ -122,7 +122,7 @@ class ProcessDetectionEventJob implements ShouldQueue
             })
             ->get();
 
-        foreach($negativeProfiles as $profile) {
+        foreach ($negativeProfiles as $profile) {
             array_push($relevantProfiles, $profile);
         }
 
@@ -135,7 +135,7 @@ class ProcessDetectionEventJob implements ShouldQueue
                 } catch (Exception $exception) {
                     $result = new DetectionEventAutomationResult([
                         'is_error' => 1,
-                        'response_text' => $exception->getMessage()
+                        'response_text' => $exception->getMessage(),
                     ]);
                 }
 

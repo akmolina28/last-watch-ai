@@ -17,6 +17,6 @@ $factory->define(AiPrediction::class, function (Faker $faker) {
         'x_min' => $x_min,
         'x_max' => $x_max,
         'y_min' => $y_min,
-        'y_max' => $y_max
+        'y_max' => $y_max,
     ];
 });

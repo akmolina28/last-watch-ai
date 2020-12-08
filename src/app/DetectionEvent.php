@@ -2,15 +2,15 @@
 
 namespace App;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Eloquent;
 use Illuminate\Support\Carbon;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 /**
- * DetectionEvent
+ * DetectionEvent.
  *
  * @mixin Eloquent
  * @property int $id

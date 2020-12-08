@@ -12,6 +12,6 @@ $factory->define(SmbCifsCopyConfig::class, function (Faker $faker) {
         'user' => $faker->word(),
         'password' => $faker->word(),
         'remote_dest' => '/'.$faker->word.'/'.$faker->word(),
-        'overwrite' => $faker->boolean()
+        'overwrite' => $faker->boolean(),
     ];
 });

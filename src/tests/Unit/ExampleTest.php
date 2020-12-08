@@ -2,8 +2,6 @@
 
 namespace Tests\Unit;
 
-use Tests;
-
 class ExampleTest extends TestCase
 {
     /**

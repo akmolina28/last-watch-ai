@@ -4,11 +4,11 @@ namespace Tests\Model;
 
 use App\AiPrediction;
 use App\DetectionEvent;
+use App\DetectionProfile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
-use App\DetectionProfile;
 
 class DetectionProfileTest extends TestCase
 {
@@ -24,7 +24,7 @@ class DetectionProfileTest extends TestCase
             'name' => $this->faker->word(),
             'file_pattern' => $this->faker->word(),
             'object_classes' => ['person'],
-            'use_regex' => false
+            'use_regex' => false,
         ]);
 
         $profile = DetectionProfile::first();
@@ -41,7 +41,7 @@ class DetectionProfileTest extends TestCase
             'name' => $this->faker->word(),
             'file_pattern' => $this->faker->word(),
             'object_classes' => ['person'],
-            'use_regex' => false
+            'use_regex' => false,
         ]);
 
         $profile = DetectionProfile::first();
@@ -58,7 +58,7 @@ class DetectionProfileTest extends TestCase
             'name' => $this->faker->word(),
             'file_pattern' => $this->faker->word(),
             'object_classes' => ['person'],
-            'use_regex' => false
+            'use_regex' => false,
         ]);
 
         $profile->is_enabled = false;
@@ -73,7 +73,7 @@ class DetectionProfileTest extends TestCase
     {
         $profile = new DetectionProfile([
             'file_pattern' => 'driveway_camera',
-            'use_regex' => false
+            'use_regex' => false,
         ]);
 
         $file_name = 'driveway_camera.20200825_180814020.jpg';
@@ -88,7 +88,7 @@ class DetectionProfileTest extends TestCase
     {
         $profile = new DetectionProfile([
             'file_pattern' => 'patio_camera',
-            'use_regex' => false
+            'use_regex' => false,
         ]);
 
         $file_name = 'driveway_camera.20200825_180814020.jpg';
@@ -103,7 +103,7 @@ class DetectionProfileTest extends TestCase
     {
         $profile = new DetectionProfile([
             'file_pattern' => '/\bdriveway_camera\b.*.jpg/',
-            'use_regex' => true
+            'use_regex' => true,
         ]);
 
         $file_name = 'driveway_camera.20200825_180814020.jpg';
@@ -118,7 +118,7 @@ class DetectionProfileTest extends TestCase
     {
         $profile = new DetectionProfile([
             'file_pattern' => '/\bdriveway_camera\b.*.png   /',
-            'use_regex' => true
+            'use_regex' => true,
         ]);
 
         $file_name = 'driveway_camera.20200825_180814020.jpg';
@@ -141,8 +141,6 @@ class DetectionProfileTest extends TestCase
         $this->assertNotNull($profile->deleted_at);
     }
 
-
-
     /**
      * @test
      */
@@ -151,7 +149,7 @@ class DetectionProfileTest extends TestCase
         $profileName = 'test';
 
         $profile = factory(DetectionProfile::class)->create([
-            'name' => $profileName
+            'name' => $profileName,
         ]);
 
         $id1 = $profile->id;
@@ -159,7 +157,7 @@ class DetectionProfileTest extends TestCase
         $profile->delete();
 
         $profile = factory(DetectionProfile::class)->create([
-            'name' => $profileName
+            'name' => $profileName,
         ]);
 
         $id2 = $profile->id;
@@ -216,7 +214,6 @@ class DetectionProfileTest extends TestCase
      */
     public function a_detection_profile_is_inactive_when_not_scheduled_am_to_pm()
     {
-
         $profile = factory(DetectionProfile::class)->create();
 
         $profile->start_time = '08:00';
@@ -271,7 +268,6 @@ class DetectionProfileTest extends TestCase
      */
     public function a_detection_profile_is_inactive_when_not_scheduled_pm_to_am()
     {
-
         $profile = factory(DetectionProfile::class)->create();
 
         $profile->start_time = '21:30';
@@ -299,7 +295,7 @@ class DetectionProfileTest extends TestCase
         // create a profile
         $profile = factory(DetectionProfile::class)->create([
             'use_smart_filter' => true,
-            'smart_filter_precision' => 0.95
+            'smart_filter_precision' => 0.95,
         ]);
 
         // create some events that contain the test prediction
@@ -330,7 +326,7 @@ class DetectionProfileTest extends TestCase
             'y_min' => 222,
             'y_max' => 669,
             'object_class' => 'person',
-            'confidence' => 0.99
+            'confidence' => 0.99,
         ];
 
         $profile = $this->setUpSmartFilterData($predictionVars);
@@ -355,7 +351,7 @@ class DetectionProfileTest extends TestCase
             'y_min' => 222,
             'y_max' => 669,
             'object_class' => 'person',
-            'confidence' => 0.99
+            'confidence' => 0.99,
         ];
 
         $profile = $this->setUpSmartFilterData($predictionVars);
@@ -367,7 +363,7 @@ class DetectionProfileTest extends TestCase
             'y_min' => $predictionVars['y_min'] + 1,
             'y_max' => $predictionVars['y_max'] + 1,
             'object_class' => 'person',
-            'confidence' => 0.99
+            'confidence' => 0.99,
         ]);
 
         $event = DetectionEvent::latest()->first();
@@ -387,7 +383,7 @@ class DetectionProfileTest extends TestCase
             'y_min' => 222,
             'y_max' => 669,
             'object_class' => 'person',
-            'confidence' => 0.99
+            'confidence' => 0.99,
         ];
 
         $profile = $this->setUpSmartFilterData($predictionVars);
@@ -399,7 +395,7 @@ class DetectionProfileTest extends TestCase
             'y_min' => $predictionVars['y_min'] + 50,
             'y_max' => $predictionVars['y_max'] + 50,
             'object_class' => 'person',
-            'confidence' => 0.99
+            'confidence' => 0.99,
         ]);
 
         $event = DetectionEvent::latest()->first();
@@ -419,7 +415,7 @@ class DetectionProfileTest extends TestCase
             'y_min' => 222,
             'y_max' => 669,
             'object_class' => 'person',
-            'confidence' => 0.99
+            'confidence' => 0.99,
         ];
 
         $profile = $this->setUpSmartFilterData($predictionVars);
@@ -434,7 +430,7 @@ class DetectionProfileTest extends TestCase
             'y_min' => $predictionVars['y_min'] + 50,
             'y_max' => $predictionVars['y_max'] + 50,
             'object_class' => 'person',
-            'confidence' => 0.99
+            'confidence' => 0.99,
         ]);
 
         $event = DetectionEvent::latest()->first();

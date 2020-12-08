@@ -32,7 +32,7 @@ class AutomationController extends Controller
         $config = TelegramConfig::create([
             'name' => $request->get('name'),
             'token' => $request->get('token'),
-            'chat_id' => $request->get('chat_id')
+            'chat_id' => $request->get('chat_id'),
         ]);
 
         return TelegramConfigResource::make($config);
@@ -68,13 +68,13 @@ class AutomationController extends Controller
     {
         $request->validate([
             'name' => 'required|unique:folder_copy_configs',
-            'copy_to' => 'required'
+            'copy_to' => 'required',
         ]);
 
         $config = FolderCopyConfig::create([
             'name' => $request->get('name'),
             'copy_to' => $request->get('copy_to'),
-            'overwrite' => $request->get('overwrite', false)
+            'overwrite' => $request->get('overwrite', false),
         ]);
 
         return FolderCopyConfigResource::make($config);
@@ -94,7 +94,7 @@ class AutomationController extends Controller
             'servicename' => 'required',
             'user' => 'required',
             'password' => 'required',
-            'remote_dest' => 'required'
+            'remote_dest' => 'required',
         ]);
 
         $config = SmbCifsCopyConfig::create([
@@ -103,7 +103,7 @@ class AutomationController extends Controller
             'user' => $request->get('user'),
             'password' => $request->get('password'),
             'remote_dest' => $request->get('remote_dest'),
-            'overwrite' => $request->get('overwrite', false)
+            'overwrite' => $request->get('overwrite', false),
         ]);
 
         return SmbCifsCopyConfigResource::make($config);

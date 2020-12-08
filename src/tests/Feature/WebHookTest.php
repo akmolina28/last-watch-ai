@@ -41,7 +41,7 @@ class WebHookTest extends TestCase
     {
         $webhookCall = new WebhookCall();
         $webhookCall->payload = [
-            'file' => 'testimage.jpg'
+            'file' => 'testimage.jpg',
         ];
         $job = new ProcessWebhookJob($webhookCall);
         $job->handle($occurred_at);
@@ -54,7 +54,7 @@ class WebHookTest extends TestCase
     {
         // hit the webhook
         $this->post('/webhook-receiving-url', [
-            'file' => 'testimage.jpg'
+            'file' => 'testimage.jpg',
         ])->assertStatus(200);
 
         // check for webhook job on queue and process it
@@ -84,13 +84,13 @@ class WebHookTest extends TestCase
     {
         // create some dummy profiles
         factory(DetectionProfile::class, 5)->create([
-            'file_pattern' => 'fakepattern123'
+            'file_pattern' => 'fakepattern123',
         ]);
 
         // create a profile to match the event
         factory(DetectionProfile::class)->create([
             'file_pattern' => 'testimage',
-            'use_regex' => false
+            'use_regex' => false,
         ]);
 
         // hit the webhook
@@ -116,13 +116,13 @@ class WebHookTest extends TestCase
     {
         // create some dummy profiles
         factory(DetectionProfile::class, 5)->create([
-            'file_pattern' => 'fakepattern123'
+            'file_pattern' => 'fakepattern123',
         ]);
 
         // create some profile to match the event
         factory(DetectionProfile::class, 3)->create([
             'file_pattern' => 'testimage',
-            'use_regex' => false
+            'use_regex' => false,
         ]);
 
         // hit the webhook

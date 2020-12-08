@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * App\AutomationConfig
+ * App\AutomationConfig.
  *
  * @property int $id
  * @property int $detection_profile_id
@@ -38,7 +38,7 @@ class AutomationConfig extends Model
     protected $fillable = [
         'automation_config_id',
         'automation_config_type',
-        'detection_profile_id'
+        'detection_profile_id',
     ];
 
     public function getConfigClassName()
@@ -46,7 +46,7 @@ class AutomationConfig extends Model
         return Relation::morphMap()[$this->automation_config_type];
     }
 
-    public function run(DetectionEvent $event, DetectionProfile $profile) : DetectionEventAutomationResult
+    public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
     {
         $className = $this->getConfigClassName();
 

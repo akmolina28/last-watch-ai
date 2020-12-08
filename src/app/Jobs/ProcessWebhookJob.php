@@ -6,7 +6,7 @@ use App\DetectionProfile;
 use App\Exceptions\WebhookRequestException;
 use App\Factories\DetectionEventModelFactory;
 use Illuminate\Support\Carbon;
-use \Spatie\WebhookClient\ProcessWebhookJob as SpatieProcessWebhookJob;
+use Spatie\WebhookClient\ProcessWebhookJob as SpatieProcessWebhookJob;
 
 class ProcessWebhookJob extends SpatieProcessWebhookJob
 {
@@ -34,7 +34,6 @@ class ProcessWebhookJob extends SpatieProcessWebhookJob
      */
     protected function getImageFileNameFromRequest()
     {
-
         if (array_key_exists('file', $this->webhookCall->payload)) {
             return $imageFileName = $this->webhookCall->payload['file'];
         }

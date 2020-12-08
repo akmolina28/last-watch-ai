@@ -2,17 +2,17 @@
 
 namespace App;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
-use Eloquent;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 /**
- * DetectionProfile
+ * DetectionProfile.
  *
  * @mixin Eloquent
  * @property int $id
@@ -101,6 +101,7 @@ class DetectionProfile extends Model
             if ($this->is_scheduled) {
                 return 'as_scheduled';
             }
+
             return 'enabled';
         } else {
             return 'disabled';
@@ -186,6 +187,7 @@ class DetectionProfile extends Model
                 return true;
             }
         }
+
         return false;
     }
 
@@ -193,7 +195,7 @@ class DetectionProfile extends Model
     {
         $precision = $this->smart_filter_precision ?? 0.80;
 
-        if (!$this->use_smart_filter) {
+        if (! $this->use_smart_filter) {
             return false;
         }
 
