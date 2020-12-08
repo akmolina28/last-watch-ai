@@ -7,7 +7,7 @@ services:
 before_script:
   - mkdir aiinput
   - cp .env.travis .env
-  - cp src/.env.example src/.env
+  - cp src/.env.test src/.env
 
 script:
   - sudo docker-compose up -d mysql
