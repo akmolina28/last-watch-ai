@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -21,7 +20,7 @@ class WebRequestConfigResource extends JsonResource
             'url' => $this->url,
             'is_post' => $this->is_post,
             'body_json' => $this->body_json,
-            'detection_profiles' => DetectionProfileResource::collection($this->whenLoaded('detectionProfiles'))
+            'detection_profiles' => DetectionProfileResource::collection($this->whenLoaded('detectionProfiles')),
         ];
     }
 }

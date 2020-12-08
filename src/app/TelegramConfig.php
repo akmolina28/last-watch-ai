@@ -10,7 +10,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * DetectionProfile
+ * DetectionProfile.
  *
  * @mixin Eloquent
  * @property int $id
@@ -50,7 +50,7 @@ class TelegramConfig extends Model implements AutomationConfigInterface
 
         return new DetectionEventAutomationResult([
             'response_text' => $response,
-            'is_error' => !$responseJson->ok,
+            'is_error' => ! $responseJson->ok,
         ]);
     }
 }

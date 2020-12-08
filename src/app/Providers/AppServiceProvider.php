@@ -2,8 +2,6 @@
 
 namespace App\Providers;
 
-use App\DeepstackClient;
-use App\Mocks\FakeDeepstackClient;
 use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;

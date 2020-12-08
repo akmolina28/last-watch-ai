@@ -19,15 +19,15 @@ class TelegramClient
     {
         $url = 'https://api.telegram.org/bot'.$this->token.'/sendPhoto?chat_id='.$this->chat_id;
 
-        $post_fields = array(
+        $post_fields = [
             'chat_id' => $this->chat_id,
-            'photo' => new CURLFile($photo_path)
-        );
+            'photo' => new CURLFile($photo_path),
+        ];
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            'Content-Type:multipart/form-data'
-        ));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type:multipart/form-data',
+        ]);
 
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

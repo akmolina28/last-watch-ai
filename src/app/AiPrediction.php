@@ -2,14 +2,14 @@
 
 namespace App;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Eloquent;
 use Illuminate\Support\Carbon;
 
 /**
- * AiPrediction
+ * AiPrediction.
  *
  * @mixin Eloquent
  * @property int $id
@@ -41,7 +41,7 @@ use Illuminate\Support\Carbon;
  */
 class AiPrediction extends Model
 {
-    protected $fillable = ['object_class', 'confidence', 'x_min', 'x_max','y_min', 'y_max', 'detection_event_id',];
+    protected $fillable = ['object_class', 'confidence', 'x_min', 'x_max', 'y_min', 'y_max', 'detection_event_id'];
 
     public function detectionEvent()
     {

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
 /**
- * DetectionProfile
+ * DetectionProfile.
  *
  * @mixin Eloquent
  * @property int $id
@@ -55,7 +55,7 @@ class FolderCopyConfig extends Model implements AutomationConfigInterface
 
         return new DetectionEventAutomationResult([
             'response_text' => $success ? '' : 'Failed to copy '.$src.' to '.$dest,
-            'is_error' => !$success,
+            'is_error' => ! $success,
         ]);
     }
 }

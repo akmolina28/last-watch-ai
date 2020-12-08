@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -38,7 +37,7 @@ class DetectionProfileResource extends JsonResource
             }),
             'is_profile_active' => $this->whenPivotLoaded('pattern_match', function () {
                 return $this->pivot->is_profile_active;
-            })
+            }),
         ];
     }
 }

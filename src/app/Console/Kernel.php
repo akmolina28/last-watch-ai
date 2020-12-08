@@ -34,7 +34,6 @@ class Kernel extends ConsoleKernel
                         ->addDays(-1 * $days)->format('Y-m-d H:i:s'))
                     ->delete();
             }
-
         })->twiceDaily();
     }
 

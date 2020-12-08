@@ -7,7 +7,6 @@ use App\DetectionProfile;
 use App\WebRequestConfig;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
@@ -25,14 +24,14 @@ class WebRequestAutomationTest extends TestCase
 
         $config = WebRequestConfig::create([
             'url' => $url,
-            'name' => 'test'
+            'name' => 'test',
         ]);
 
         $profile = factory(DetectionProfile::class)->create();
 
         $profile->automations()->create([
             'automation_config_id' => $config->id,
-            'automation_config_type' => $config->getTable()
+            'automation_config_type' => $config->getTable(),
         ]);
 
         $event = factory(DetectionEvent::class)->create();
@@ -48,7 +47,6 @@ class WebRequestAutomationTest extends TestCase
         $this->assertEquals('{"message":"OK."}', $result->response_text);
     }
 
-
     /**
      * @test
      */
@@ -58,14 +56,14 @@ class WebRequestAutomationTest extends TestCase
 
         $config = WebRequestConfig::create([
             'url' => $url,
-            'name' => 'test'
+            'name' => 'test',
         ]);
 
         $profile = factory(DetectionProfile::class)->create();
 
         $profile->automations()->create([
             'automation_config_id' => $config->id,
-            'automation_config_type' => $config->getTable()
+            'automation_config_type' => $config->getTable(),
         ]);
 
         $event = factory(DetectionEvent::class)->create();

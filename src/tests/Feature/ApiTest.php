@@ -10,11 +10,10 @@ use App\FolderCopyConfig;
 use App\SmbCifsCopyConfig;
 use App\TelegramConfig;
 use App\WebRequestConfig;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Date;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -34,7 +33,7 @@ class ApiTest extends TestCase
         $response->assertStatus(404);
         $response->assertHeader('Content-Type', 'application/json');
         $response->assertJson([
-            'message' => 'Not Found.'
+            'message' => 'Not Found.',
         ]);
     }
 
@@ -50,17 +49,16 @@ class ApiTest extends TestCase
         $response
             ->assertStatus(200)
             ->assertJsonStructure([
-                'data' =>
-                    [0 => [
-                        'id',
-                        'name',
-                        'object_classes',
-                        'min_confidence',
-                        'use_mask',
-                        'start_time',
-                        'end_time',
-                        'status'
-                    ]]
+                'data' => [0 => [
+                    'id',
+                    'name',
+                    'object_classes',
+                    'min_confidence',
+                    'use_mask',
+                    'start_time',
+                    'end_time',
+                    'status',
+                ]],
             ])
             ->assertJsonCount(10, 'data');
     }
@@ -75,7 +73,7 @@ class ApiTest extends TestCase
             'file_pattern' => 'camera123',
             'use_regex' => false,
             'object_classes' => '["car", "person"]',
-            'min_confidence' => 0.42
+            'min_confidence' => 0.42,
         ])
             ->assertStatus(201)
             ->assertJsonCount(1)
@@ -87,10 +85,10 @@ class ApiTest extends TestCase
                     'use_mask' => false,
                     'object_classes' => [
                         0 => 'car',
-                        1 =>'person'
+                        1 =>'person',
                     ],
-                    'min_confidence' => 0.42
-                ]
+                    'min_confidence' => 0.42,
+                ],
             ]);
     }
 
@@ -106,7 +104,7 @@ class ApiTest extends TestCase
             'object_classes' => '["car", "person"]',
             'min_confidence' => 0.42,
             'use_smart_filter' => 'true',
-            'smart_filter_precision' => 0.69
+            'smart_filter_precision' => 0.69,
         ])
             ->assertStatus(201)
             ->assertJsonCount(1)
@@ -118,12 +116,12 @@ class ApiTest extends TestCase
                     'use_mask' => false,
                     'object_classes' => [
                         0 => 'car',
-                        1 =>'person'
+                        1 =>'person',
                     ],
                     'min_confidence' => 0.42,
                     'use_smart_filter' => true,
-                    'smart_filter_precision' => 0.69
-                ]
+                    'smart_filter_precision' => 0.69,
+                ],
             ]);
 
         $profile = DetectionProfile::first();
@@ -144,15 +142,15 @@ class ApiTest extends TestCase
             'object_classes' => '["car", "person"]',
             'min_confidence' => 0.42,
             'use_smart_filter' => 'false',
-            'is_negative' => 'true'
+            'is_negative' => 'true',
         ])
             ->assertStatus(201)
             ->assertJsonCount(1)
             ->assertJson([
                 'data' => [
                     'name' => 'My Awesome Profile',
-                    'is_negative' => true
-                ]
+                    'is_negative' => true,
+                ],
             ]);
     }
 
@@ -171,7 +169,6 @@ class ApiTest extends TestCase
         $this->assertTrue($profile->trashed());
     }
 
-
     /**
      * @test
      */
@@ -180,7 +177,7 @@ class ApiTest extends TestCase
         $profileName = $this->faker->word();
 
         $profile = factory(DetectionProfile::class)->create([
-            'name' => $profileName
+            'name' => $profileName,
         ]);
 
         $profile->delete();
@@ -190,7 +187,7 @@ class ApiTest extends TestCase
             'file_pattern' => 'camera123',
             'use_regex' => false,
             'object_classes' => '["car", "person"]',
-            'min_confidence' => 0.42
+            'min_confidence' => 0.42,
         ])
             ->assertStatus(201);
     }
@@ -210,7 +207,7 @@ class ApiTest extends TestCase
                     'name' => $profile->name,
                     'slug' => $profile->slug,
                     'file_pattern' => $profile->file_pattern,
-                ]
+                ],
             ]);
     }
 
@@ -238,7 +235,7 @@ class ApiTest extends TestCase
         foreach ($events as $event) {
             $prediction = $event->aiPredictions()->first();
             $prediction->detectionProfiles()->attach($profile->id, [
-                'is_masked' => false
+                'is_masked' => false,
             ]);
         }
 
@@ -255,7 +252,7 @@ class ApiTest extends TestCase
         foreach ($events as $event) {
             $prediction = $event->aiPredictions()->first();
             $prediction->detectionProfiles()->attach($profile->id, [
-                'is_masked' => true
+                'is_masked' => true,
             ]);
         }
 
@@ -272,7 +269,7 @@ class ApiTest extends TestCase
         foreach ($events as $event) {
             $prediction = $event->aiPredictions()->first();
             $prediction->detectionProfiles()->attach($profile->id, [
-                'is_smart_filtered' => true
+                'is_smart_filtered' => true,
             ]);
         }
 
@@ -285,7 +282,6 @@ class ApiTest extends TestCase
                 );
                 $event->patternMatchedProfiles()->attach($profile->id);
             });
-
 
         // make 2 events matched and relevant to a different profile
         $differentProfile = factory(DetectionProfile::class)->create();
@@ -302,7 +298,7 @@ class ApiTest extends TestCase
         foreach ($events as $event) {
             $prediction = $event->aiPredictions()->first();
             $prediction->detectionProfiles()->attach($differentProfile->id, [
-                'is_masked' => false
+                'is_masked' => false,
             ]);
         }
     }
@@ -319,14 +315,13 @@ class ApiTest extends TestCase
         $response
             ->assertStatus(200)
             ->assertJsonStructure([
-                'data' =>
-                    [0 => [
-                        'id',
-                        'image_file_name',
-                        'image_dimensions',
-                        'detection_profiles_count'
+                'data' => [0 => [
+                    'id',
+                    'image_file_name',
+                    'image_dimensions',
+                    'detection_profiles_count',
 
-                    ]]
+                ]],
             ])
             ->assertJsonCount(10, 'data');
     }
@@ -341,7 +336,7 @@ class ApiTest extends TestCase
 
         // add a latest event
         $event = factory(DetectionEvent::class)->create([
-            'occurred_at' => Date::tomorrow()
+            'occurred_at' => Date::tomorrow(),
         ]);
 
         $event->aiPredictions()->createMany(
@@ -352,7 +347,7 @@ class ApiTest extends TestCase
 
         $prediction = $event->aiPredictions()->first();
         $prediction->detectionProfiles()->attach($profile->id, [
-            'is_masked' => false
+            'is_masked' => false,
         ]);
 
         $response = $this->get('/api/events/latest');
@@ -361,8 +356,8 @@ class ApiTest extends TestCase
             ->assertStatus(200)
             ->assertJson([
                 'data' => [
-                    'id' => $event->id
-                ]
+                    'id' => $event->id,
+                ],
             ]);
     }
 
@@ -378,13 +373,12 @@ class ApiTest extends TestCase
         $response
             ->assertStatus(200)
             ->assertJsonStructure([
-                'data' =>
-                    [0 => [
-                        'id',
-                        'image_file_name',
-                        'image_dimensions',
-                        'detection_profiles_count'
-                    ]]
+                'data' => [0 => [
+                    'id',
+                    'image_file_name',
+                    'image_dimensions',
+                    'detection_profiles_count',
+                ]],
             ])
             ->assertJsonCount(4, 'data');
     }
@@ -403,13 +397,12 @@ class ApiTest extends TestCase
         $response
             ->assertStatus(200)
             ->assertJsonStructure([
-                'data' =>
-                    [0 => [
-                        'id',
-                        'image_file_name',
-                        'image_dimensions',
-                        'detection_profiles_count'
-                    ]]
+                'data' => [0 => [
+                    'id',
+                    'image_file_name',
+                    'image_dimensions',
+                    'detection_profiles_count',
+                ]],
             ])
             ->assertJsonCount(2, 'data');
     }
@@ -428,13 +421,12 @@ class ApiTest extends TestCase
         $response
             ->assertStatus(200)
             ->assertJsonStructure([
-                'data' =>
-                    [0 => [
-                        'id',
-                        'image_file_name',
-                        'image_dimensions',
-                        'detection_profiles_count'
-                    ]]
+                'data' => [0 => [
+                    'id',
+                    'image_file_name',
+                    'image_dimensions',
+                    'detection_profiles_count',
+                ]],
             ])
             ->assertJsonCount(6, 'data');
     }
@@ -452,8 +444,8 @@ class ApiTest extends TestCase
                 'data' => [
                     'image_file_name' => $event->image_file_name,
                     'image_dimensions' => $event->image_dimensions,
-                    'detection_profiles_count' => 0
-                ]
+                    'detection_profiles_count' => 0,
+                ],
             ]);
     }
 
@@ -477,7 +469,7 @@ class ApiTest extends TestCase
         $event->automationResults()->create([
             'automation_config_id' => $config->id,
             'is_error' => 0,
-            'response_text' => 'testing123'
+            'response_text' => 'testing123',
         ]);
 
         $this->get('/api/events/'.$event->id)
@@ -487,10 +479,10 @@ class ApiTest extends TestCase
                     'automationResults' => [
                         0 => [
                             'is_error' => 0,
-                            'response_text' => 'testing123'
-                        ]
-                    ]
-                ]
+                            'response_text' => 'testing123',
+                        ],
+                    ],
+                ],
             ]);
     }
 
@@ -518,10 +510,10 @@ class ApiTest extends TestCase
                             'name',
                             'file_pattern',
                             'object_classes',
-                            'is_profile_active'
-                        ]
-                    ]
-                ]
+                            'is_profile_active',
+                        ],
+                    ],
+                ],
             ]);
     }
 
@@ -552,16 +544,16 @@ class ApiTest extends TestCase
                             'name',
                             'file_pattern',
                             'object_classes',
-                            'is_profile_active'
-                        ]
-                    ]
-                ]
+                            'is_profile_active',
+                        ],
+                    ],
+                ],
             ]);
     }
 
     /**
-    * @test
-    */
+     * @test
+     */
     public function api_can_get_a_detection_event_active_profile_match()
     {
         $profiles = factory(DetectionProfile::class, 3)->create();
@@ -569,7 +561,7 @@ class ApiTest extends TestCase
 
         $event = factory(DetectionEvent::class)->create();
         $event->patternMatchedProfiles()->attach($profile_ids, [
-            'is_profile_active' => true
+            'is_profile_active' => true,
         ]);
 
         $this->get('/api/events/'.$event->id)
@@ -585,19 +577,19 @@ class ApiTest extends TestCase
                             'name',
                             'file_pattern',
                             'object_classes',
-                            'is_profile_active'
-                        ]
+                            'is_profile_active',
+                        ],
                     ],
-                ]
+                ],
             ])
             ->assertJson([
                 'data' => [
                     'pattern_matched_profiles' => [
                         0 => [
-                            'is_profile_active' => true
-                        ]
-                    ]
-                ]
+                            'is_profile_active' => true,
+                        ],
+                    ],
+                ],
             ]);
     }
 
@@ -611,7 +603,7 @@ class ApiTest extends TestCase
 
         $event = factory(DetectionEvent::class)->create();
         $event->patternMatchedProfiles()->attach($profile_ids, [
-            'is_profile_active' => false
+            'is_profile_active' => false,
         ]);
 
         $this->get('/api/events/'.$event->id)
@@ -627,19 +619,19 @@ class ApiTest extends TestCase
                             'name',
                             'file_pattern',
                             'object_classes',
-                            'is_profile_active'
-                        ]
+                            'is_profile_active',
+                        ],
                     ],
-                ]
+                ],
             ])
             ->assertJson([
                 'data' => [
                     'pattern_matched_profiles' => [
                         0 => [
-                            'is_profile_active' => false
-                        ]
-                    ]
-                ]
+                            'is_profile_active' => false,
+                        ],
+                    ],
+                ],
             ]);
     }
 
@@ -660,8 +652,8 @@ class ApiTest extends TestCase
             ->assertStatus(200)
             ->assertJson([
                 'data' => [
-                    'image_file_name' => 'events/testimage.jpg'
-                ]
+                    'image_file_name' => 'events/testimage.jpg',
+                ],
             ]);
 
         Storage::assertExists('events/testimage.jpg');
@@ -677,14 +669,13 @@ class ApiTest extends TestCase
         $this->get('/api/automations/telegram')
             ->assertStatus(200)
             ->assertJsonStructure([
-                'data' =>
-                    [0 => [
-                        'id',
-                        'name',
-                        'token',
-                        'chat_id',
-                        'created_at'
-                    ]]
+                'data' => [0 => [
+                    'id',
+                    'name',
+                    'token',
+                    'chat_id',
+                    'created_at',
+                ]],
             ])
             ->assertJsonCount(5, 'data');
     }
@@ -697,15 +688,15 @@ class ApiTest extends TestCase
         $this->post('/api/automations/telegram', [
             'name' => 'My Bot',
             'token' => 'abc123wra8v7ar9e8wac987wac897ea98ce7w98f7ewa97f',
-            'chat_id' => '1192051592'
+            'chat_id' => '1192051592',
         ])
             ->assertStatus(201)
             ->assertJson([
                 'data' => [
                     'name' => 'My Bot',
                     'token' => 'abc123wra8v7ar9e8wac987wac897ea98ce7w98f7ewa97f',
-                    'chat_id' => '1192051592'
-                ]
+                    'chat_id' => '1192051592',
+                ],
             ]);
     }
 
@@ -719,12 +710,11 @@ class ApiTest extends TestCase
         $this->get('/api/automations/webRequest')
             ->assertStatus(200)
             ->assertJsonStructure([
-                'data' =>
-                    [0 => [
-                        'id',
-                        'name',
-                        'url'
-                    ]]
+                'data' => [0 => [
+                    'id',
+                    'name',
+                    'url',
+                ]],
             ])
             ->assertJsonCount(5, 'data');
     }
@@ -736,14 +726,14 @@ class ApiTest extends TestCase
     {
         $this->post('/api/automations/webRequest', [
             'name' => 'Web Test',
-            'url' => 'http://google.com'
+            'url' => 'http://google.com',
         ])
             ->assertStatus(201)
             ->assertJson([
                 'data' => [
                     'name' => 'Web Test',
-                    'url' => 'http://google.com'
-                ]
+                    'url' => 'http://google.com',
+                ],
             ]);
     }
 
@@ -757,13 +747,12 @@ class ApiTest extends TestCase
         $this->get('/api/automations/folderCopy')
             ->assertStatus(200)
             ->assertJsonStructure([
-                'data' =>
-                    [0 => [
-                        'id',
-                        'name',
-                        'copy_to',
-                        'overwrite'
-                    ]]
+                'data' => [0 => [
+                    'id',
+                    'name',
+                    'copy_to',
+                    'overwrite',
+                ]],
             ])
             ->assertJsonCount(5, 'data');
     }
@@ -776,15 +765,15 @@ class ApiTest extends TestCase
         $this->post('/api/automations/folderCopy', [
             'name' => 'Folder Copy Test',
             'copy_to' => '/mnt/test',
-            'overwrite' => true
+            'overwrite' => true,
         ])
             ->assertStatus(201)
             ->assertJson([
                 'data' => [
                     'name' => 'Folder Copy Test',
                     'copy_to' => '/mnt/test',
-                    'overwrite' => true
-                ]
+                    'overwrite' => true,
+                ],
             ]);
     }
 
@@ -798,16 +787,15 @@ class ApiTest extends TestCase
         $this->get('/api/automations/smbCifsCopy')
             ->assertStatus(200)
             ->assertJsonStructure([
-                'data' =>
-                    [0 => [
-                        'id',
-                        'name',
-                        'servicename',
-                        'user',
-                        'password',
-                        'remote_dest',
-                        'overwrite'
-                    ]]
+                'data' => [0 => [
+                    'id',
+                    'name',
+                    'servicename',
+                    'user',
+                    'password',
+                    'remote_dest',
+                    'overwrite',
+                ]],
             ])
             ->assertJsonCount(5, 'data');
     }
@@ -823,7 +811,7 @@ class ApiTest extends TestCase
             'user' => 'testuser',
             'password' => 'testpassword',
             'remote_dest' => '/path/to/dest',
-            'overwrite' => true
+            'overwrite' => true,
         ])
             ->assertStatus(201)
             ->assertJson([
@@ -833,8 +821,8 @@ class ApiTest extends TestCase
                     'user' => 'testuser',
                     'password' => 'testpassword',
                     'remote_dest' => '/path/to/dest',
-                    'overwrite' => true
-                ]
+                    'overwrite' => true,
+                ],
             ]);
     }
 
@@ -850,7 +838,7 @@ class ApiTest extends TestCase
         $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
             'type' => 'telegram_configs',
             'id' => $config->id,
-            'value' => true
+            'value' => true,
         ])
             ->assertStatus(200);
 
@@ -870,7 +858,7 @@ class ApiTest extends TestCase
         $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
             'type' => 'web_request_configs',
             'id' => $config->id,
-            'value' => true
+            'value' => true,
         ])
             ->assertStatus(200);
 
@@ -880,7 +868,7 @@ class ApiTest extends TestCase
         $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
             'type' => 'web_request_configs',
             'id' => $config->id,
-            'value' => true
+            'value' => true,
         ]);
 
         $this->assertCount(1, AutomationConfig::all());
@@ -899,13 +887,13 @@ class ApiTest extends TestCase
         AutomationConfig::create([
             'detection_profile_id' => $profile->id,
             'automation_config_type' => 'web_request_configs',
-            'automation_config_id' => $config->id
+            'automation_config_id' => $config->id,
         ]);
 
         $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
             'type' => 'web_request_configs',
             'id' => $config->id,
-            'value' => false
+            'value' => false,
         ])
             ->assertStatus(200);
 
@@ -925,21 +913,21 @@ class ApiTest extends TestCase
         $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
             'type' => 'web_request_configs',
             'id' => $config->id,
-            'value' => true
+            'value' => true,
         ])
             ->assertStatus(200);
 
         $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
             'type' => 'web_request_configs',
             'id' => $config->id,
-            'value' => false
+            'value' => false,
         ])
             ->assertStatus(200);
 
         $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
             'type' => 'web_request_configs',
             'id' => $config->id,
-            'value' => true
+            'value' => true,
         ])
             ->assertStatus(200);
 
@@ -958,8 +946,8 @@ class ApiTest extends TestCase
             ->assertStatus(200)
             ->assertJson([
                 'data' => [
-                    'status' => 'enabled'
-                ]
+                    'status' => 'enabled',
+                ],
             ]);
     }
 
@@ -976,8 +964,8 @@ class ApiTest extends TestCase
             ->assertStatus(200)
             ->assertJson([
                 'data' => [
-                    'status' => 'disabled'
-                ]
+                    'status' => 'disabled',
+                ],
             ]);
     }
 
@@ -994,8 +982,8 @@ class ApiTest extends TestCase
             ->assertStatus(200)
             ->assertJson([
                 'data' => [
-                    'status' => 'as_scheduled'
-                ]
+                    'status' => 'as_scheduled',
+                ],
             ]);
     }
 
@@ -1013,8 +1001,8 @@ class ApiTest extends TestCase
             ->assertStatus(200)
             ->assertJson([
                 'data' => [
-                    'status' => 'disabled'
-                ]
+                    'status' => 'disabled',
+                ],
             ]);
     }
 
@@ -1026,7 +1014,7 @@ class ApiTest extends TestCase
         $profile = factory(DetectionProfile::class)->create();
 
         $this->json('PUT', '/api/profiles/'.$profile->id.'/status', [
-            'status' => 'disabled'
+            'status' => 'disabled',
         ])
             ->assertStatus(204);
 
@@ -1045,7 +1033,7 @@ class ApiTest extends TestCase
         $profile->save();
 
         $this->json('PUT', '/api/profiles/'.$profile->id.'/status', [
-            'status' => 'enabled'
+            'status' => 'enabled',
         ])
             ->assertStatus(204);
 
@@ -1066,7 +1054,7 @@ class ApiTest extends TestCase
         $this->json('PUT', '/api/profiles/'.$profile->id.'/status', [
             'status' => 'as_scheduled',
             'start_time' => '23:45',
-            'end_time' => '12:34'
+            'end_time' => '12:34',
         ])
             ->assertStatus(204);
 
@@ -1076,8 +1064,6 @@ class ApiTest extends TestCase
         $this->assertEquals('23:45', $profile->start_time);
         $this->assertEquals('12:34', $profile->end_time);
     }
-
-
 
     /**
      * @test
@@ -1099,7 +1085,7 @@ class ApiTest extends TestCase
         $event->automationResults()->create([
             'automation_config_id' => $config->id,
             'is_error' => 1,
-            'response_text' => 'testing123'
+            'response_text' => 'testing123',
         ]);
 
         $this->json('GET', '/api/errors')
@@ -1111,10 +1097,10 @@ class ApiTest extends TestCase
                         'response_text' => 'testing123',
                         'automation_config_id' => $config->id,
                         'automation_config' => [
-                            'automation_config_type' => 'telegram_configs'
-                        ]
-                    ]
-                ]
+                            'automation_config_type' => 'telegram_configs',
+                        ],
+                    ],
+                ],
             ]);
     }
 
@@ -1140,8 +1126,8 @@ class ApiTest extends TestCase
                 'data' => [
                     'relevant_events' => 4,
                     'total_events' => 11,
-                    'total_errors' => 0
-                ]
+                    'total_errors' => 0,
+                ],
             ]);
     }
 
@@ -1167,8 +1153,8 @@ class ApiTest extends TestCase
                 'data' => [
                     'relevant_events' => 0,
                     'total_events' => 0,
-                    'total_errors' => 0
-                ]
+                    'total_errors' => 0,
+                ],
             ]);
     }
 
@@ -1180,22 +1166,22 @@ class ApiTest extends TestCase
         $profile = factory(DetectionProfile::class)->create();
 
         $first = factory(DetectionEvent::class)->create([
-            'occurred_at' => Date::now()->addHours(-5)
+            'occurred_at' => Date::now()->addHours(-5),
         ]);
         $first->patternMatchedProfiles()->attach($profile->id);
 
         $second = factory(DetectionEvent::class)->create([
-            'occurred_at' => Date::now()->addHours(-4)
+            'occurred_at' => Date::now()->addHours(-4),
         ]);
         $second->patternMatchedProfiles()->attach($profile->id);
 
         $third = factory(DetectionEvent::class)->create([
-            'occurred_at' => Date::now()->addHours(-3)
+            'occurred_at' => Date::now()->addHours(-3),
         ]);
         $third->patternMatchedProfiles()->attach($profile->id);
 
         $fourth = factory(DetectionEvent::class)->create([
-            'occurred_at' => Date::now()->addHours(-2)
+            'occurred_at' => Date::now()->addHours(-2),
         ]);
         $fourth->patternMatchedProfiles()->attach($profile->id);
 
@@ -1206,24 +1192,24 @@ class ApiTest extends TestCase
             ->assertStatus(200)
             ->assertJson([
                 'data' => [
-                    'id' => $first->id
-                ]
+                    'id' => $first->id,
+                ],
             ]);
 
         $this->json('GET', '/api/events/'.$third->id.'/prev')
             ->assertStatus(200)
             ->assertJson([
                 'data' => [
-                    'id' => $second->id
-                ]
+                    'id' => $second->id,
+                ],
             ]);
 
         $this->json('GET', '/api/events/'.$fourth->id.'/prev')
             ->assertStatus(200)
             ->assertJson([
                 'data' => [
-                    'id' => $third->id
-                ]
+                    'id' => $third->id,
+                ],
             ]);
     }
 
@@ -1235,16 +1221,16 @@ class ApiTest extends TestCase
         $profile = factory(DetectionProfile::class)->create();
 
         $first = factory(DetectionEvent::class)->create([
-            'occurred_at' => Date::now()->addHours(-5)
+            'occurred_at' => Date::now()->addHours(-5),
         ]);
         $first->patternMatchedProfiles()->attach($profile->id);
 
         factory(DetectionEvent::class)->create([
-            'occurred_at' => Date::now()->addHours(-4)
+            'occurred_at' => Date::now()->addHours(-4),
         ]);
 
         $third = factory(DetectionEvent::class)->create([
-            'occurred_at' => Date::now()->addHours(-3)
+            'occurred_at' => Date::now()->addHours(-3),
         ]);
         $third->patternMatchedProfiles()->attach($profile->id);
 
@@ -1252,8 +1238,8 @@ class ApiTest extends TestCase
             ->assertStatus(200)
             ->assertJson([
                 'data' => [
-                    'id' => $first->id
-                ]
+                    'id' => $first->id,
+                ],
             ]);
     }
 
@@ -1269,8 +1255,8 @@ class ApiTest extends TestCase
             ->assertJson([
                 'data' => [
                     'id' => $profile->id,
-                    'name' => $profile->name
-                ]
+                    'name' => $profile->name,
+                ],
             ]);
     }
 
@@ -1286,7 +1272,7 @@ class ApiTest extends TestCase
             'min_confidence' => 0.55,
             'object_classes' => ['person', 'car'],
             'use_smart_filter' => false,
-            'smart_filter_precision' => 0.42
+            'smart_filter_precision' => 0.42,
         ]);
 
         $this->json('PATCH', '/api/profiles/'.$profile->id, [
@@ -1297,12 +1283,12 @@ class ApiTest extends TestCase
             'object_classes' => '["dog", "cat"]',
             'min_confidence' => 0.69,
             'use_smart_filter' => 'true',
-            'smart_filter_precision' => 0.77
+            'smart_filter_precision' => 0.77,
         ])
             ->assertJson([
                 'data' => [
-                    'name' => 'testing123'
-                ]
+                    'name' => 'testing123',
+                ],
             ])
             ->assertStatus(200);
 
@@ -1336,7 +1322,7 @@ class ApiTest extends TestCase
         $profile = factory(DetectionProfile::class)->create();
 
         $this->json('PUT', '/api/profiles/'.$profile->id.'/status', [
-            'status' => 'asdf'
+            'status' => 'asdf',
         ])
             ->assertHeader('Content-Type', 'application/json')
             ->assertStatus(422);
@@ -1348,12 +1334,12 @@ class ApiTest extends TestCase
     public function api_throws_404_if_profile_status_update_invalid_id()
     {
         $this->json('PUT', '/api/profiles/999999/status', [
-            'status' => 'asdf'
+            'status' => 'asdf',
         ])
             ->assertStatus(404)
             ->assertHeader('Content-Type', 'application/json')
             ->assertJson([
-                'message' => 'Not Found.'
+                'message' => 'Not Found.',
             ]);
     }
 }

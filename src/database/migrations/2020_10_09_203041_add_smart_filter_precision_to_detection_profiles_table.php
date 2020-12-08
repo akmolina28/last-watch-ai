@@ -14,7 +14,7 @@ class AddSmartFilterPrecisionToDetectionProfilesTable extends Migration
     public function up()
     {
         Schema::table('detection_profiles', function (Blueprint $table) {
-            $table->decimal("smart_filter_precision")->default("0");
+            $table->decimal('smart_filter_precision')->default('0');
         });
     }
 
@@ -26,7 +26,7 @@ class AddSmartFilterPrecisionToDetectionProfilesTable extends Migration
     public function down()
     {
         Schema::table('detection_profiles', function (Blueprint $table) {
-            $table->dropColumn("smart_filter_precision");
+            $table->dropColumn('smart_filter_precision');
         });
     }
 }

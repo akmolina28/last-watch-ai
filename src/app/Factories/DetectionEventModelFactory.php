@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Factories;
 
 use App\DetectionEvent;
@@ -12,21 +11,21 @@ use Illuminate\Support\Facades\Storage;
 class DetectionEventModelFactory
 {
     /**
-     * @param String $imageFileName
+     * @param string $imageFileName
      * @param Carbon|null $occurred_at
      * @return DetectionEvent|Model
      */
-    public static function createFromImageFile(String $imageFileName, Carbon $occurred_at = null)
+    public static function createFromImageFile(string $imageFileName, Carbon $occurred_at = null)
     {
         $storage_name = 'events/'.$imageFileName;
         $path = Storage::path($storage_name);
 
-        list($width, $height) = getimagesize($path);
+        [$width, $height] = getimagesize($path);
 
         return DetectionEvent::create([
             'image_file_name' => $storage_name,
             'image_dimensions' => $width.'x'.$height,
-            'occurred_at' => $occurred_at ?? Date::now()
+            'occurred_at' => $occurred_at ?? Date::now(),
         ]);
     }
 }

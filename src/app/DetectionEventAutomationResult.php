@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * App\DetectionEventAutomationResult
+ * App\DetectionEventAutomationResult.
  *
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -35,7 +35,7 @@ class DetectionEventAutomationResult extends Model
         'detection_event_id',
         'automation_config_id',
         'is_error',
-        'response_text'
+        'response_text',
     ];
 
     public function automationConfig()

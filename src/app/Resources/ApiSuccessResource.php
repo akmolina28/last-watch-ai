@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -16,7 +15,7 @@ class ApiSuccessResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'success' => $this->success
+            'success' => $this->success,
         ];
     }
 }

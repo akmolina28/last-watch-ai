@@ -11,9 +11,8 @@ class LogTest extends TestCase
      * @test
      * @doesNotPerformAssertions
      */
-    function application_can_write_to_log_file()
+    public function application_can_write_to_log_file()
     {
-
-        Log::info("test passed");
+        Log::info('test passed');
     }
 }
