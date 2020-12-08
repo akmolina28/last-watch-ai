@@ -10,8 +10,10 @@ before_script:
   - cp src/.env.test src/.env
 
 script:
-  - sudo docker-compose up -d mysql
-  - sudo docker-compose run --rm composer install --ignore-platform-reqs
-  - sudo docker-compose run --rm artisan key:generate
-  - sudo docker-compose run --rm artisan migrate
-  - sudo docker-compose run --rm phpunit
+  - docker-compose up -d mysql
+  - docker-compose run composer install --ignore-platform-reqs
+  - docker-compose run artisan key:generate
+  - docker-compose run artisan migrate
+  - docker-compose up -d mysql_testing
+  - sleep 5
+  - docker-compose run --rm phpunit

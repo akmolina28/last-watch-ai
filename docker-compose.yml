@@ -181,6 +181,6 @@ services:
       - ./src:/var/www/app
     depends_on:
       - mysql_testing
-      - deepstack_testing
+#      - deepstack_testing
     working_dir: /var/www/app
     entrypoint: ['./vendor/phpunit/phpunit/phpunit']
