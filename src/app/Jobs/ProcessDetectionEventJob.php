@@ -45,11 +45,7 @@ class ProcessDetectionEventJob implements ShouldQueue
     public function handle(DeepstackClientInterface $client)
     {
         $path = Storage::path($this->event->image_file_name);
-//        $imageFileContents = file_get_contents($path);
-
-        echo $path;
-
-        $imageFileContents = Storage::get($path);
+        $imageFileContents = Storage::get($this->event->image_file_name);
 
         $deepstackCall = DeepstackCall::create([
             'called_at' => Carbon::now(),
@@ -60,9 +56,8 @@ class ProcessDetectionEventJob implements ShouldQueue
         $deepstackCall->returned_at = Carbon::now();
         $deepstackCall->save();
 
-//        $this->event->deepstack_response = $response;
-//        $this->event->save();
-
+        $this->event->deepstack_call_id = $deepstackCall->id;
+        $this->event->save();
 
         $relevantProfiles = [];
 

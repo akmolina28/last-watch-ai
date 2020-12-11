@@ -22,7 +22,6 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @property Carbon|null $occurred_at
  * @property-read Collection|AiPrediction[] $aiPredictions
  * @property-read int|null $ai_predictions_count
- * @property-read mixed $deepstack_result
  * @property-read Collection|DetectionProfile[] $patternMatchedProfiles
  * @property-read int|null $pattern_matched_profiles_count
  * @method static Builder|DetectionEvent newModelQuery()
@@ -44,7 +43,7 @@ class DetectionEvent extends Model
 {
     use HasRelationships;
 
-    protected $fillable = ['image_file_name', 'deepstack_response', 'image_dimensions', 'occurred_at'];
+    protected $fillable = ['image_file_name', 'deepstack_call_id', 'image_dimensions', 'occurred_at'];
 
     public function detectionProfiles()
     {
@@ -68,9 +67,9 @@ class DetectionEvent extends Model
         return $this->hasMany('App\DetectionEventAutomationResult');
     }
 
-    public function getDeepstackResultAttribute()
+    public function deepstackCall()
     {
-        return json_decode($this->deepstack_response);
+        return $this->belongsTo('App\DeepstackCall');
     }
 
     public function matchEventToProfiles(Collection $profiles)
