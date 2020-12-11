@@ -9,7 +9,9 @@ use App\Jobs\ProcessDetectionEventJob;
 use App\Mocks\FakeDeepstackClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class DetectionTest extends TestCase
@@ -23,9 +25,17 @@ class DetectionTest extends TestCase
 
         Queue::fake();
 
+        Storage::fake('public');
+
         app()->bind(DeepstackClient::class, function () {
             return new FakeDeepstackClient();
         });
+    }
+
+    protected function setUpTestImage()
+    {
+        $imageFile = UploadedFile::fake()->image('testimage.jpg', 640, 480)->size(128);
+        $imageFile->storeAs('events', 'testimage.jpg');
     }
 
     protected function handleDetectionJob(DetectionEvent $event)
@@ -44,8 +54,12 @@ class DetectionTest extends TestCase
             'use_mask' => false,
         ]);
 
-        $event = factory(DetectionEvent::class)->create();
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_name' => 'events/testimage.jpg'
+        ]);
         $event->patternMatchedProfiles()->attach($profile->id);
+
+        $this->setUpTestImage();
 
         $this->handleDetectionJob($event);
 
@@ -69,7 +83,9 @@ class DetectionTest extends TestCase
             'object_classes' => ['person', 'dog'],
             'use_mask' => false,
         ]);
-        $event = factory(DetectionEvent::class)->create();
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_name' => 'events/testimage.jpg'
+        ]);
         $event->patternMatchedProfiles()->attach($profile->id);
 
         // inactive match

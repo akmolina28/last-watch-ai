@@ -37,6 +37,8 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @method static Builder|DetectionEvent whereUpdatedAt($value)
  * @property-read Collection|\App\DetectionEventAutomationResult[] $automations
  * @property-read int|null $automations_count
+ * @property-read Collection|\App\DetectionEventAutomationResult[] $automationResults
+ * @property-read int|null $automation_results_count
  */
 class DetectionEvent extends Model
 {
@@ -90,6 +92,4 @@ class DetectionEvent extends Model
 
         return $activeMatchedProfiles;
     }
-
-//    public function saveAutomationResult($profileId, $)
 }

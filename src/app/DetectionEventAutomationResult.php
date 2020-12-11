@@ -28,6 +28,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static Builder|DetectionEventAutomationResult whereResponseText($value)
  * @method static Builder|DetectionEventAutomationResult whereUpdatedAt($value)
  * @mixin Eloquent
+ * @property-read \App\AutomationConfig $automationConfig
+ * @property-read \App\DetectionEvent $detectionEvent
  */
 class DetectionEventAutomationResult extends Model
 {

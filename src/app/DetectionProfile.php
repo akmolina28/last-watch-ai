@@ -71,6 +71,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @method static Builder|DetectionProfile withoutTrashed()
  * @property-read Collection|\App\AutomationConfig[] $automations
  * @property-read int|null $automations_count
+ * @method static Builder|DetectionProfile whereIsNegative($value)
  */
 class DetectionProfile extends Model
 {

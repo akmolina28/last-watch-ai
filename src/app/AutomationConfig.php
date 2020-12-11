@@ -30,6 +30,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|AutomationConfig whereId($value)
  * @method static Builder|AutomationConfig whereUpdatedAt($value)
  * @mixin Eloquent
+ * @method static Builder|AutomationConfig onlyTrashed()
+ * @method static Builder|AutomationConfig withTrashed()
+ * @method static Builder|AutomationConfig withoutTrashed()
  */
 class AutomationConfig extends Model
 {

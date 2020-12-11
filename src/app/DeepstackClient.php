@@ -6,23 +6,20 @@ use Illuminate\Support\Facades\Http;
 
 class DeepstackClient implements DeepstackClientInterface
 {
-    /**
-     * @var string
-     */
-    private $api_base_url;
+    private string $api_base_url;
 
     public function __construct($api_base_url)
     {
         $this->api_base_url = $api_base_url;
     }
 
-    public function detection($image_path)
+    public function detection($imageFileContents)
     {
         $url = $this->api_base_url.'v1/vision/detection';
 
         $response = Http::attach(
             'image',
-            file_get_contents($image_path),
+            $imageFileContents,
             'photo.jpg'
         )->post($url);
 
