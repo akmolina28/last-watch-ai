@@ -3,6 +3,7 @@
 /** @var Factory $factory */
 
 use App\DeepstackCall;
+use App\DetectionEvent;
 use Faker\Generator as Faker;
 use Illuminate\Database\Eloquent\Factory;
 
@@ -18,5 +19,6 @@ $factory->define(DeepstackCall::class, function (Faker $faker) {
         // @codingStandardsIgnoreLine
         'response_json' => '{"success":true,"predictions":[{"confidence":0.9995428,"label":"person","y_min":95,"x_min":295,"y_max":523,"x_max":451},{"confidence":0.9994912,"label":"person","y_min":99,"x_min":440,"y_max":531,"x_max":608},{"confidence":0.9990447,"label":"dog","y_min":358,"x_min":647,"y_max":539,"x_max":797}]}',
         'is_error' => false,
+        'detection_event_id' => factory(DetectionEvent::class)->create(),
     ];
 });

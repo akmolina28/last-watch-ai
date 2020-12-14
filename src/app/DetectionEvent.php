@@ -69,7 +69,7 @@ class DetectionEvent extends Model
 
     public function deepstackCall()
     {
-        return $this->belongsTo('App\DeepstackCall');
+        return $this->hasOne('App\DeepstackCall');
     }
 
     public function matchEventToProfiles(Collection $profiles)

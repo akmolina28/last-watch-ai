@@ -11,6 +11,7 @@ use App\DetectionEventAutomationResult;
 use App\DetectionProfile;
 use Exception;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -40,24 +41,22 @@ class ProcessDetectionEventJob implements ShouldQueue
      *
      * @param DeepstackClientInterface $client
      * @return void
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function handle(DeepstackClientInterface $client)
     {
         $path = Storage::path($this->event->image_file_name);
         $imageFileContents = Storage::get($this->event->image_file_name);
 
-        $deepstackCall = DeepstackCall::create([
+        $deepstackCall = DeepstackCall::make([
             'called_at' => Carbon::now(),
             'input_file' => $path,
         ]);
 
         $deepstackCall->response_json = $client->detection($imageFileContents);
         $deepstackCall->returned_at = Carbon::now();
-        $deepstackCall->save();
 
-        $this->event->deepstack_call_id = $deepstackCall->id;
-        $this->event->save();
+        $this->event->deepstackCall()->save($deepstackCall);
 
         $relevantProfiles = [];
 

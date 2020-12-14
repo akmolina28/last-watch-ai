@@ -15,6 +15,9 @@ class CreateDeepstackCallsTable extends Migration
     {
         Schema::create('deepstack_calls', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('detection_event_id')
+                ->references('id')->on('detection_events')
+                ->cascadeOnDelete();
             $table->timestamps();
             $table->string('input_file');
             $table->timestamp('called_at')->nullable();

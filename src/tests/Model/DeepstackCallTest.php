@@ -23,10 +23,9 @@ class DeepstackCallTest extends TestCase
         $returnedAt = clone $calledAt;
         $returnedAt->addSeconds($diff);
 
-
         $deepstackCall = factory(DeepstackCall::class)->create([
             'called_at' => $calledAt,
-            'returned_at' => $returnedAt
+            'returned_at' => $returnedAt,
         ]);
 
         $this->assertEquals($diff, $deepstackCall->runTimeSeconds);
