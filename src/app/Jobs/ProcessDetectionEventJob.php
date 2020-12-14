@@ -4,17 +4,19 @@ namespace App\Jobs;
 
 use App\AiPrediction;
 use App\AutomationConfig;
+use App\DeepstackCall;
 use App\DeepstackClientInterface;
-use App\DeepstackResult;
 use App\DetectionEvent;
 use App\DetectionEventAutomationResult;
 use App\DetectionProfile;
 use Exception;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 class ProcessDetectionEventJob implements ShouldQueue
@@ -39,21 +41,26 @@ class ProcessDetectionEventJob implements ShouldQueue
      *
      * @param DeepstackClientInterface $client
      * @return void
+     * @throws FileNotFoundException
      */
     public function handle(DeepstackClientInterface $client)
     {
         $path = Storage::path($this->event->image_file_name);
+        $imageFileContents = Storage::get($this->event->image_file_name);
 
-        $response = $client->detection($path);
+        $deepstackCall = DeepstackCall::make([
+            'called_at' => Carbon::now(),
+            'input_file' => $path,
+        ]);
 
-        $this->event->deepstack_response = $response;
-        $this->event->save();
+        $deepstackCall->response_json = $client->detection($imageFileContents);
+        $deepstackCall->returned_at = Carbon::now();
 
-        $result = new DeepstackResult($response);
+        $this->event->deepstackCall()->save($deepstackCall);
 
         $relevantProfiles = [];
 
-        foreach ($result->getPredictions() as $prediction) {
+        foreach ($deepstackCall->predictions as $prediction) {
             $aiPrediction = AiPrediction::create([
                 'object_class' => $prediction->label,
                 'confidence' => $prediction->confidence,

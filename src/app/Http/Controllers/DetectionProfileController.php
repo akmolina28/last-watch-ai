@@ -159,7 +159,7 @@ class DetectionProfileController extends Controller
         $query = null;
 
         foreach ($configTypes as $type) {
-            $q = Relation::$morphMap[$type]//::select('id', 'name', DB::raw("'".$type."' as type"));
+            $q = Relation::$morphMap[$type]
             ::leftJoin('automation_configs as ac', function ($join) use ($type, $profile) {
                 $join->on('ac.automation_config_id', '=', $type.'.id');
                 $join->where('ac.automation_config_type', '=', $type);

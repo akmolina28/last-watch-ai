@@ -32,6 +32,9 @@ use Illuminate\Support\Facades\Http;
  * @method static Builder|WebRequestConfig whereName($value)
  * @method static Builder|WebRequestConfig whereUpdatedAt($value)
  * @method static Builder|WebRequestConfig whereUrl($value)
+ * @method static Builder|WebRequestConfig whereBodyJson($value)
+ * @method static Builder|WebRequestConfig whereHeadersJson($value)
+ * @method static Builder|WebRequestConfig whereIsPost($value)
  */
 class WebRequestConfig extends Model implements AutomationConfigInterface
 {

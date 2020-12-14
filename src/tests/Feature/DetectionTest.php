@@ -9,7 +9,9 @@ use App\Jobs\ProcessDetectionEventJob;
 use App\Mocks\FakeDeepstackClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class DetectionTest extends TestCase
@@ -23,9 +25,17 @@ class DetectionTest extends TestCase
 
         Queue::fake();
 
+        Storage::fake('public');
+
         app()->bind(DeepstackClient::class, function () {
             return new FakeDeepstackClient();
         });
+    }
+
+    protected function setUpTestImage()
+    {
+        $imageFile = UploadedFile::fake()->image('testimage.jpg', 640, 480)->size(128);
+        $imageFile->storeAs('events', 'testimage.jpg');
     }
 
     protected function handleDetectionJob(DetectionEvent $event)
@@ -44,15 +54,20 @@ class DetectionTest extends TestCase
             'use_mask' => false,
         ]);
 
-        $event = factory(DetectionEvent::class)->create();
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_name' => 'events/testimage.jpg',
+        ]);
         $event->patternMatchedProfiles()->attach($profile->id);
+
+        $this->setUpTestImage();
+
+        Storage::assertExists('events/testimage.jpg');
 
         $this->handleDetectionJob($event);
 
-        $event->refresh()->load(['aiPredictions']);
-        $event->refresh()->load(['detectionProfiles']);
+        $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCall']);
 
-        $this->assertNotNull($event->deepstack_response);
+        $this->assertNotNull($event->deepstackCall);
         $this->assertCount(3, $event->aiPredictions);
         $this->assertCount(3, $event->detectionProfiles);
     }
@@ -60,7 +75,7 @@ class DetectionTest extends TestCase
     /**
      * @test
      */
-    public function detection_job_creates_relevant_relationship_for_active_matches()
+    public function detection__job_creates_relevant_relationship_for_active_matches()
     {
         factory(DetectionProfile::class, 5)->create();
 
@@ -69,7 +84,9 @@ class DetectionTest extends TestCase
             'object_classes' => ['person', 'dog'],
             'use_mask' => false,
         ]);
-        $event = factory(DetectionEvent::class)->create();
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_name' => 'events/testimage.jpg',
+        ]);
         $event->patternMatchedProfiles()->attach($profile->id);
 
         // inactive match
@@ -83,9 +100,9 @@ class DetectionTest extends TestCase
 
         $this->handleDetectionJob($event);
 
-        $event->refresh()->load(['aiPredictions.detectionProfiles']);
+        $event->refresh()->load(['aiPredictions.detectionProfiles', 'deepstackCall']);
 
-        $this->assertNotNull($event->deepstack_response);
+        $this->assertNotNull($event->deepstackCall);
         $this->assertCount(3, $event->aiPredictions);
         $this->assertCount(3, $event->detectionProfiles);
     }
@@ -106,12 +123,16 @@ class DetectionTest extends TestCase
         ]);
 
         // process an event
-        $event = factory(DetectionEvent::class)->create();
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_name' => 'events/testimage.jpg',
+        ]);
         $event->patternMatchedProfiles()->attach($profile->id);
         $this->handleDetectionJob($event);
 
         // process another event with the same predictions
-        $event = factory(DetectionEvent::class)->create();
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_name' => 'events/testimage.jpg',
+        ]);
         $event->patternMatchedProfiles()->attach($profile->id);
         $this->handleDetectionJob($event);
 
@@ -139,7 +160,9 @@ class DetectionTest extends TestCase
         ]);
 
         // process an event
-        $event = factory(DetectionEvent::class)->create();
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_name' => 'events/testimage.jpg',
+        ]);
         $event->patternMatchedProfiles()->attach($profile->id);
         $this->handleDetectionJob($event);
 
@@ -178,7 +201,9 @@ class DetectionTest extends TestCase
         ]);
 
         // process an event
-        $event = factory(DetectionEvent::class)->create();
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_name' => 'events/testimage.jpg',
+        ]);
         $event->patternMatchedProfiles()->attach([
             $personProfile->id,
             $dogProfile->id,
