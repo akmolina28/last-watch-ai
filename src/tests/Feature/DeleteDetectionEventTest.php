@@ -46,7 +46,7 @@ class DeleteDetectionEventTest extends TestCase
         $event->aiPredictions()->createMany(
                     factory(AiPrediction::class, 3)->make()->toArray()
                 )
-            ->each(function($prediction) {
+            ->each(function ($prediction) {
                 $prediction->detectionProfiles()->attach(
                     factory(DetectionProfile::class)->create()
                 );
@@ -101,7 +101,7 @@ class DeleteDetectionEventTest extends TestCase
         $this->post('/api/profiles/'.$profile->id.'/automations', [
             'type' => 'web_request_configs',
             'value' => 'true',
-            'id' => $config->id
+            'id' => $config->id,
         ])->assertStatus(200);
 
         // create an event and attach an automation result
@@ -112,7 +112,7 @@ class DeleteDetectionEventTest extends TestCase
             'detection_event_id' => $event->id,
             'automation_config_id' => $automationConfig->id,
             'is_error' => false,
-            'response_text' => 'OK'
+            'response_text' => 'OK',
         ]);
 
         // assert new records are in place
@@ -138,7 +138,7 @@ class DeleteDetectionEventTest extends TestCase
     {
         for ($i = 0; $i < 14; $i++) {
             factory(DetectionEvent::class)->create([
-                'occurred_at' => Date::now()->addDays(-$i)
+                'occurred_at' => Date::now()->addDays(-$i),
             ]);
         }
 
