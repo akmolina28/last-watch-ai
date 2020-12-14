@@ -38,6 +38,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @property-read int|null $automations_count
  * @property-read Collection|\App\DetectionEventAutomationResult[] $automationResults
  * @property-read int|null $automation_results_count
+ * @property-read DeepstackCall|null $deepstackCall
  */
 class DetectionEvent extends Model
 {

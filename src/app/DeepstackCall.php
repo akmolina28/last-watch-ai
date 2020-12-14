@@ -33,6 +33,8 @@ use Illuminate\Support\Carbon;
  * @method static Builder|DeepstackCall whereResponseJson($value)
  * @method static Builder|DeepstackCall whereReturnedAt($value)
  * @method static Builder|DeepstackCall whereUpdatedAt($value)
+ * @property int $detection_event_id
+ * @method static Builder|DeepstackCall whereDetectionEventId($value)
  */
 class DeepstackCall extends Model
 {
