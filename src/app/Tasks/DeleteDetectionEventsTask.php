@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Tasks;
-
 
 use App\DetectionEvent;
 use Illuminate\Support\Facades\Date;

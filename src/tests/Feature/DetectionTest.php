@@ -55,7 +55,7 @@ class DetectionTest extends TestCase
         ]);
 
         $event = factory(DetectionEvent::class)->create([
-            'image_file_name' => 'events/testimage.jpg'
+            'image_file_name' => 'events/testimage.jpg',
         ]);
         $event->patternMatchedProfiles()->attach($profile->id);
 
@@ -85,7 +85,7 @@ class DetectionTest extends TestCase
             'use_mask' => false,
         ]);
         $event = factory(DetectionEvent::class)->create([
-            'image_file_name' => 'events/testimage.jpg'
+            'image_file_name' => 'events/testimage.jpg',
         ]);
         $event->patternMatchedProfiles()->attach($profile->id);
 
@@ -124,14 +124,14 @@ class DetectionTest extends TestCase
 
         // process an event
         $event = factory(DetectionEvent::class)->create([
-            'image_file_name' => 'events/testimage.jpg'
+            'image_file_name' => 'events/testimage.jpg',
         ]);
         $event->patternMatchedProfiles()->attach($profile->id);
         $this->handleDetectionJob($event);
 
         // process another event with the same predictions
         $event = factory(DetectionEvent::class)->create([
-            'image_file_name' => 'events/testimage.jpg'
+            'image_file_name' => 'events/testimage.jpg',
         ]);
         $event->patternMatchedProfiles()->attach($profile->id);
         $this->handleDetectionJob($event);
@@ -161,7 +161,7 @@ class DetectionTest extends TestCase
 
         // process an event
         $event = factory(DetectionEvent::class)->create([
-            'image_file_name' => 'events/testimage.jpg'
+            'image_file_name' => 'events/testimage.jpg',
         ]);
         $event->patternMatchedProfiles()->attach($profile->id);
         $this->handleDetectionJob($event);
@@ -202,7 +202,7 @@ class DetectionTest extends TestCase
 
         // process an event
         $event = factory(DetectionEvent::class)->create([
-            'image_file_name' => 'events/testimage.jpg'
+            'image_file_name' => 'events/testimage.jpg',
         ]);
         $event->patternMatchedProfiles()->attach([
             $personProfile->id,

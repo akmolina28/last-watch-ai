@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
 /**
- * App\DeepstackCall
+ * App\DeepstackCall.
  *
  * @property-read mixed $run_time_seconds
  * @method static Builder|DeepstackCall newModelQuery()

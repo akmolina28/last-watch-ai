@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factory;
 $factory->define(DeepstackCall::class, function (Faker $faker) {
     $calledAt = $faker->dateTimeBetween('-30 days', 'now');
     $returnedAt = clone $calledAt;
-    $returnedAt->add(new DateInterval("PT1S"));
+    $returnedAt->add(new DateInterval('PT1S'));
 
     return [
         'input_file' => $faker->word().'.jpg',
