@@ -53,10 +53,11 @@ class ProcessDetectionEventJob implements ShouldQueue
             'input_file' => $path,
         ]);
 
+        $this->event->deepstackCall()->save($deepstackCall);
+
         $deepstackCall->response_json = $client->detection($imageFileContents);
         $deepstackCall->returned_at = Carbon::now();
-
-        $this->event->deepstackCall()->save($deepstackCall);
+        $deepstackCall->save();
 
         $relevantProfiles = [];
 

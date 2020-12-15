@@ -65,4 +65,6 @@ Route::get('/alive', 'StatisticsController@isAlive');
 
 Route::get('/errors', 'StatisticsController@errors');
 
+Route::get('/deepstackLogs', 'StatisticsController@deepstackLogs');
+
 Route::any('/{any}', 'ErrorController@catchAll')->where('any', '.*');

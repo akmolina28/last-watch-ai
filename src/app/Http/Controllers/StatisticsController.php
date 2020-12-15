@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\DeepstackCall;
 use App\DetectionEvent;
 use App\DetectionEventAutomationResult;
+use App\Resources\DeepstackCallResource;
 use App\Resources\DetectionEventAutomationResultResource;
 use Illuminate\Support\Facades\Date;
 
@@ -59,5 +61,12 @@ class StatisticsController extends Controller
             ->paginate(10);
 
         return DetectionEventAutomationResultResource::collection($errors);
+    }
+
+    public function deepstackLogs()
+    {
+        $logs = DeepstackCall::orderByDesc('created_at')->paginate(10);
+
+        return DeepstackCallResource::collection($logs);
     }
 }
