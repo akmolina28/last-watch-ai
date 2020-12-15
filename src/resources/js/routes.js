@@ -58,6 +58,10 @@ let routes = [
     {
         path: '/errors/',
         component: require('./components/Errors').default
+    },
+    {
+        path: '/deepstackLogs/',
+        component: require('./components/DeepstackLogs').default
     }
 ]
 

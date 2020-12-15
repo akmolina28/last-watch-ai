@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\AiPrediction;
 use App\AutomationConfig;
+use App\DeepstackCall;
 use App\DetectionEvent;
 use App\DetectionProfile;
 use App\FolderCopyConfig;
@@ -1105,6 +1106,33 @@ class ApiTest extends TestCase
                         'automation_config' => [
                             'automation_config_type' => 'telegram_configs',
                         ],
+                    ],
+                ],
+            ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_deepstack_logs()
+    {
+        factory(DeepstackCall::class, 35)->create();
+
+        $this->json('GET', '/api/deepstackLogs')
+            ->assertStatus(200)
+            ->assertJsonCount(10, 'data')
+            ->assertJsonStructure([
+                'data' => [
+                    0 => [
+                        'id',
+                        'input_file',
+                        'created_at',
+                        'called_at',
+                        'returned_at',
+                        'run_time_seconds',
+                        'response_json',
+                        'is_error',
+                        'detection_event_id',
                     ],
                 ],
             ]);
