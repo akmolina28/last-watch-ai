@@ -10,7 +10,6 @@ before_script:
   - cp src/.env.test src/.env
 
 script:
-  - sudo docker-compose up -d mysql
   - sudo docker-compose run composer install --ignore-platform-reqs
   - sudo docker-compose run artisan key:generate
   - sudo docker-compose run artisan storage:link

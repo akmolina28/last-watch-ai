@@ -1,4 +1,4 @@
-# Last Watch AI [![Build Status](https://travis-ci.com/akmolina28/last-watch-ai.svg?branch=master)](https://travis-ci.com/akmolina28/last-watch-ai)
+# Last Watch AI [![Build Status](https://travis-ci.com/akmolina28/last-watch-ai.svg?branch=master)](https://travis-ci.com/akmolina28/last-watch-ai) [![StyleCI](https://github.styleci.io/repos/296938596/shield?style=flat&branch=master)](https://github.styleci.io/repos/296938596)
 
 Last Watch AI is a locally hosted application for creating if-then automations based on computer vision events. Last Watch can be used in tandem with IP camera software to trigger actions if the AI detects certain objects, like cars, people, or animals.
 
