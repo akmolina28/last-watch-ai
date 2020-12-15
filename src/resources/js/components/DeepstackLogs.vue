@@ -26,8 +26,20 @@
                 {{ props.row.called_at | dateStrRelative }}
             </b-table-column>
 
+            <b-table-column field="detection_event_id" label="Event" v-slot="props">
+                <a :href="`/events/${props.row.detection_event_id}`">{{ props.row.detection_event_id }}</a>
+            </b-table-column>
+
             <b-table-column field="run_time_seconds" label="Run Time" v-slot="props">
                 {{ props.row.run_time_seconds | runTime }}
+            </b-table-column>
+
+            <b-table-column field="input_file" label="Input File" v-slot="props">
+                {{ props.row.input_file }}
+            </b-table-column>
+
+            <b-table-column field="response_json" label="Response" v-slot="props">
+                <a v-if="props.row.response_json" @click="showResponse(props.row.response_json)">Response</a>
             </b-table-column>
 
         </b-table>
@@ -78,6 +90,21 @@
                     .finally(() => {
                         this.loading = false;
                     });
+            },
+
+            showResponse(responseJson) {
+                let prettyJson = this.prettyJson(responseJson);
+
+                this.$buefy.dialog.alert({
+                    title: 'Deepstack Response',
+                    message: `<pre>${prettyJson}</pre>`,
+                    confirmText: 'Close'
+                })
+            },
+
+            prettyJson(jsonString) {
+                let jsonObj = JSON.parse(jsonString);
+                return JSON.stringify(jsonObj, null, 2);
             }
         }
     }
