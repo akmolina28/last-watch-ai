@@ -1132,9 +1132,9 @@ class ApiTest extends TestCase
                         'run_time_seconds',
                         'response_json',
                         'is_error',
-                        'detection_event_id'
-                    ]
-                ]
+                        'detection_event_id',
+                    ],
+                ],
             ]);
     }
 
