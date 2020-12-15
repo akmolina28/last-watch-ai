@@ -58,7 +58,7 @@
                 if (value && value > 0) {
                     return value + "s";
                 }
-                if (value && value === 0) {
+                if (value === 0) {
                     return "<1s";
                 }
                 return "";
