@@ -35,21 +35,8 @@ Last Watch has been tested on Windows, Debian, and Arch Linux. Dual-core CPU and
 
 [Detailed Ubuntu Setup Guide](https://kleypot.com/last-watch-ai-ubuntu-installation-and-upgrading/)
 
-### Install From Release Build
 
-1. Install [Docker](https://docs.docker.com/docker-for-windows/install/) and [Docker Compose](https://docs.docker.com/compose/install/)
-
-2. Download the [latest release](https://github.com/akmolina28/last-watch-ai/releases/) un-zip and extract the files
-
-3. Set the watch folder and web port by editing the .env file
-
-4. Start the containers with Docker Compose
-
-```
-docker-compose up -d --build site
-```
-
-### Install From Source
+### Install From Source (recommended)
 
 1. Clone the repo
 
@@ -84,6 +71,53 @@ sudo docker-compose run --rm npm run prod --verbose
 
 ```
 sudo docker-compose up -d --build site
+```
+
+### Upgrading
+
+1. Stop the containers during the upgrade
+
+```
+cd /path/to/last-watch-ai
+
+sudo docker-compose down
+```
+
+2. Pull latest source code
+
+```
+git pull
+```
+
+3. Re-build application
+
+```
+sudo docker-compose run --rm composer install --optimize-autoloader --no-dev &&
+sudo docker-compose run --rm artisan route:cache &&
+sudo docker-compose run --rm artisan migrate --force &&
+sudo docker-compose run --rm npm install --verbose &&
+sudo docker-compose run --rm npm rebuild &&
+sudo docker-compose run --rm npm run prod --verbose
+```
+
+4. Restart the containers
+
+```
+sudo docker-compose up -d --build site
+```
+
+### Install From Release Build
+
+1. Install [Docker](https://docs.docker.com/docker-for-windows/install/) and [Docker Compose](https://docs.docker.com/compose/install/)
+
+2. Download the [latest release](https://github.com/akmolina28/last-watch-ai/releases/) un-zip and extract the files
+
+3. Set the watch folder and web port by editing the .env file
+
+4. Start the containers with Docker Compose
+
+```
+docker-compose up -d --build site
 ```
 
 ## User Guide and Documentation
