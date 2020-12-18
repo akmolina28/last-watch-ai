@@ -52,12 +52,18 @@ class WebRequestConfig extends Model implements AutomationConfigInterface
     public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
     {
         $headers = $this->headers_json ? json_decode($this->headers_json, true) : [];
+        $url = $this->getUrlWithReplacements($event);
 
         if ($this->is_post) {
             return $this->postRequest($headers);
         } else {
-            return $this->getRequest($headers);
+            return $this->getRequest($headers, $url);
         }
+    }
+
+    protected function getUrlWithReplacements(DetectionEvent $event)
+    {
+        return str_replace('%image_file_name%', $event->image_file_name, $this->url);
     }
 
     protected function postRequest(array $headers): DetectionEventAutomationResult
@@ -79,10 +85,10 @@ class WebRequestConfig extends Model implements AutomationConfigInterface
         ]);
     }
 
-    protected function getRequest(array $headers): DetectionEventAutomationResult
+    protected function getRequest(array $headers, string $url): DetectionEventAutomationResult
     {
         try {
-            $response = Http::withHeaders($headers)->get($this->url);
+            $response = Http::withHeaders($headers)->get($url);
             $isError = $response->status() != 200;
             $responseText = $response->body();
         } catch (Exception $exception) {
