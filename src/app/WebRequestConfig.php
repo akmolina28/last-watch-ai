@@ -51,27 +51,52 @@ class WebRequestConfig extends Model implements AutomationConfigInterface
 
     public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
     {
-        $headers = $this->headers_json ? json_decode($this->headers_json, true) : [];
+        $headers = $this->getHeadersWithReplacements($event);
         $url = $this->getUrlWithReplacements($event);
+        $body = $this->getBodyWithReplacements($event);
 
         if ($this->is_post) {
-            return $this->postRequest($headers);
+            return $this->postRequest($headers, $url, $body);
         } else {
             return $this->getRequest($headers, $url);
         }
     }
 
-    protected function getUrlWithReplacements(DetectionEvent $event)
+    public function getUrlWithReplacements(DetectionEvent $event)
     {
-        return str_replace('%image_file_name%', $event->image_file_name, $this->url);
+        return $this->getReplacements($event, $this->url);
     }
 
-    protected function postRequest(array $headers): DetectionEventAutomationResult
+    public function getHeadersWithReplacements(DetectionEvent $event)
     {
-        $body = $this->body_json ? json_decode($this->body_json, true) : [];
+        if ($this->headers_json) {
+            $replaced = $this->getReplacements($event, $this->headers_json);
+            return json_decode($replaced, true);
+        }
 
+        return [];
+    }
+
+    public function getBodyWithReplacements(DetectionEvent $event)
+    {
+        if ($this->body_json) {
+            $replaced = $this->getReplacements($event, $this->body_json);
+            return json_decode($replaced, true);
+        }
+
+        return [];
+    }
+
+    public function getReplacements(DetectionEvent $event, string $subject)
+    {
+        $replaced = str_replace('%image_file_name%', $event->image_file_name, $subject);
+        return $replaced;
+    }
+
+    protected function postRequest(array $headers, string $url, array $body): DetectionEventAutomationResult
+    {
         try {
-            $response = Http::withHeaders($headers)->post($this->url, $body);
+            $response = Http::withHeaders($headers)->post($url, $body);
             $isError = ! in_array($response->status(), [200, 201]);
             $responseText = $response->body();
         } catch (Exception $exception) {
