@@ -31,7 +31,6 @@ class WebRequestAutomationTest extends TestCase
             'body_json' => '{ "baz": "bang" }',
         ]);
 
-
         $replacedUrl = $config->getUrlWithReplacements($event, $profile);
         $this->assertEquals('http://foobar.win/', $replacedUrl);
 
@@ -118,7 +117,7 @@ class WebRequestAutomationTest extends TestCase
     public function web_request_can_replace_profile_name()
     {
         $profile = factory(DetectionProfile::class)->create([
-            'name' => 'My Awesome Profile'
+            'name' => 'My Awesome Profile',
         ]);
 
         $event = factory(DetectionEvent::class)->create();
