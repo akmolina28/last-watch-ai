@@ -51,6 +51,21 @@
                     <b-input v-model="name" placeholder="Unique name" name="name" required></b-input>
                 </b-field>
 
+                <div class="px-5 py-5 mb-3 has-background-light">
+                    <h5 class="title is-size-5">Substitution Variables</h5>
+                    <ul>
+                        <li>
+                            <strong>%image_file_name%</strong> - the event image file
+                        </li>
+                        <li>
+                            <strong>%profile_name%</strong> - the triggered profile name
+                        </li>
+                        <li>
+                            <strong>%object_classes%</strong> - object(s) which triggered the profile
+                        </li>
+                    </ul>
+                </div>
+
                 <b-field label="Headers (json)">
                     <b-input v-model="headersJson" name="headersJson" type="textarea"></b-input>
                 </b-field>

@@ -51,21 +51,69 @@ class WebRequestConfig extends Model implements AutomationConfigInterface
 
     public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
     {
-        $headers = $this->headers_json ? json_decode($this->headers_json, true) : [];
+        $headers = $this->getHeadersWithReplacements($event, $profile);
+        $url = $this->getUrlWithReplacements($event, $profile);
+        $body = $this->getBodyWithReplacements($event, $profile);
 
         if ($this->is_post) {
-            return $this->postRequest($headers);
+            return $this->postRequest($headers, $url, $body);
         } else {
-            return $this->getRequest($headers);
+            return $this->getRequest($headers, $url);
         }
     }
 
-    protected function postRequest(array $headers): DetectionEventAutomationResult
+    public function getUrlWithReplacements(DetectionEvent $event, DetectionProfile $profile)
     {
-        $body = $this->body_json ? json_decode($this->body_json, true) : [];
+        return $this->getReplacements($event, $profile, $this->url);
+    }
 
+    public function getHeadersWithReplacements(DetectionEvent $event, DetectionProfile $profile)
+    {
+        if ($this->headers_json) {
+            $replaced = $this->getReplacements($event, $profile, $this->headers_json);
+
+            return json_decode($replaced, true);
+        }
+
+        return [];
+    }
+
+    public function getBodyWithReplacements(DetectionEvent $event, DetectionProfile $profile)
+    {
+        if ($this->body_json) {
+            $replaced = $this->getReplacements($event, $profile, $this->body_json);
+
+            return json_decode($replaced, true);
+        }
+
+        return [];
+    }
+
+    public function getReplacements(DetectionEvent $event, DetectionProfile $profile, string $subject)
+    {
+        $replaced = $subject;
+
+        $replaced = str_replace('%image_file_name%', $event->image_file_name, $replaced);
+
+        $replaced = str_replace('%profile_name%', $profile->name, $replaced);
+
+        $objectClasses = $profile->aiPredictions()
+            ->where('detection_event_id', '=', $event->id)
+            ->where('ai_prediction_detection_profile.is_masked', '=', 0)
+            ->where('ai_prediction_detection_profile.is_smart_filtered', '=', 0)
+            ->pluck('object_class')
+            ->sort()
+            ->implode(',');
+
+        $replaced = str_replace('%object_classes%', $objectClasses, $replaced);
+
+        return $replaced;
+    }
+
+    protected function postRequest(array $headers, string $url, array $body): DetectionEventAutomationResult
+    {
         try {
-            $response = Http::withHeaders($headers)->post($this->url, $body);
+            $response = Http::withHeaders($headers)->post($url, $body);
             $isError = ! in_array($response->status(), [200, 201]);
             $responseText = $response->body();
         } catch (Exception $exception) {
@@ -79,10 +127,10 @@ class WebRequestConfig extends Model implements AutomationConfigInterface
         ]);
     }
 
-    protected function getRequest(array $headers): DetectionEventAutomationResult
+    protected function getRequest(array $headers, string $url): DetectionEventAutomationResult
     {
         try {
-            $response = Http::withHeaders($headers)->get($this->url);
+            $response = Http::withHeaders($headers)->get($url);
             $isError = $response->status() != 200;
             $responseText = $response->body();
         } catch (Exception $exception) {
