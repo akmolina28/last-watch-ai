@@ -55,7 +55,7 @@
                     <h5 class="title is-size-5">Substitution Variables</h5>
                     <ul>
                         <li>
-                            <strong>%input_file_name%</strong> - the image file name
+                            <strong>%image_file_name%</strong> - the event image file
                         </li>
                         <li>
                             <strong>%profile_name%</strong> - the triggered profile name
