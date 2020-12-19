@@ -71,6 +71,7 @@ class WebRequestConfig extends Model implements AutomationConfigInterface
     {
         if ($this->headers_json) {
             $replaced = $this->getReplacements($event, $profile, $this->headers_json);
+
             return json_decode($replaced, true);
         }
 
@@ -81,6 +82,7 @@ class WebRequestConfig extends Model implements AutomationConfigInterface
     {
         if ($this->body_json) {
             $replaced = $this->getReplacements($event, $profile, $this->body_json);
+
             return json_decode($replaced, true);
         }
 
