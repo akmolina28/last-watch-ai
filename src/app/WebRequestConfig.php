@@ -51,9 +51,9 @@ class WebRequestConfig extends Model implements AutomationConfigInterface
 
     public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
     {
-        $headers = $this->getHeadersWithReplacements($event);
-        $url = $this->getUrlWithReplacements($event);
-        $body = $this->getBodyWithReplacements($event);
+        $headers = $this->getHeadersWithReplacements($event, $profile);
+        $url = $this->getUrlWithReplacements($event, $profile);
+        $body = $this->getBodyWithReplacements($event, $profile);
 
         if ($this->is_post) {
             return $this->postRequest($headers, $url, $body);
@@ -62,34 +62,49 @@ class WebRequestConfig extends Model implements AutomationConfigInterface
         }
     }
 
-    public function getUrlWithReplacements(DetectionEvent $event)
+    public function getUrlWithReplacements(DetectionEvent $event, DetectionProfile $profile)
     {
-        return $this->getReplacements($event, $this->url);
+        return $this->getReplacements($event, $profile, $this->url);
     }
 
-    public function getHeadersWithReplacements(DetectionEvent $event)
+    public function getHeadersWithReplacements(DetectionEvent $event, DetectionProfile $profile)
     {
         if ($this->headers_json) {
-            $replaced = $this->getReplacements($event, $this->headers_json);
+            $replaced = $this->getReplacements($event, $profile, $this->headers_json);
             return json_decode($replaced, true);
         }
 
         return [];
     }
 
-    public function getBodyWithReplacements(DetectionEvent $event)
+    public function getBodyWithReplacements(DetectionEvent $event, DetectionProfile $profile)
     {
         if ($this->body_json) {
-            $replaced = $this->getReplacements($event, $this->body_json);
+            $replaced = $this->getReplacements($event, $profile, $this->body_json);
             return json_decode($replaced, true);
         }
 
         return [];
     }
 
-    public function getReplacements(DetectionEvent $event, string $subject)
+    public function getReplacements(DetectionEvent $event, DetectionProfile $profile, string $subject)
     {
-        $replaced = str_replace('%image_file_name%', $event->image_file_name, $subject);
+        $replaced = $subject;
+
+        $replaced = str_replace('%image_file_name%', $event->image_file_name, $replaced);
+
+        $replaced = str_replace('%profile_name%', $profile->name, $replaced);
+
+        $objectClasses = $profile->aiPredictions()
+            ->where('detection_event_id', '=', $event->id)
+            ->where('ai_prediction_detection_profile.is_masked', '=', 0)
+            ->where('ai_prediction_detection_profile.is_smart_filtered', '=', 0)
+            ->pluck('object_class')
+            ->sort()
+            ->implode(',');
+
+        $replaced = str_replace('%object_classes%', $objectClasses, $replaced);
+
         return $replaced;
     }
 

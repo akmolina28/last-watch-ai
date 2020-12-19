@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\AiPrediction;
 use App\DetectionEvent;
 use App\DetectionProfile;
 use App\WebRequestConfig;
@@ -22,6 +23,7 @@ class WebRequestAutomationTest extends TestCase
     {
         $event = factory(DetectionEvent::class)->create();
 
+        $profile = factory(DetectionProfile::class)->create();
 
         $config = factory(WebRequestConfig::class)->create([
             'url' => 'http://foobar.win/',
@@ -30,13 +32,13 @@ class WebRequestAutomationTest extends TestCase
         ]);
 
 
-        $replacedUrl = $config->getUrlWithReplacements($event);
+        $replacedUrl = $config->getUrlWithReplacements($event, $profile);
         $this->assertEquals('http://foobar.win/', $replacedUrl);
 
-        $replacedHeaders = $config->getHeadersWithReplacements($event);
+        $replacedHeaders = $config->getHeadersWithReplacements($event, $profile);
         $this->assertEquals(['foo' => 'bar'], $replacedHeaders);
 
-        $replacedBody = $config->getBodyWithReplacements($event);
+        $replacedBody = $config->getBodyWithReplacements($event, $profile);
         $this->assertEquals(['baz' => 'bang'], $replacedBody);
     }
 
@@ -45,6 +47,8 @@ class WebRequestAutomationTest extends TestCase
      */
     public function web_request_can_replace_image_file_name()
     {
+        $profile = factory(DetectionProfile::class)->create();
+
         $event = factory(DetectionEvent::class)->create([
             'image_file_name' => 'events/testimage.jpg',
         ]);
@@ -55,14 +59,84 @@ class WebRequestAutomationTest extends TestCase
             'body_json' => '{ "baz": "storage/%image_file_name%" }',
         ]);
 
-        $replacedUrl = $config->getUrlWithReplacements($event);
+        $replacedUrl = $config->getUrlWithReplacements($event, $profile);
         $this->assertEquals('http://foobar.win/?image=events/testimage.jpg', $replacedUrl);
 
-        $replacedHeaders = $config->getHeadersWithReplacements($event);
+        $replacedHeaders = $config->getHeadersWithReplacements($event, $profile);
         $this->assertEquals(['foo' => 'events/testimage.jpg'], $replacedHeaders);
 
-        $replacedBody = $config->getBodyWithReplacements($event);
+        $replacedBody = $config->getBodyWithReplacements($event, $profile);
         $this->assertEquals(['baz' => 'storage/events/testimage.jpg'], $replacedBody);
+    }
+
+    /**
+     * @test
+     */
+    public function web_request_can_replace_object_classes()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+
+        $event = factory(DetectionEvent::class)->create();
+
+        $carPrediction = factory(AiPrediction::class)->create([
+            'object_class' => 'car',
+            'detection_event_id' => $event->id,
+        ]);
+        $profile->aiPredictions()->attach($carPrediction->id);
+
+        $truckPrediction = factory(AiPrediction::class)->create([
+            'object_class' => 'truck',
+            'detection_event_id' => $event->id,
+        ]);
+        $profile->aiPredictions()->attach($truckPrediction->id);
+
+        $busPrediction = factory(AiPrediction::class)->create([
+            'object_class' => 'bus',
+            'detection_event_id' => $event->id,
+        ]);
+        $profile->aiPredictions()->attach($busPrediction->id);
+
+        $config = factory(WebRequestConfig::class)->create([
+            'url' => 'http://foobar.win/?objects=%object_classes%',
+            'headers_json' => '{ "foo": "%object_classes%" }',
+            'body_json' => '{ "baz": "%object_classes%" }',
+        ]);
+
+        $replacedUrl = $config->getUrlWithReplacements($event, $profile);
+        $this->assertEquals('http://foobar.win/?objects=bus,car,truck', $replacedUrl);
+
+        $replacedHeaders = $config->getHeadersWithReplacements($event, $profile);
+        $this->assertEquals(['foo' => 'bus,car,truck'], $replacedHeaders);
+
+        $replacedBody = $config->getBodyWithReplacements($event, $profile);
+        $this->assertEquals(['baz' => 'bus,car,truck'], $replacedBody);
+    }
+
+    /**
+     * @test
+     */
+    public function web_request_can_replace_profile_name()
+    {
+        $profile = factory(DetectionProfile::class)->create([
+            'name' => 'My Awesome Profile'
+        ]);
+
+        $event = factory(DetectionEvent::class)->create();
+
+        $config = factory(WebRequestConfig::class)->create([
+            'url' => 'http://foobar.win/?profile=%profile_name%',
+            'headers_json' => '{ "foo": "%profile_name%" }',
+            'body_json' => '{ "baz": "profile is %profile_name%" }',
+        ]);
+
+        $replacedUrl = $config->getUrlWithReplacements($event, $profile);
+        $this->assertEquals('http://foobar.win/?profile=My Awesome Profile', $replacedUrl);
+
+        $replacedHeaders = $config->getHeadersWithReplacements($event, $profile);
+        $this->assertEquals(['foo' => 'My Awesome Profile'], $replacedHeaders);
+
+        $replacedBody = $config->getBodyWithReplacements($event, $profile);
+        $this->assertEquals(['baz' => 'profile is My Awesome Profile'], $replacedBody);
     }
 
     /**
