@@ -98,7 +98,7 @@ class DeleteDetectionEventTest extends TestCase
         $config = factory(WebRequestConfig::class)->create();
         $profile = factory(DetectionProfile::class)->create();
 
-        $this->post('/api/profiles/'.$profile->id.'/automations', [
+        $this->put('/api/profiles/'.$profile->id.'/automations', [
             'type' => 'web_request_configs',
             'value' => 'true',
             'id' => $config->id,
