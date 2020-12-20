@@ -16,7 +16,7 @@ A primary use case for Last Watch is to enhance Video Management Systems such as
 
 * Platform Independence - everything runs in Docker containers
 * Web Interface - desktop and mobile friendly
-* Web API - everything can be managed with REST
+* [Web API](https://github.com/akmolina28/last-watch-ai/blob/dev/docs/API.md) - everything can be managed with REST
 * Offline and locally hosted
 
 
@@ -124,7 +124,7 @@ docker-compose up -d --build site
 
 [User Guide](https://kleypot.com/last-watch-ai-user-guide/)
 
-API Reference (coming soon)
+[API Reference](https://github.com/akmolina28/last-watch-ai/blob/dev/docs/API.md)
 
 Automation Examples:
 
