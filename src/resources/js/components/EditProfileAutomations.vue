@@ -111,7 +111,7 @@
                 formData.append('type', type);
                 formData.append('value', checked);
 
-                axios.post(`/api/profiles/${this.id}/automations`, formData)
+                axios.put(`/api/profiles/${this.id}/automations`, formData)
                     .then(() => {
                         this.$buefy.toast.open({
                             message: 'Automations saved!',

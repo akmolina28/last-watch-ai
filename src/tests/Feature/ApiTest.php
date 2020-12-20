@@ -842,7 +842,7 @@ class ApiTest extends TestCase
 
         $config = factory(TelegramConfig::class)->create();
 
-        $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
+        $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
             'type' => 'telegram_configs',
             'id' => $config->id,
             'value' => true,
@@ -862,7 +862,7 @@ class ApiTest extends TestCase
 
         $config = factory(WebRequestConfig::class)->create();
 
-        $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
+        $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
             'type' => 'web_request_configs',
             'id' => $config->id,
             'value' => true,
@@ -872,7 +872,7 @@ class ApiTest extends TestCase
         $this->assertCount(1, AutomationConfig::all());
         $this->assertEquals($config->id, AutomationConfig::first()->automation_config_id);
 
-        $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
+        $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
             'type' => 'web_request_configs',
             'id' => $config->id,
             'value' => true,
@@ -897,7 +897,7 @@ class ApiTest extends TestCase
             'automation_config_id' => $config->id,
         ]);
 
-        $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
+        $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
             'type' => 'web_request_configs',
             'id' => $config->id,
             'value' => false,
@@ -917,21 +917,21 @@ class ApiTest extends TestCase
 
         $config = factory(WebRequestConfig::class)->create();
 
-        $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
+        $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
             'type' => 'web_request_configs',
             'id' => $config->id,
             'value' => true,
         ])
             ->assertStatus(200);
 
-        $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
+        $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
             'type' => 'web_request_configs',
             'id' => $config->id,
             'value' => false,
         ])
             ->assertStatus(200);
 
-        $this->json('POST', '/api/profiles/'.$profile->id.'/automations', [
+        $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
             'type' => 'web_request_configs',
             'id' => $config->id,
             'value' => true,

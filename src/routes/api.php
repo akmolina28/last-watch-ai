@@ -29,7 +29,7 @@ Route::put('/profiles/{profile}/status', 'DetectionProfileController@updateStatu
 
 Route::get('/profiles/{profile}/automations', 'DetectionProfileController@showAutomations');
 
-Route::post('/profiles/{profile}/automations', 'DetectionProfileController@updateAutomations');
+Route::put('/profiles/{profile}/automations', 'DetectionProfileController@updateAutomations');
 
 Route::get('/objectClasses', 'DeepstackController@showObjectClasses');
 
