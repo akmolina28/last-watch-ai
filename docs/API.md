@@ -59,3 +59,53 @@ curl -i GET "http://<SERVER_IP>:<WEB_PORT>/api/events?page=1&relevant&profileId=
 `/api/profiles/<profile_id>/automation` | `PUT` | Subscribe/unsubscribe a Detection Profile to an Automation
 
 `/api/profiles/<profile_id>` | `DELETE` | Delete a Detection Profile
+
+### Detection Events
+
+`/api/events?<option_1>&<option_2>&...` | `GET` | Get list of Detection Events
+
+Options:
+
+* `page=<page_number>` | Page number starting with 1
+* `relevant` | Only include events with a relevant detection
+* `profileId=<profile_id>` | Only include events which matched the given profile
+
+`/api/events/latest` | `GET` | Get the latest Detection Event
+
+`/api/events/<event_id>` | `GET` | Get the details of a given Detection Event
+
+`/api/events/<event_id>/next` | `GET` | Get the next event (chronologically) after a given Detection Event
+
+`/api/events/<event_id>/previous` | `GET` | Get the previous event (chronologically) before a given Detection Event
+
+### Automations
+
+`/api/automations/telegram` | `GET` | Get all Telegram automation configs
+
+`/api/automations/telegram` | `POST` | Create a new Telegram automation config
+
+`/api/automations/webRequest` | `GET` | Get all Web Request automation configs
+
+`/api/automations/webRequest` | `POST` | Create a new Web Request automation config
+
+`/api/automations/folderCopy` | `GET` | Get all Folder Copy automation configs
+
+`/api/automations/folderCopy` | `POST` | Create a new Folder Copy automation config
+
+`/api/automations/smbCifsCopy` | `GET` | Get all SMB/CIFS Copy automation configs
+
+`/api/automations/smbCifsCopy` | `POST` | Create a new SMB/CIFS Copy automation config
+
+### General
+
+`/api/alive` | `GET` | Check if Last Watch is up and running
+
+`/api/statistics` | `GET` | Get the home page statistics
+
+`/api/objectClasses` | `GET` | Get full list of objects which can be profiled
+
+`/api/errors?page=<page_number>` | `GET` | Get latest automation errors starting with page 1
+
+`/api/deepstackLogs?page=<page_number>` | `GET` | Get latest logs from the Deepstack API starting with page 1
+
+
