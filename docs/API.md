@@ -56,7 +56,7 @@ curl -i GET "http://<SERVER_IP>:<WEB_PORT>/api/events?page=1&relevant&profileId=
 
 `/api/profiles/<profile_id>/automations` | `GET` | Get the Automations to which a Detection Profile is subscribed
 
-`/api/profiles/<profile_id>/automation` | `PUT` | Subscribe/unsubscribe a Detection Profile to an Automation
+`/api/profiles/<profile_id>/automations` | `PUT` | Subscribe/unsubscribe a Detection Profile to an Automation
 
 `/api/profiles/<profile_id>` | `DELETE` | Delete a Detection Profile
 
