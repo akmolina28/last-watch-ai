@@ -788,6 +788,7 @@ class ApiTest extends TestCase
             'username' => 'testuser',
             'password' => 'testpass',
             'payload_json' => '{"my":"payload"}',
+            'is_custom_payload' => true,
         ])
             ->assertStatus(201)
             ->assertJson([
@@ -802,6 +803,7 @@ class ApiTest extends TestCase
                     'username' => 'testuser',
                     'password' => 'testpass',
                     'payload_json' => '{"my":"payload"}',
+                    'is_custom_payload' => true,
                 ],
             ]);
 
@@ -824,6 +826,7 @@ class ApiTest extends TestCase
             'username' => '',
             'password' => '',
             'payload_json' => '{"my":"payload"}',
+            'is_custom_payload' => true,
         ])
             ->assertStatus(201)
             ->assertJson([
@@ -838,6 +841,7 @@ class ApiTest extends TestCase
                     'username' => '',
                     'password' => '',
                     'payload_json' => '{"my":"payload"}',
+                    'is_custom_payload' => true,
                 ],
             ]);
 
