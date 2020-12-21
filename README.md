@@ -26,6 +26,7 @@ Supported Automations:
 * Folder Copy - copy images to a local folder
 * Smb/Cifs - upload images to a Samba share (Home Assistant, Synology)
 * Web Request - make http GET and POST requests
+* MQTT - publish out MQTT messages
 
 ## Installation
 
