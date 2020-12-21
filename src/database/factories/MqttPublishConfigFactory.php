@@ -16,6 +16,6 @@ $factory->define(MqttPublishConfig::class, function (Faker $faker) {
         'is_anonymous' => false,
         'username' => $faker->userName,
         'password' => $faker->password,
-        'payload_json' => '{"foo":"bar"}'
+        'payload_json' => '{"foo":"bar"}',
     ];
 });

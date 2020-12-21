@@ -801,7 +801,7 @@ class ApiTest extends TestCase
                     'is_anonymous' => false,
                     'username' => 'testuser',
                     'password' => 'testpass',
-                    'payload_json' => '{"my":"payload"}'
+                    'payload_json' => '{"my":"payload"}',
                 ],
             ]);
 
@@ -837,7 +837,7 @@ class ApiTest extends TestCase
                     'is_anonymous' => true,
                     'username' => '',
                     'password' => '',
-                    'payload_json' => '{"my":"payload"}'
+                    'payload_json' => '{"my":"payload"}',
                 ],
             ]);
 
@@ -952,8 +952,6 @@ class ApiTest extends TestCase
         $this->assertCount(1, AutomationConfig::all());
         $this->assertEquals($config->id, AutomationConfig::first()->automation_config_id);
     }
-
-
 
     /**
      * @test

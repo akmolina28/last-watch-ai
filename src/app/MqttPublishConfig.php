@@ -19,7 +19,7 @@ class MqttPublishConfig extends Model implements AutomationConfigInterface
     protected $guarded = [];
 
     protected $casts = [
-        'is_anonymous' => 'boolean'
+        'is_anonymous' => 'boolean',
     ];
 
     public function detectionProfiles(): MorphToMany
@@ -33,8 +33,7 @@ class MqttPublishConfig extends Model implements AutomationConfigInterface
 
         if ($this->is_anonymous) {
             $mqtt->connect();
-        }
-        else {
+        } else {
             $connectionSettings = new ConnectionSettings();
             $mqtt->connect($this->username, $this->password, $connectionSettings, true);
         }
