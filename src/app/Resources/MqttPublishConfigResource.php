@@ -26,6 +26,7 @@ class MqttPublishConfigResource extends JsonResource
             'username' => $this->username,
             'password' => $this->password,
             'payload_json' => $this->payload_json,
+            'is_custom_payload' => $this->is_custom_payload,
             'detection_profiles' => DetectionProfileResource::collection($this->whenLoaded('detectionProfiles')),
         ];
     }

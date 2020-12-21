@@ -20,6 +20,7 @@ class MqttPublishConfig extends Model implements AutomationConfigInterface
 
     protected $casts = [
         'is_anonymous' => 'boolean',
+        'is_custom_payload' => 'boolean',
     ];
 
     public function detectionProfiles(): MorphToMany
@@ -27,8 +28,28 @@ class MqttPublishConfig extends Model implements AutomationConfigInterface
         return $this->morphToMany('App\DetectionProfile', 'automation_config');
     }
 
+    public function getPayload(DetectionEvent $event, DetectionProfile $profile)
+    {
+        $predictions = $profile->aiPredictions()
+            ->where('detection_event_id', '=', $event->id)
+            ->get();
+
+        $payload = [
+            'detection_event' => $event,
+            'detection_profile' => $profile,
+            'predictions' => $predictions,
+        ];
+
+        return json_encode($payload);
+    }
+
     public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
     {
+        $payload = $this->payload_json;
+        if (!$this->is_custom_payload) {
+            $payload = $this->getPayload($event, $profile);
+        }
+
         $mqtt = new MQTTClient($this->server, $this->port, $this->client_id);
 
         if ($this->is_anonymous) {
@@ -41,7 +62,7 @@ class MqttPublishConfig extends Model implements AutomationConfigInterface
         $isError = false;
         $responseText = '';
         try {
-            $mqtt->publish($this->topic, $this->payload_json, $this->qos);
+            $mqtt->publish($this->topic, $payload, $this->qos);
         } catch (DataTransferException $e) {
             $isError = true;
             $responseText = $e->getMessage();

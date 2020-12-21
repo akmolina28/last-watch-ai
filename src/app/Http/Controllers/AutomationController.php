@@ -126,7 +126,6 @@ class AutomationController extends Controller
             'port' => 'required',
             'topic' => 'required',
             'qos' => 'required',
-            'payload_json' => 'required',
         ]);
 
         $config = MqttPublishConfig::create($request->all());

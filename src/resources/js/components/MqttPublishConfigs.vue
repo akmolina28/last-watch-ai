@@ -29,6 +29,7 @@
                         <th>Anonymous</th>
                         <th>Username</th>
                         <th>Password</th>
+                        <th>Custom Payload</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -47,6 +48,9 @@
                         </td>
                         <td>{{ config.username }}</td>
                         <td><span v-if="config.password">********</span></td>
+                        <td>
+                            <span v-if="config.is_custom_payload">{{ config.payload_json | truncate }}</span>
+                        </td>
                         <td>
                             <span :title="config.body_json">{{ config.body_json | truncate }}</span>
                         </td>
@@ -114,8 +118,16 @@
                     <b-input v-model="password" name="password" :disabled="isAnonymous"></b-input>
                 </b-field>
 
+                <b-field label="Custom Payload">
+                    <b-switch v-model="isCustomPayload" />
+                </b-field>
+
                 <b-field label="Payload (json)">
-                    <b-input v-model="payloadJson" name="json" required type="textarea"></b-input>
+                    <b-input v-model="payloadJson"
+                             name="json"
+                             required
+                             type="textarea"
+                             :disabled="!isCustomPayload"></b-input>
                 </b-field>
 
                 <b-button type="is-primary"
@@ -142,10 +154,11 @@
                 topic: '',
                 clientId: '',
                 qos: 0,
-                isAnonymous: true,
+                isAnonymous: false,
                 username: '',
                 password: '',
                 payloadJson: '',
+                isCustomPayload: false,
                 isSaving: false
             }
         },
@@ -187,6 +200,7 @@
                     'is_anonymous': this.isAnonymous,
                     'username': this.username,
                     'password': this.password,
+                    'is_custom_payload': this.isCustomPayload,
                     'payload_json': this.payloadJson
                 }
 
@@ -200,9 +214,10 @@
                         this.topic = '';
                         this.clientId = '';
                         this.qos = 0;
-                        this.isAnonymous = true;
+                        this.isAnonymous = false;
                         this.username = '';
                         this.password = '';
+                        this.isCustomPayload = false;
                         this.payloadJson = '';
                     })
                     .catch(err => {
