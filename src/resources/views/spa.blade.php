@@ -92,6 +92,18 @@
                                 </div>
                             </router-link>
                         </b-dropdown-item>
+
+                        <b-dropdown-item has-link aria-role="menuitem">
+                            <router-link to="/automations/mqttPublish" class="dropdown-item">
+                                <div class="media">
+                                    <b-icon class="media-left fa-lg" icon="project-diagram"></b-icon>
+                                    <div class="media-content">
+                                        <h3>MQTT Publish</h3>
+                                        <small>Send MQTT messages</small>
+                                    </div>
+                                </div>
+                            </router-link>
+                        </b-dropdown-item>
                     </b-dropdown>
                 </template>
 

@@ -35,17 +35,9 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @property string $smart_filter_precision
  * @property-read Collection|AiPrediction[] $aiPredictions
  * @property-read int|null $ai_predictions_count
- * @property-read Collection|FolderCopyConfig[] $folderCopyConfigs
- * @property-read int|null $folder_copy_configs_count
  * @property-read mixed $status
  * @property-read Collection|DetectionEvent[] $patternMatchedEvents
  * @property-read int|null $pattern_matched_events_count
- * @property-read Collection|SmbCifsCopyConfig[] $smbCifsCopyConfigs
- * @property-read int|null $smb_cifs_copy_configs_count
- * @property-read Collection|TelegramConfig[] $telegramConfigs
- * @property-read int|null $telegram_configs_count
- * @property-read Collection|WebRequestConfig[] $webRequestConfigs
- * @property-read int|null $web_request_configs_count
  * @method static Builder|DetectionProfile newModelQuery()
  * @method static Builder|DetectionProfile newQuery()
  * @method static Builder|DetectionProfile onlyTrashed()
@@ -69,7 +61,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @method static Builder|DetectionProfile whereUseSmartFilter($value)
  * @method static Builder|DetectionProfile withTrashed()
  * @method static Builder|DetectionProfile withoutTrashed()
- * @property-read Collection|\App\AutomationConfig[] $automations
+ * @property-read Collection|AutomationConfig[] $automations
  * @property-read int|null $automations_count
  * @method static Builder|DetectionProfile whereIsNegative($value)
  */

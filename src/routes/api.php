@@ -59,6 +59,10 @@ Route::get('/automations/smbCifsCopy', 'AutomationController@smbCifsCopyConfigIn
 
 Route::post('/automations/smbCifsCopy', 'AutomationController@makeSmbCifsCopyConfig');
 
+Route::get('/automations/mqttPublish', 'AutomationController@mqttPublishConfigIndex');
+
+Route::post('/automations/mqttPublish', 'AutomationController@makemqttPublishConfig');
+
 Route::get('/statistics', 'StatisticsController@index');
 
 Route::get('/alive', 'StatisticsController@isAlive');

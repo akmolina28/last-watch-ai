@@ -27,6 +27,8 @@ RUN apt-get update && apt-get install -y \
 
 RUN docker-php-ext-install pdo pdo_mysql
 
+COPY ./php/php.ini /usr/local/etc/php/php.ini
+
 RUN usermod -u $USER_ID www-data && groupmod -g $GROUP_ID www-data
 
 RUN chown -R www-data:www-data .

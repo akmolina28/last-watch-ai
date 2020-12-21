@@ -32,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
             'App\TelegramConfig',
             'App\SmbCifsCopyConfig',
             'App\WebRequestConfig',
+            'App\MqttPublishConfig',
         ]);
     }
 }
