@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\FolderCopyConfig;
+use App\MqttPublishConfig;
 use App\Resources\FolderCopyConfigResource;
+use App\Resources\MqttPublishConfigResource;
 use App\Resources\SmbCifsCopyConfigResource;
 use App\Resources\TelegramConfigResource;
 use App\Resources\WebRequestConfigResource;
@@ -107,5 +109,28 @@ class AutomationController extends Controller
         ]);
 
         return SmbCifsCopyConfigResource::make($config);
+    }
+
+    public function mqttPublishConfigIndex()
+    {
+        return MqttPublishConfigResource::collection(
+            MqttPublishConfig::with(['detectionProfiles'])->orderByDesc('created_at')->get()
+        );
+    }
+
+    public function makeMqttPublishConfig(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|unique:mqtt_publish_configs',
+            'server' => 'required',
+            'port' => 'required',
+            'topic' => 'required',
+            'qos' => 'required',
+            'payload_json' => 'required',
+        ]);
+
+        $config = MqttPublishConfig::create($request->all());
+
+        return MqttPublishConfigResource::make($config);
     }
 }

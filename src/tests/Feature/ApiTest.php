@@ -8,6 +8,7 @@ use App\DeepstackCall;
 use App\DetectionEvent;
 use App\DetectionProfile;
 use App\FolderCopyConfig;
+use App\MqttPublishConfig;
 use App\SmbCifsCopyConfig;
 use App\TelegramConfig;
 use App\WebRequestConfig;
@@ -747,6 +748,105 @@ class ApiTest extends TestCase
     /**
      * @test
      */
+    public function api_can_get_mqtt_publish_configs()
+    {
+        factory(MqttPublishConfig::class, 5)->create();
+
+        $this->get('/api/automations/mqttPublish')
+            ->assertStatus(200)
+            ->assertJsonStructure([
+                'data' => [0 => [
+                    'id',
+                    'name',
+                    'server',
+                    'port',
+                    'topic',
+                    'client_id',
+                    'qos',
+                    'is_anonymous',
+                    'username',
+                    'password',
+                    'payload_json',
+                ]],
+            ])
+            ->assertJsonCount(5, 'data');
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_create_an_mqtt_publish_config()
+    {
+        $this->post('/api/automations/mqttPublish', [
+            'name' => 'Mqtt Test',
+            'server' => '127.0.0.1',
+            'port' => '1883',
+            'topic' => 'mqtt/foobar',
+            'client_id' => 'unittest',
+            'qos' => 2,
+            'is_anonymous' => false,
+            'username' => 'testuser',
+            'password' => 'testpass',
+            'payload_json' => '{"my":"payload"}',
+        ])
+            ->assertStatus(201)
+            ->assertJson([
+                'data' => [
+                    'name' => 'Mqtt Test',
+                    'server' => '127.0.0.1',
+                    'port' => '1883',
+                    'topic' => 'mqtt/foobar',
+                    'client_id' => 'unittest',
+                    'qos' => 2,
+                    'is_anonymous' => false,
+                    'username' => 'testuser',
+                    'password' => 'testpass',
+                    'payload_json' => '{"my":"payload"}',
+                ],
+            ]);
+
+        $this->assertCount(1, MqttPublishConfig::all());
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_create_an_anonymous_mqtt_publish_config()
+    {
+        $this->post('/api/automations/mqttPublish', [
+            'name' => 'Mqtt Test',
+            'server' => '127.0.0.1',
+            'port' => '1883',
+            'topic' => 'mqtt/foobar',
+            'client_id' => 'unittest',
+            'qos' => 2,
+            'is_anonymous' => true,
+            'username' => '',
+            'password' => '',
+            'payload_json' => '{"my":"payload"}',
+        ])
+            ->assertStatus(201)
+            ->assertJson([
+                'data' => [
+                    'name' => 'Mqtt Test',
+                    'server' => '127.0.0.1',
+                    'port' => '1883',
+                    'topic' => 'mqtt/foobar',
+                    'client_id' => 'unittest',
+                    'qos' => 2,
+                    'is_anonymous' => true,
+                    'username' => '',
+                    'password' => '',
+                    'payload_json' => '{"my":"payload"}',
+                ],
+            ]);
+
+        $this->assertCount(1, MqttPublishConfig::all());
+    }
+
+    /**
+     * @test
+     */
     public function api_can_get_folder_copy_configs()
     {
         factory(FolderCopyConfig::class, 5)->create();
@@ -844,6 +944,26 @@ class ApiTest extends TestCase
 
         $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
             'type' => 'telegram_configs',
+            'id' => $config->id,
+            'value' => true,
+        ])
+            ->assertStatus(200);
+
+        $this->assertCount(1, AutomationConfig::all());
+        $this->assertEquals($config->id, AutomationConfig::first()->automation_config_id);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_attach_an_mqtt_publish_automation()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+
+        $config = factory(MqttPublishConfig::class)->create();
+
+        $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
+            'type' => 'mqtt_publish_configs',
             'id' => $config->id,
             'value' => true,
         ])

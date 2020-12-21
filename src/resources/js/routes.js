@@ -56,6 +56,11 @@ let routes = [
         props: true
     },
     {
+        path: '/automations/mqttPublish/',
+        component: require('./components/MqttPublishConfigs').default,
+        props: true
+    },
+    {
         path: '/errors/',
         component: require('./components/Errors').default
     },

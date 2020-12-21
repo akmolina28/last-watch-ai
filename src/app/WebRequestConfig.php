@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 
@@ -44,7 +45,7 @@ class WebRequestConfig extends Model implements AutomationConfigInterface
         'is_post' => 'boolean',
     ];
 
-    public function detectionProfiles()
+    public function detectionProfiles(): MorphToMany
     {
         return $this->morphToMany('App\DetectionProfile', 'automation_config');
     }

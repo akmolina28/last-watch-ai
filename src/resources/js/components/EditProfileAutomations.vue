@@ -106,12 +106,11 @@
             updateAutomationConfig(event, id, type) {
                 let checked = event.target.checked;
 
-                let formData = new FormData();
-                formData.append('id', id);
-                formData.append('type', type);
-                formData.append('value', checked);
-
-                axios.put(`/api/profiles/${this.id}/automations`, formData)
+                axios.put(`/api/profiles/${this.id}/automations`, {
+                    'id': id,
+                    'type': type,
+                    'value': checked
+                })
                     .then(() => {
                         this.$buefy.toast.open({
                             message: 'Automations saved!',
