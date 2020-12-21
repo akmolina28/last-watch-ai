@@ -46,7 +46,7 @@ class MqttPublishConfig extends Model implements AutomationConfigInterface
     public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
     {
         $payload = $this->payload_json;
-        if (!$this->is_custom_payload) {
+        if (! $this->is_custom_payload) {
             $payload = $this->getPayload($event, $profile);
         }
 
