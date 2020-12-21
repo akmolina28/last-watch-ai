@@ -13,7 +13,6 @@ use App\SmbCifsCopyConfig;
 use App\TelegramConfig;
 use App\WebRequestConfig;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class AutomationController extends Controller
 {
