@@ -80,6 +80,7 @@ services:
     environment:
       QUEUE_CONNECTION: database
       NUMPROCS: 8
+      APP_URL: ${WEB_INTERFACE_URL}:${WEB_INTERFACE_PORT:-80}
     volumes:
       - ${WATCH_FOLDER}:/var/www/app/storage/app/public/events
       - ./src:/var/www/app
