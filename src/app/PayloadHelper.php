@@ -28,7 +28,7 @@ class PayloadHelper
 
         $replaced = str_replace('%event_url%', url('/events/'.$event->id), $replaced);
 
-        $replaced = str_replace('%image_url%', url('/storage/'.urlencode($event->image_file_name)), $replaced);
+        $replaced = str_replace('%image_url%', url('/storage/'.rawurlencode($event->image_file_name)), $replaced);
 
         return $replaced;
     }

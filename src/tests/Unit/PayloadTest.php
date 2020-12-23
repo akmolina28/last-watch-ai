@@ -103,6 +103,22 @@ class PayloadTest extends TestCase
 
         $replaced = PayloadHelper::doReplacements($payload, $event, $profile);
 
-        $this->assertEquals('{"link"="http://unit.test:9999/storage/events/testimage.jpg"}', $replaced);
+        $this->assertEquals('{"link"="http://unit.test:9999/storage/events%2Ftestimage.jpg"}', $replaced);
+    }
+
+    /**
+     * @test
+     */
+    public function automation_payload_can_replace_image_url_encoded()
+    {
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_name' => 'events/test image with spaces.jpg'
+        ]);
+        $profile = factory(DetectionProfile::class)->create();
+        $payload = '{"link"="%image_url%"}';
+
+        $replaced = PayloadHelper::doReplacements($payload, $event, $profile);
+
+        $this->assertEquals('{"link"="http://unit.test:9999/storage/events%2Ftest%20image%20with%20spaces.jpg"}', $replaced);
     }
 }
