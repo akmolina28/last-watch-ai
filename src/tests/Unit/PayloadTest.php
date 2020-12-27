@@ -103,6 +103,6 @@ class PayloadTest extends TestCase
 
         $replaced = PayloadHelper::doReplacements($payload, $event, $profile);
 
-        $this->assertEquals('{"link"="http://unit.test:9999/events/'.$event->id.'/img"}', $replaced);
+        $this->assertEquals('{"link"="http://unit.test:9999/api/events/'.$event->id.'/img"}', $replaced);
     }
 }
