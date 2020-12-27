@@ -1466,6 +1466,25 @@ class ApiTest extends TestCase
     /**
      * @test
      */
+    public function api_can_get_event_image_file()
+    {
+        Storage::fake('public');
+
+        $imageFile = UploadedFile::fake()->image('testimage.jpg', 640, 480)->size(128);
+        $imageFile->storeAs('events', 'testimage.jpg');
+
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_name' => 'events/testimage.jpg',
+        ]);
+
+        $this->json('GET', '/api/events/'.$event->id.'/img')
+            ->assertStatus(200)
+            ->assertHeader('Content-Type', 'image/jpeg');
+    }
+
+    /**
+     * @test
+     */
     public function api_is_alive()
     {
         $this->json('GET', '/api/alive')

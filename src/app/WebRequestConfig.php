@@ -65,13 +65,13 @@ class WebRequestConfig extends Model implements AutomationConfigInterface
 
     public function getUrlWithReplacements(DetectionEvent $event, DetectionProfile $profile)
     {
-        return $this->getReplacements($event, $profile, $this->url);
+        return PayloadHelper::doReplacements($this->url, $event, $profile);
     }
 
     public function getHeadersWithReplacements(DetectionEvent $event, DetectionProfile $profile)
     {
         if ($this->headers_json) {
-            $replaced = $this->getReplacements($event, $profile, $this->headers_json);
+            $replaced = PayloadHelper::doReplacements($this->headers_json, $event, $profile);
 
             return json_decode($replaced, true);
         }
@@ -82,33 +82,12 @@ class WebRequestConfig extends Model implements AutomationConfigInterface
     public function getBodyWithReplacements(DetectionEvent $event, DetectionProfile $profile)
     {
         if ($this->body_json) {
-            $replaced = $this->getReplacements($event, $profile, $this->body_json);
+            $replaced = PayloadHelper::doReplacements($this->body_json, $event, $profile);
 
             return json_decode($replaced, true);
         }
 
         return [];
-    }
-
-    public function getReplacements(DetectionEvent $event, DetectionProfile $profile, string $subject)
-    {
-        $replaced = $subject;
-
-        $replaced = str_replace('%image_file_name%', $event->image_file_name, $replaced);
-
-        $replaced = str_replace('%profile_name%', $profile->name, $replaced);
-
-        $objectClasses = $profile->aiPredictions()
-            ->where('detection_event_id', '=', $event->id)
-            ->where('ai_prediction_detection_profile.is_masked', '=', 0)
-            ->where('ai_prediction_detection_profile.is_smart_filtered', '=', 0)
-            ->pluck('object_class')
-            ->sort()
-            ->implode(',');
-
-        $replaced = str_replace('%object_classes%', $objectClasses, $replaced);
-
-        return $replaced;
     }
 
     protected function postRequest(array $headers, string $url, array $body): DetectionEventAutomationResult
