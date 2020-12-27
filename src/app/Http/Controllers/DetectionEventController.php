@@ -6,6 +6,7 @@ use App\DetectionEvent;
 use App\Resources\DetectionEventResource;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class DetectionEventController extends Controller
 {
@@ -59,6 +60,13 @@ class DetectionEventController extends Controller
         ]);
 
         return DetectionEventResource::make($event);
+    }
+
+    public function showImage(DetectionEvent $event)
+    {
+        $path = Storage::path($event->image_file_name);
+
+        return response()->file($path);
     }
 
     public function showLatest()
