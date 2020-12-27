@@ -96,7 +96,7 @@ class PayloadTest extends TestCase
     public function automation_payload_can_replace_image_url()
     {
         $event = factory(DetectionEvent::class)->create([
-            'image_file_name' => 'events/testimage.jpg'
+            'image_file_name' => 'events/testimage.jpg',
         ]);
         $profile = factory(DetectionProfile::class)->create();
         $payload = '{"link"="%image_url%"}';
