@@ -1,15 +1,12 @@
 <?php
 
-
 namespace App;
-
 
 class PayloadHelper
 {
     public static function doReplacements(
         string $payload, DetectionEvent $event, DetectionProfile $profile)
     {
-
         $replaced = $payload;
 
         $replaced = str_replace('%image_file_name%', $event->image_file_name, $replaced);

@@ -1474,7 +1474,7 @@ class ApiTest extends TestCase
         $imageFile->storeAs('events', 'testimage.jpg');
 
         $event = factory(DetectionEvent::class)->create([
-            'image_file_name' => 'events/testimage.jpg'
+            'image_file_name' => 'events/testimage.jpg',
         ]);
 
         $this->json('GET', '/api/events/'.$event->id.'/img')
