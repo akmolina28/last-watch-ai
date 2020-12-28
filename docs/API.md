@@ -54,6 +54,12 @@ curl -i GET "http://<SERVER_IP>:<WEB_PORT>/api/events?page=1&relevant&profileId=
 
 `/api/profiles/<profile_id>/status` | `PUT` | Turn on/off a Detection Profile
 
+Options:
+* `status=<new_status>` | set to "enabled", "disabled", or "as_scheduled"
+* `start_time=<HH:mm>` | when status is "as_scheduled", the time-of-day when the profile is enabled
+* `end_time=<HH:mm>` | when status is "as_scheduled", the time-of-day when the profile is disabled
+* `period=<minutes>` | when the status is "disabled", the number of minutes before the profile is automatically re-enabled
+
 `/api/profiles/<profile_id>/automations` | `GET` | Get the Automations to which a Detection Profile is subscribed
 
 `/api/profiles/<profile_id>/automations` | `PUT` | Subscribe/unsubscribe a Detection Profile to an Automation

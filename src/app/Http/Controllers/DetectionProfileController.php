@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\AutomationConfig;
 use App\DetectionProfile;
+use App\Jobs\EnableDetectionProfileJob;
 use App\Resources\DetectionProfileResource;
 use App\Resources\ProfileAutomationConfigResource;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -119,6 +120,11 @@ class DetectionProfileController extends Controller
                 $profile->is_enabled = true;
             } elseif ($status === 'disabled') {
                 $profile->is_enabled = false;
+
+                if (request()->has('period')) {
+                    $minutes = request()->get('period');
+                    EnableDetectionProfileJob::dispatch($profile)->delay(now()->addMinutes($minutes));
+                }
             } elseif ($status === 'as_scheduled') {
                 if (request()->has('start_time')) {
                     $profile->start_time = request()->get('start_time');
