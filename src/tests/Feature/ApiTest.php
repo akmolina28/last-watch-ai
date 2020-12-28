@@ -8,6 +8,7 @@ use App\DeepstackCall;
 use App\DetectionEvent;
 use App\DetectionProfile;
 use App\FolderCopyConfig;
+use App\Jobs\EnableDetectionProfileJob;
 use App\MqttPublishConfig;
 use App\SmbCifsCopyConfig;
 use App\TelegramConfig;
@@ -16,6 +17,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -1152,6 +1154,33 @@ class ApiTest extends TestCase
         $profile->refresh();
 
         $this->assertEquals('disabled', $profile->status);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_set_profile_status_inactive_for_period()
+    {
+        Queue::fake();
+
+        $profile = factory(DetectionProfile::class)->create();
+
+        $this->json('PUT', '/api/profiles/'.$profile->id.'/status', [
+            'status' => 'disabled',
+            'period' => 5
+        ])
+            ->assertStatus(204);
+
+        $profile->refresh();
+
+        $this->assertEquals('disabled', $profile->status);
+
+        Queue::assertPushed(
+            EnableDetectionProfileJob::class,
+            function ($job) use ($profile) {
+                return $job->profile->id = $profile->id;
+            }
+        );
     }
 
     /**
