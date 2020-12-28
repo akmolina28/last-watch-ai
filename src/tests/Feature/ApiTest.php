@@ -1167,7 +1167,7 @@ class ApiTest extends TestCase
 
         $this->json('PUT', '/api/profiles/'.$profile->id.'/status', [
             'status' => 'disabled',
-            'period' => 5
+            'period' => 5,
         ])
             ->assertStatus(204);
 
