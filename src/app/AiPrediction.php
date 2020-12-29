@@ -134,6 +134,7 @@ class AiPrediction extends Model
             $attributes['is_smart_filtered'] = $attributes['pivot']['is_smart_filtered'];
             unset($attributes['pivot']);
         }
+
         return $attributes;
     }
 }
