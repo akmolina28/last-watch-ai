@@ -121,4 +121,18 @@ class AiPrediction extends Model
 
         return true;
     }
+
+    public function toArray()
+    {
+        $attributes = $this->attributesToArray();
+        $attributes = array_merge($attributes, $this->relationsToArray());
+
+        // Detect if there is a pivot value and return that as the default value
+        if (isset($attributes['pivot']['is_masked'])) {
+            $attributes['is_masked'] = $attributes['pivot']['is_masked'];
+            $attributes['is_smart_filtered'] = $attributes['pivot']['is_smart_filtered'];
+            unset($attributes['pivot']);
+        }
+        return $attributes;
+    }
 }
