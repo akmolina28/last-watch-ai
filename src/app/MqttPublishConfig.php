@@ -35,9 +35,9 @@ class MqttPublishConfig extends Model implements AutomationConfigInterface
             ->get();
 
         $payload = [
-            'detection_event' => $event,
-            'detection_profile' => $profile,
-            'predictions' => $predictions,
+            'detection_event' => $event->toArray(),
+            'detection_profile' => $profile->toArray(),
+            'predictions' => $predictions->toArray()
         ];
 
         return json_encode($payload);
