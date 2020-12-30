@@ -20,6 +20,8 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @property Carbon|null $updated_at
  * @property string $image_dimensions
  * @property Carbon|null $occurred_at
+ * @property string|null $eventUrl
+ * @property string|null $imageUrl
  * @property-read Collection|AiPrediction[] $aiPredictions
  * @property-read int|null $ai_predictions_count
  * @property-read Collection|DetectionProfile[] $patternMatchedProfiles
@@ -91,5 +93,33 @@ class DetectionEvent extends Model
         }
 
         return $activeMatchedProfiles;
+    }
+
+    public function getEventUrlAttribute()
+    {
+        if ($this->id) {
+            return url('/events/'.$this->id);
+        }
+
+        return null;
+    }
+
+    public function getImageUrlAttribute()
+    {
+        if ($this->id) {
+            return url('/api/events/'.$this->id.'/img');
+        }
+
+        return null;
+    }
+
+    public function toArray()
+    {
+        $attributes = $this->attributesToArray();
+        $attributes = array_merge($attributes, $this->relationsToArray());
+
+        $attributes['image_url'] = $this->imageUrl;
+
+        return $attributes;
     }
 }
