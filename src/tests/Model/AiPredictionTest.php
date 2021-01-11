@@ -144,4 +144,23 @@ class AiPredictionTest extends TestCase
 
         $this->assertFalse($prediction->isMasked($path));
     }
+
+    /**
+     * @test
+     */
+    public function object_outside_of_mask_range_is_not_masked()
+    {
+        $prediction = new AiPrediction([
+            'object_class'=> 'person',
+            'confidence' => '1.00',
+            'x_min' => 2000,
+            'x_max' => 2500,
+            'y_min' => 0,
+            'y_max' => 500,
+        ]);
+
+        $path = Storage::disk('public_testing')->path('masks/test-mask4.png');
+
+        $this->assertFalse($prediction->isMasked($path));
+    }
 }
