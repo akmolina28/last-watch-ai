@@ -18,6 +18,15 @@ class DetectionProfileController extends Controller
         return DetectionProfileResource::collection(DetectionProfile::paginate(10));
     }
 
+    protected function lookUpProfile($param): DetectionProfile
+    {
+        $profile = DetectionProfile::where('id', $param)
+                    ->orWhere('slug', $param)
+                    ->firstOrFail();
+
+        return $profile;
+    }
+
     protected function validateRequest()
     {
         $id = 'id';
@@ -70,8 +79,10 @@ class DetectionProfileController extends Controller
         return DetectionProfileResource::make($profile);
     }
 
-    public function update(DetectionProfile $profile)
+    public function update($param)
     {
+        $profile = $this->lookUpProfile($param);
+
         $this->validateRequest();
 
         $profile->name = request()->get('name');
@@ -94,25 +105,33 @@ class DetectionProfileController extends Controller
         return DetectionProfileResource::make($profile);
     }
 
-    public function show(DetectionProfile $profile)
+    public function show($param)
     {
+        $profile = $this->lookUpProfile($param);
+
         return DetectionProfileResource::make($profile);
     }
 
-    public function edit(DetectionProfile $profile)
+    public function edit($param)
     {
+        $profile = $this->lookUpProfile($param);
+
         return DetectionProfileResource::make($profile);
     }
 
-    public function destroy(DetectionProfile $profile)
+    public function destroy($param)
     {
+        $profile = $this->lookUpProfile($param);
+
         $profile->delete();
 
         return response()->json(['message' => 'OK'], 200);
     }
 
-    public function updateStatus(DetectionProfile $profile)
+    public function updateStatus($param)
     {
+        $profile = $this->lookUpProfile($param);
+
         if (request()->has('status')) {
             $status = request()->get('status');
 
@@ -150,8 +169,10 @@ class DetectionProfileController extends Controller
             ->json(['message' => 'Missing status key.'], 422);
     }
 
-    public function showAutomations(DetectionProfile $profile)
+    public function showAutomations($param)
     {
+        $profile = $this->lookUpProfile($param);
+
         $configTypes = [];
 
         $morphs = Relation::morphMap();
@@ -190,8 +211,10 @@ class DetectionProfileController extends Controller
         return ProfileAutomationConfigResource::collection($query->get());
     }
 
-    public function updateAutomations(DetectionProfile $profile)
+    public function updateAutomations($param)
     {
+        $profile = $this->lookUpProfile($param);
+
         $type = request()->get('type');
         $id = request()->get('id');
         $value = request()->get('value');
