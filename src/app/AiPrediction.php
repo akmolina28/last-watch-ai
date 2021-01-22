@@ -114,8 +114,7 @@ class AiPrediction extends Model
 
             if ($x >= $width || $y > $height) {
                 $isOutsideMask = true;
-            }
-            else {
+            } else {
                 $rgba = imagecolorat($im, $x, $y);
                 $alpha = ($rgba & 0x7F000000) >> 24;
 
