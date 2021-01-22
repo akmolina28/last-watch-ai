@@ -42,17 +42,19 @@ curl -i GET "http://<SERVER_IP>:<WEB_PORT>/api/events?page=1&relevant&profileId=
 
 ### Detection Profiles
 
+Profiles are referenced by their slug. You can copy the slug from the Detection Profiles page. The slug is also is returned by the API when a profile is first created.
+
 `/api/profiles` | `GET` | Get Detection Profiles
 
-`/api/profiles/<profile_id>` | `GET` | Get single Detection Profile details
+`/api/profiles/<profile_slug>` | `GET` | Get single Detection Profile details
 
 `/api/profiles` | `POST` | Create a new Detection Profile
 
-`/api/profiles/<profile_id>` | `PATCH` | Update a Detection Profile
+`/api/profiles/<profile_slug>` | `PATCH` | Update a Detection Profile
 
-`/api/profiles/<profile_id>/status` | `GET` | Get the on/off status of a Detection Profile
+`/api/profiles/<profile_slug>/status` | `GET` | Get the on/off status of a Detection Profile
 
-`/api/profiles/<profile_id>/status` | `PUT` | Turn on/off a Detection Profile
+`/api/profiles/<profile_slug>/status` | `PUT` | Turn on/off a Detection Profile
 
 Options:
 * `status=<new_status>` | set to "enabled", "disabled", or "as_scheduled"
@@ -60,11 +62,11 @@ Options:
 * `end_time=<HH:mm>` | when status is "as_scheduled", the time-of-day when the profile is disabled
 * `period=<minutes>` | when the status is "disabled", the number of minutes before the profile is automatically re-enabled
 
-`/api/profiles/<profile_id>/automations` | `GET` | Get the Automations to which a Detection Profile is subscribed
+`/api/profiles/<profile_slug>/automations` | `GET` | Get the Automations to which a Detection Profile is subscribed
 
-`/api/profiles/<profile_id>/automations` | `PUT` | Subscribe/unsubscribe a Detection Profile to an Automation
+`/api/profiles/<profile_slug>/automations` | `PUT` | Subscribe/unsubscribe a Detection Profile to an Automation
 
-`/api/profiles/<profile_id>` | `DELETE` | Delete a Detection Profile
+`/api/profiles/<profile_slug>` | `DELETE` | Delete a Detection Profile
 
 ### Detection Events
 

@@ -1450,6 +1450,23 @@ class ApiTest extends TestCase
     /**
      * @test
      */
+    public function api_can_get_profile_by_slug_name()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+
+        $this->json('GET', '/api/profiles/'.$profile->slug.'/edit')
+            ->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'id' => $profile->id,
+                    'name' => $profile->name,
+                ],
+            ]);
+    }
+
+    /**
+     * @test
+     */
     public function api_can_update_a_profile()
     {
         $profile = factory(DetectionProfile::class)->create([

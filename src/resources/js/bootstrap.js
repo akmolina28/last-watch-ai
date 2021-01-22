@@ -26,6 +26,8 @@ Vue.use(Buefy, {
     defaultIconPack: "fas"
 });
 
+import VueClipboard from 'vue-clipboard2';
+Vue.use(VueClipboard);
 
 import axios from 'axios';
 window.axios = axios;

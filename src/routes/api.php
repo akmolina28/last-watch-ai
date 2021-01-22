@@ -17,19 +17,19 @@ Route::get('/profiles', 'DetectionProfileController@index');
 
 Route::post('/profiles', 'DetectionProfileController@make');
 
-Route::get('/profiles/{profile}', 'DetectionProfileController@show');
+Route::get('/profiles/{param}', 'DetectionProfileController@show');
 
-Route::get('/profiles/{profile}/edit', 'DetectionProfileController@edit');
+Route::get('/profiles/{param}/edit', 'DetectionProfileController@edit');
 
-Route::patch('/profiles/{profile}', 'DetectionProfileController@update');
+Route::patch('/profiles/{param}', 'DetectionProfileController@update');
 
-Route::delete('/profiles/{profile}', 'DetectionProfileController@destroy');
+Route::delete('/profiles/{param}', 'DetectionProfileController@destroy');
 
-Route::put('/profiles/{profile}/status', 'DetectionProfileController@updateStatus');
+Route::put('/profiles/{param}/status', 'DetectionProfileController@updateStatus');
 
-Route::get('/profiles/{profile}/automations', 'DetectionProfileController@showAutomations');
+Route::get('/profiles/{param}/automations', 'DetectionProfileController@showAutomations');
 
-Route::put('/profiles/{profile}/automations', 'DetectionProfileController@updateAutomations');
+Route::put('/profiles/{param}/automations', 'DetectionProfileController@updateAutomations');
 
 Route::get('/objectClasses', 'DeepstackController@showObjectClasses');
 

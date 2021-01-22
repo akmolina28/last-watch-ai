@@ -90,12 +90,41 @@
                     </b-dropdown-item>
                 </b-dropdown>
             </b-table-column>
-            <b-table-column field="delete" label="" v-slot="props">
-                <a :href="`/profiles/${props.row.id}/edit`" class="button is-primary is-outlined">
-                    <span class="icon is-small">
-                        <b-icon icon="edit"></b-icon>
-                    </span>
-                </a>
+            <b-table-column label="" v-slot="props">
+                <b-dropdown aria-role="list" position="is-bottom-left">
+                    <template #trigger="{ active }">
+                        <b-button
+                            type="is-primary is-outlined"
+                            icon-right="cog" />
+                    </template>
+
+                    <router-link :to="`/profiles/${props.row.id}/edit`">
+                        <b-dropdown-item aria-role="listitem">
+                                <b-icon icon="edit"></b-icon>
+                                <span>
+                                    Edit Profile
+                                </span>
+                        </b-dropdown-item>
+                    </router-link>
+
+                    <a href="javascript:void(0);">
+                        <b-dropdown-item aria-role="listitem"  @click="copySlug(props.row)">
+                                <b-icon icon="copy"></b-icon>
+                                <span>
+                                    Copy API Slug
+                                </span>
+                        </b-dropdown-item>
+                    </a>
+
+                    <router-link :to="`/profiles/${props.row.id}/automations`">
+                        <b-dropdown-item aria-role="listitem">
+                            <b-icon icon="robot"></b-icon>
+                            <span>
+                                Profile Automations
+                            </span>
+                        </b-dropdown-item>
+                    </router-link>
+                </b-dropdown>
             </b-table-column>
             <b-table-column field="delete" label="" v-slot="props">
                 <button @click="deleteProfile(props.row)" :class="'button is-danger is-outlined' + (props.row.isDeleting ? ' is-loading' : '')">
@@ -206,6 +235,19 @@
         },
 
         methods: {
+            copySlug(profile) {
+                this.$copyText(profile.slug).then((e) => {
+                    this.$buefy.toast.open({
+                        message: 'Slug copied!',
+                        type: 'is-success'
+                    });
+                }, (e) => {
+                    this.$buefy.toast.open({
+                        message: 'Can\'t copy slug',
+                        type: 'is-danger'
+                    });
+                })
+            },
 
             showSchedulerModal(profile) {
                 this.modalProps.profile = profile;
