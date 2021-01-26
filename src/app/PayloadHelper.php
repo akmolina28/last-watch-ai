@@ -30,6 +30,7 @@ class PayloadHelper
         return $replaced;
     }
 
+
     public static function getEventPayload(DetectionEvent $event, DetectionProfile $profile)
     {
         $predictions = $profile->aiPredictions()
