@@ -88,7 +88,7 @@ services:
       - laravel
 
   composer:
-    image: composer:latest
+    image: composer:1.9
     container_name: lw_composer
     volumes:
       - ./src:/var/www/app
