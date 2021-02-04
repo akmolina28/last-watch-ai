@@ -136,7 +136,9 @@
                 profiles: [],
                 selectedProfile: {},
                 highlight: false,
-                loading: true
+                loading: true,
+                highlightPredictions: [],
+                highlightMask: null
             }
         },
 
@@ -262,25 +264,18 @@
             },
 
             highlightAllPredictions() {
-                this.selectedProfile = null;
-                this.highlight = true;
-
+                this.highlightPredictions = this.predictions;
+                this.highlightPredictions.forEach(prediction => {
+                    prediction.is_masked = false;
+                    prediction.is_smart_filtered = false;
+                });
+                this.highlightMask = null;
                 this.draw();
             },
 
             toggleActiveProfile(profile) {
-
-                if (this.selectedProfile.id === profile.id) {
-                    this.selectedProfile = {};
-                    this.highlight = false;
-                    this.event.ai_predictions.forEach(p => p.is_masked = false);
-                    this.event.ai_predictions.forEach(p => p.is_smart_filtered = false);
-                }
-                else {
-                    this.selectedProfile = profile;
-                    this.highlight = true;
-                }
-
+                this.highlightPredictions = this.getPredictions(profile);
+                this.highlightMask = profile.use_mask ? profile.slug + '.png' : null;
                 this.draw();
             },
 
@@ -297,19 +292,6 @@
             },
 
             draw() {
-                let predictions = this.predictions;
-                let mask_name = null;
-
-                if (this.selectedProfile) {
-                    predictions = this.highlight ?
-                        this.getPredictions(this.selectedProfile) :
-                        [];
-
-                    mask_name = this.highlight ?
-                        this.selectedProfile.use_mask ? this.selectedProfile.slug + '.png' : null :
-                        null;
-                }
-
                 let canvas = document.getElementById('event-snapshot');
                 canvas.width = this.imageWidth;
                 canvas.height = this.imageHeight;
@@ -324,8 +306,8 @@
                     });
 
                 let mask = null;
-                if (mask_name) {
-                    mask = new Facade.Image('/storage/masks/' + mask_name, {
+                if (this.highlightMask) {
+                    mask = new Facade.Image('/storage/masks/' + this.highlightMask, {
                         x: this.imageWidth / 2,
                         y: this.imageHeight / 2,
                         height: this.imageHeight,
@@ -335,18 +317,20 @@
                 }
 
                 let rects = [];
-                predictions.forEach(prediction => {
-                    let color = this.highlight ? '#7957d5' : 'red';
-                    rects.push(new Facade.Rect({
-                        x: prediction.x_min,
-                        y: prediction.y_min,
-                        width: prediction.x_max - prediction.x_min,
-                        height: prediction.y_max - prediction.y_min,
-                        lineWidth: 4,
-                        strokeStyle: prediction.is_masked || prediction.is_smart_filtered ? 'gray' : color,
-                        fillStyle: 'rgba(0, 0, 0, 0)'
-                    }));
-                });
+                if (this.highlightPredictions.length > 0) {
+                    this.highlightPredictions.forEach(prediction => {
+                        let color = '#7957d5';
+                        rects.push(new Facade.Rect({
+                            x: prediction.x_min,
+                            y: prediction.y_min,
+                            width: prediction.x_max - prediction.x_min,
+                            height: prediction.y_max - prediction.y_min,
+                            lineWidth: 0.00625 * this.imageWidth,
+                            strokeStyle: prediction.is_masked || prediction.is_smart_filtered ? 'gray' : color,
+                            fillStyle: 'rgba(0, 0, 0, 0)'
+                        }));
+                    });
+                }
 
                 stage.draw(function () {
                     this.clear();
