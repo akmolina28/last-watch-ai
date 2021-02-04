@@ -39,9 +39,20 @@
                     </div>
                 </div>
                 <div class="control">
+                    <div class="tags has-addons" @click="highlightAllPredictions">
+                        <div class="tag">AI Predictions</div>
+                        <a href="javascript:void(0);"
+                           :class="`tag is-primary ${predictions.length === 0 ? 'is-light' : ''}`">
+                            {{ predictions.length }}
+                        </a>
+                    </div>
+                </div>
+                <div class="control">
                     <div class="tags has-addons">
                         <span class="tag">Automations Run</span>
-                        <a :class="'tag is-success' + (automations === 0 ? ' is-light' : '')">{{ automations }}</a>
+                        <a :class="'tag is-primary' + (automations === 0 ? ' is-light' : '')">
+                            {{ automations }}
+                        </a>
                     </div>
                 </div>
                 <div v-if="automationErrors > 0" class="control">
@@ -122,7 +133,6 @@
                 event: {},
                 nextEvent: null,
                 prevEvent: null,
-                predictions: [],
                 profiles: [],
                 selectedProfile: {},
                 highlight: false,
@@ -135,6 +145,12 @@
         },
 
         computed: {
+            predictions() {
+                if (this.event && this.event.ai_predictions) {
+                    return this.event.ai_predictions;
+                }
+                return [];
+            },
             automations() {
                 if (this.event && this.event.automationResults) {
                     return this.event.automationResults.filter(a => !a.is_error).length;
@@ -245,6 +261,13 @@
                 return predictions;
             },
 
+            highlightAllPredictions() {
+                this.selectedProfile = null;
+                this.highlight = true;
+
+                this.draw();
+            },
+
             toggleActiveProfile(profile) {
 
                 if (this.selectedProfile.id === profile.id) {
@@ -274,13 +297,18 @@
             },
 
             draw() {
-                let predictions = this.highlight ?
-                    this.getPredictions(this.selectedProfile) :
-                    [];
+                let predictions = this.predictions;
+                let mask_name = null;
 
-                let mask_name = this.highlight ?
-                    this.selectedProfile.use_mask ? this.selectedProfile.slug + '.png' : null :
-                    null;
+                if (this.selectedProfile) {
+                    predictions = this.highlight ?
+                        this.getPredictions(this.selectedProfile) :
+                        [];
+
+                    mask_name = this.highlight ?
+                        this.selectedProfile.use_mask ? this.selectedProfile.slug + '.png' : null :
+                        null;
+                }
 
                 let canvas = document.getElementById('event-snapshot');
                 canvas.width = this.imageWidth;
