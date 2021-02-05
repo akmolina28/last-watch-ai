@@ -9,7 +9,7 @@ services:
     container_name: lw_nginx
     restart: unless-stopped
     ports:
-      - "${WEB_INTERFACE_PORT}:80"
+      - "${WEB_INTERFACE_PORT:-8080}:80"
     volumes:
       - ./src:/var/www/app
       - ${WATCH_FOLDER}:/var/www/app/storage/app/public/events
@@ -60,8 +60,10 @@ services:
     networks:
       - laravel
     environment:
-      DATA_RETENTION_DAYS: ${DATA_RETENTION_DAYS}
-      APP_URL: ${WEB_INTERFACE_URL}:${WEB_INTERFACE_PORT:-80}
+      DATA_RETENTION_DAYS: ${DATA_RETENTION_DAYS:-7}
+      APP_URL: ${WEB_INTERFACE_URL:-localhost}:${WEB_INTERFACE_PORT:-8080}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      DEEPSTACK_BASE_URL: ${DEEPSTACK_BASE_URL:-http://deepstack:5000/}
 
   scheduler:
     image: mcuadros/ofelia:latest
@@ -80,7 +82,7 @@ services:
     environment:
       QUEUE_CONNECTION: database
       NUMPROCS: 8
-      APP_URL: ${WEB_INTERFACE_URL}:${WEB_INTERFACE_PORT:-80}
+      APP_URL: ${WEB_INTERFACE_URL:-localhost}:${WEB_INTERFACE_PORT:-8080}
     volumes:
       - ${WATCH_FOLDER}:/var/www/app/storage/app/public/events
       - ./src:/var/www/app
@@ -145,7 +147,7 @@ services:
     environment:
       - WATCH_FOLDER=/var/www/app/storage/app/public/events
       - WEBHOOK_URL=http://lw_nginx:80/webhook-receiving-url
-      - WATCH_USE_POLLING=${WATCH_USE_POLLING}
+      - WATCH_USE_POLLING=${WATCH_USE_POLLING:-false}
     networks:
       - laravel
 
