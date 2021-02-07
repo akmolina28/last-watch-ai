@@ -34,22 +34,8 @@ class PayloadHelper
     public static function getEventPayload(DetectionEvent $event, DetectionProfile $profile)
     {
         $predictions = $profile->aiPredictions()
-            ->where('detection_event_id', '=', $event->id)->get();
-
-        $predictions = $predictions->groupBy(function ($item, $key) {
-            $masked = $item->pivot->is_masked;
-            $smartFiltered = $item->pivot->is_smart_filtered;
-
-            if ($masked) {
-                return $item->object_class.'_masked';
-            }
-
-            if ($smartFiltered) {
-                return $item->object_class.'_filtered';
-            }
-
-            return $item->object_class;
-        });
+            ->where('detection_event_id', '=', $event->id)
+            ->get();
 
         $payload = [
             'detection_event' => $event->toArray(),
