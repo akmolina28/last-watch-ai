@@ -95,17 +95,6 @@
                                     <span v-if="!profile.is_profile_active">(inactive)</span>
                                 </p>
                             </template>
-
-                            <div v-if="getPredictions(profile).length > 0">
-                                <li v-for="prediction in getPredictions(profile)">
-                                    <span v-if="prediction.is_masked">(masked)</span>
-                                    <span v-else-if="prediction.is_smart_filtered">(filtered)</span>
-                                    {{ prediction.object_class }} - {{ prediction.confidence | percentage }}
-                                </li>
-                            </div>
-                            <p v-else>
-                                No relevant objects detected.
-                            </p>
                         </b-menu-item>
                     </b-menu-list>
                 </b-menu>
@@ -114,7 +103,20 @@
 
             </div>
             <div class="column is-two-thirds">
-                <canvas id="event-snapshot" ref="event-snapshot" style="width:100%;"></canvas>
+                <div>
+                    <canvas id="event-snapshot" ref="event-snapshot" style="width:100%;"></canvas>
+                </div>
+                <div class="buttons">
+                    <b-button v-for="prediction in highlightPredictions"
+                              :class="getClassForPrediction(prediction)"
+                              :key="prediction.id"
+                              @click="soloHighlightPrediction(prediction)">
+                        <b-icon :icon="getIconForPrediction(prediction)"></b-icon>
+                        <span>
+                            {{ prediction.confidence | percentage }}
+                        </span>
+                    </b-button>
+                </div>
             </div>
         </div>
     </div>
@@ -138,6 +140,7 @@
                 highlight: false,
                 loading: true,
                 highlightPredictions: [],
+                soloPrediction: null,
                 highlightMask: null
             }
         },
@@ -203,6 +206,89 @@
         },
 
         methods: {
+            soloHighlightPrediction(prediction) {
+                if (this.soloPrediction && this.soloPrediction.id === prediction.id) {
+                    this.soloPrediction = null;
+                }
+                else {
+                    this.soloPrediction = prediction;
+                }
+                this.draw();
+            },
+
+            sortPredictions(predictions) {
+                function compare(a, b) {
+                    if (a.is_masked && !b.is_masked) {
+                        return 1;
+                    }
+                    if (!a.is_masked && b.is_masked) {
+                        return -1;
+                    }
+                    if (a.is_smart_filtered && !b.is_smart_filtered) {
+                        return 1;
+                    }
+                    if (!a.is_smart_filtered && b.is_smart_filtered) {
+                        return -1;
+                    }
+                    return 0;
+                }
+
+                return predictions.sort(compare);
+            },
+            getClassForPrediction(prediction) {
+                if (prediction) {
+                    if (prediction.is_masked) {
+                        return "is-danger is-light";
+                    }
+                    if (prediction.is_smart_filtered) {
+                        return "is-primary is-light";
+                    }
+                    return "is-primary";
+                }
+                return "";
+            },
+            getIconForPrediction(prediction) {
+                if (prediction) {
+                    if (prediction.object_class === "person") {
+                        return "user";
+                    }
+                    if (prediction.object_class === "car") {
+                        return "car";
+                    }
+                    if (prediction.object_class === "truck") {
+                        return "truck";
+                    }
+                    if (prediction.object_class === "bus") {
+                        return "bus";
+                    }
+                    if (prediction.object_class === "bicycle") {
+                        return "bicycle";
+                    }
+                    if (prediction.object_class === "motorcycle") {
+                        return "motorcycle";
+                    }
+                    if (prediction.object_class === "plane") {
+                        return "plane";
+                    }
+                    if (prediction.object_class === "train") {
+                        return "train";
+                    }
+                    if (prediction.object_class === "bird") {
+                        return "crow";
+                    }
+                    if (prediction.object_class === "cat") {
+                        return "cat";
+                    }
+                    if (prediction.object_class === "dog") {
+                        return "dog";
+                    }
+                    if (prediction.object_class === "horse") {
+                        return "horse";
+                    }
+                    return "circle";
+                }
+                return "";
+            },
             getData() {
                 axios.get(`/api/events/${this.id}`)
                     .then(response => {
@@ -264,17 +350,24 @@
             },
 
             highlightAllPredictions() {
-                this.highlightPredictions = this.predictions;
-                this.highlightPredictions.forEach(prediction => {
-                    prediction.is_masked = false;
-                    prediction.is_smart_filtered = false;
+                this.soloPrediction = null;
+
+                let predictions = this.predictions;
+
+                predictions.forEach(prediction => {
+                    prediction.is_masked = 0;
+                    prediction.is_smart_filtered = 0;
                 });
+
+                this.highlightPredictions = predictions;
+
                 this.highlightMask = null;
                 this.draw();
             },
 
             toggleActiveProfile(profile) {
-                this.highlightPredictions = this.getPredictions(profile);
+                this.soloPrediction = null;
+                this.highlightPredictions = this.sortPredictions(this.getPredictions(profile));
                 this.highlightMask = profile.use_mask ? profile.slug + '.png' : null;
                 this.draw();
             },
@@ -317,8 +410,18 @@
                 }
 
                 let rects = [];
-                if (this.highlightPredictions.length > 0) {
-                    this.highlightPredictions.forEach(prediction => {
+                let predictions = [];
+
+
+                if (this.soloPrediction) {
+                    predictions.push(this.soloPrediction);
+                }
+                else {
+                    predictions = this.highlightPredictions;
+                }
+
+                if (predictions.length > 0) {
+                    predictions.forEach(prediction => {
                         let color = '#7957d5';
                         rects.push(new Facade.Rect({
                             x: prediction.x_min,
