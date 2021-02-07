@@ -125,6 +125,8 @@ docker-compose up -d --build site
 
 [User Guide](https://kleypot.com/last-watch-ai-user-guide/)
 
+[Full Walkthrough with Blue Iris](https://kleypot.com/last-watch-ai-blue-iris-integration/)
+
 [API Reference](https://github.com/akmolina28/last-watch-ai/blob/dev/docs/API.md)
 
 Automation Examples:
