@@ -72,14 +72,7 @@
                     </span>
                     <span>{{ event.occurred_at | dateStrRelative }}</span>
                 </div>
-                <div class="content">
-                    <a :href="imageFile" download>
-                        <span class="icon">
-                            <b-icon icon="image"></b-icon>
-                        </span>
-                        <span>Download Image File</span>
-                    </a>
-                </div>
+
                 <b-menu class="mb-4">
                     <b-menu-list label="Matched Profiles">
                         <b-menu-item
@@ -99,8 +92,14 @@
                     </b-menu-list>
                 </b-menu>
 
-
-
+                <div class="content">
+                    <a :href="imageFile" download>
+                        <span class="icon">
+                            <b-icon icon="image"></b-icon>
+                        </span>
+                        <span>Download Image File</span>
+                    </a>
+                </div>
             </div>
             <div class="column is-two-thirds">
                 <div>
@@ -237,13 +236,28 @@
             },
             getClassForPrediction(prediction) {
                 if (prediction) {
+                    let c = "";
+
                     if (prediction.is_masked) {
-                        return "is-danger is-light";
+                        c = "is-danger";
                     }
-                    if (prediction.is_smart_filtered) {
-                        return "is-primary is-light";
+                    else if (prediction.is_smart_filtered) {
+                        c = "is-warning";
                     }
-                    return "is-primary";
+                    else {
+                        c = "is-primary"
+                    }
+
+                    let isLight = false;
+                    if (this.soloPrediction) {
+                        isLight = prediction.id !== this.soloPrediction.id;
+                    }
+
+                    if (isLight) {
+                        c += " is-light";
+                    }
+
+                    return c;
                 }
                 return "";
             },
@@ -335,7 +349,7 @@
                 let predictions = [];
 
                 for (let i = 0; i < this.event.ai_predictions.length; i++) {
-                    let prediction = this.event.ai_predictions[i];
+                    let prediction = JSON.parse(JSON.stringify(this.event.ai_predictions[i]));
                     for (let j = 0; j < prediction.detection_profiles.length; j++) {
                         if (prediction.detection_profiles[j].id === profile.id) {
                             prediction.is_masked = prediction.detection_profiles[j].is_masked;
@@ -351,17 +365,24 @@
 
             highlightAllPredictions() {
                 this.soloPrediction = null;
+                this.highlightMask = null;
 
-                let predictions = this.predictions;
+                let predictions = [];
 
-                predictions.forEach(prediction => {
-                    prediction.is_masked = 0;
-                    prediction.is_smart_filtered = 0;
-                });
+                if (this.highlightPredictions.length > 0) {
+                    this.highlightPredictions = [];
+                }
+                else {
+                    predictions = JSON.parse(JSON.stringify(this.predictions));
+
+                    for (let i = 0; i < predictions.length; i++) {
+                        predictions[i].is_masked = 0;
+                        predictions[i].is_smart_filtered = 0;
+                    }
+                }
 
                 this.highlightPredictions = predictions;
 
-                this.highlightMask = null;
                 this.draw();
             },
 
@@ -411,9 +432,26 @@
 
                 let rects = [];
                 let predictions = [];
-
+                let showTip = false;
+                let tipText = null;
 
                 if (this.soloPrediction) {
+                    showTip = true;
+                    let text = this.soloPrediction.object_class;
+                    text += ` | ${this.$options.filters.percentage(this.soloPrediction.confidence)} confidence`;
+                    if (this.soloPrediction.is_masked) text += ' | masked';
+                    if (this.soloPrediction.is_smart_filtered) text += ' | smart filtered';
+                    tipText = new Facade.Text(text, {
+                        x: 10,
+                        y: this.imageHeight - 10,
+                        fontFamily: 'BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif',
+                        fontSize: 32,
+                        scale: 0.00075 * this.imageWidth,
+                        fillStyle: '#fff',
+                        strokeStyle: '#000',
+                        lineWidth: 1,
+                        anchor: 'bottom/left'
+                    });
                     predictions.push(this.soloPrediction);
                 }
                 else {
@@ -444,6 +482,10 @@
 
                     for (let i = 0; i < rects.length; i++) {
                         this.addToStage(rects[i]);
+                    }
+
+                    if (showTip) {
+                        this.addToStage(tipText);
                     }
                 });
 
