@@ -11,6 +11,10 @@ Vue.filter('dateStr', function(value) {
     return moment.utc(value).local();
 });
 
+Vue.filter('percentage', function (value) {
+    return Math.round(value * 100) + "%";
+});
+
 Vue.filter('dateStrRelative', function(value) {
     return moment.utc(value).local().fromNow();
 });

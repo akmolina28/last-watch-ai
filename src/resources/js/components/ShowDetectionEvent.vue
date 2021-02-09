@@ -199,12 +199,6 @@
             }
         },
 
-        filters: {
-            percentage(value) {
-                return (value * 100) + "%";
-            }
-        },
-
         methods: {
             soloHighlightPrediction(prediction) {
                 if (this.soloPrediction && this.soloPrediction.id === prediction.id) {
