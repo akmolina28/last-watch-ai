@@ -21,6 +21,7 @@ class DeepstackServiceProvider extends ServiceProvider
 
         $this->app->bind(DeepstackClientInterface::class, function () {
             $config = config('deepstack');
+
             return new DeepstackClient($config['base_url']);
         });
 
