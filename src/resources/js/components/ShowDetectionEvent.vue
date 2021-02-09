@@ -199,12 +199,6 @@
             }
         },
 
-        filters: {
-            percentage(value) {
-                return (value * 100) + "%";
-            }
-        },
-
         methods: {
             soloHighlightPrediction(prediction) {
                 if (this.soloPrediction && this.soloPrediction.id === prediction.id) {
@@ -369,13 +363,16 @@
                 this.highlightMask = null;
             },
 
-            highlightAllPredictions() {
-                this.soloPrediction = null;
-                this.highlightMask = null;
-
+            clearSelectedProfile() {
                 this.event.pattern_matched_profiles.forEach(p => {
                     if (p.isSelected) this.toggleSelectedProfile(p);
                 });
+            },
+
+            highlightAllPredictions() {
+                this.soloPrediction = null;
+                this.highlightMask = null;
+                this.clearSelectedProfile();
 
                 let predictions = [];
 
@@ -399,6 +396,10 @@
             toggleSelectedProfile(profile) {
                 this.soloPrediction = null;
                 profile.isSelected = !profile.isSelected;
+
+                this.event.pattern_matched_profiles.forEach(p => {
+                    if (p.id !== profile.id) p.isSelected = false;
+                });
 
                 if (profile.isSelected) {
                     this.highlightPredictions = this.sortPredictions(this.getPredictionsForProfile(profile));
