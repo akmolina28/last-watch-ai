@@ -39,9 +39,20 @@
                     </div>
                 </div>
                 <div class="control">
+                    <div class="tags has-addons" @click="highlightAllPredictions">
+                        <div class="tag">AI Predictions</div>
+                        <a href="javascript:void(0);"
+                           :class="`tag is-primary ${predictions.length === 0 ? 'is-light' : ''}`">
+                            {{ predictions.length }}
+                        </a>
+                    </div>
+                </div>
+                <div class="control">
                     <div class="tags has-addons">
                         <span class="tag">Automations Run</span>
-                        <a :class="'tag is-success' + (automations === 0 ? ' is-light' : '')">{{ automations }}</a>
+                        <a :class="'tag is-primary' + (automations === 0 ? ' is-light' : '')">
+                            {{ automations }}
+                        </a>
                     </div>
                 </div>
                 <div v-if="automationErrors > 0" class="control">
@@ -61,21 +72,15 @@
                     </span>
                     <span>{{ event.occurred_at | dateStrRelative }}</span>
                 </div>
-                <div class="content">
-                    <a :href="imageFile" download>
-                        <span class="icon">
-                            <b-icon icon="image"></b-icon>
-                        </span>
-                        <span>Download Image File</span>
-                    </a>
-                </div>
-                <b-menu class="mb-4">
+
+                <b-menu class="mb-4" :activable="false">
                     <b-menu-list label="Matched Profiles">
                         <b-menu-item
                             v-for="profile in event.pattern_matched_profiles"
-                            @click="toggleActiveProfile(profile)"
+                            @click="toggleSelectedProfile(profile)"
                             :key="profile.key"
-                            :disabled="!profile.is_profile_active">
+                            :disabled="!profile.is_profile_active"
+                            :active="profile.isSelected">
 
                             <template slot="label" slot-scope="props">
                                 <p class="heading is-size-6">
@@ -84,26 +89,34 @@
                                     <span v-if="!profile.is_profile_active">(inactive)</span>
                                 </p>
                             </template>
-
-                            <div v-if="getPredictions(profile).length > 0">
-                                <li v-for="prediction in getPredictions(profile)">
-                                    <span v-if="prediction.is_masked">(masked)</span>
-                                    <span v-else-if="prediction.is_smart_filtered">(filtered)</span>
-                                    {{ prediction.object_class }} - {{ prediction.confidence | percentage }}
-                                </li>
-                            </div>
-                            <p v-else>
-                                No relevant objects detected.
-                            </p>
                         </b-menu-item>
                     </b-menu-list>
                 </b-menu>
 
-
-
+                <div class="content">
+                    <a :href="imageFile" download>
+                        <span class="icon">
+                            <b-icon icon="image"></b-icon>
+                        </span>
+                        <span>Download Image File</span>
+                    </a>
+                </div>
             </div>
             <div class="column is-two-thirds">
-                <canvas id="event-snapshot" ref="event-snapshot" style="width:100%;"></canvas>
+                <div>
+                    <canvas id="event-snapshot" ref="event-snapshot" style="width:100%;"></canvas>
+                </div>
+                <div class="buttons">
+                    <b-button v-for="prediction in highlightPredictions"
+                              :class="getClassForPrediction(prediction)"
+                              :key="prediction.id"
+                              @click="soloHighlightPrediction(prediction)">
+                        <b-icon :icon="getIconForPrediction(prediction)"></b-icon>
+                        <span>
+                            {{ prediction.confidence | percentage }}
+                        </span>
+                    </b-button>
+                </div>
             </div>
         </div>
     </div>
@@ -122,11 +135,13 @@
                 event: {},
                 nextEvent: null,
                 prevEvent: null,
-                predictions: [],
                 profiles: [],
                 selectedProfile: {},
                 highlight: false,
-                loading: true
+                loading: true,
+                highlightPredictions: [],
+                soloPrediction: null,
+                highlightMask: null
             }
         },
 
@@ -135,6 +150,12 @@
         },
 
         computed: {
+            predictions() {
+                if (this.event && this.event.ai_predictions) {
+                    return this.event.ai_predictions;
+                }
+                return [];
+            },
             automations() {
                 if (this.event && this.event.automationResults) {
                     return this.event.automationResults.filter(a => !a.is_error).length;
@@ -185,6 +206,104 @@
         },
 
         methods: {
+            soloHighlightPrediction(prediction) {
+                if (this.soloPrediction && this.soloPrediction.id === prediction.id) {
+                    this.soloPrediction = null;
+                }
+                else {
+                    this.soloPrediction = prediction;
+                }
+                this.draw();
+            },
+
+            sortPredictions(predictions) {
+                function compare(a, b) {
+                    if (a.is_masked && !b.is_masked) {
+                        return 1;
+                    }
+                    if (!a.is_masked && b.is_masked) {
+                        return -1;
+                    }
+                    if (a.is_smart_filtered && !b.is_smart_filtered) {
+                        return 1;
+                    }
+                    if (!a.is_smart_filtered && b.is_smart_filtered) {
+                        return -1;
+                    }
+                    return 0;
+                }
+
+                return predictions.sort(compare);
+            },
+            getClassForPrediction(prediction) {
+                if (prediction) {
+                    let c = "";
+
+                    if (prediction.is_masked) {
+                        c = "is-danger";
+                    }
+                    else if (prediction.is_smart_filtered) {
+                        c = "is-warning";
+                    }
+                    else {
+                        c = "is-primary"
+                    }
+
+                    let isLight = false;
+                    if (this.soloPrediction) {
+                        isLight = prediction.id !== this.soloPrediction.id;
+                    }
+
+                    if (isLight) {
+                        c += " is-light";
+                    }
+
+                    return c;
+                }
+                return "";
+            },
+            getIconForPrediction(prediction) {
+                if (prediction) {
+                    if (prediction.object_class === "person") {
+                        return "user";
+                    }
+                    if (prediction.object_class === "car") {
+                        return "car";
+                    }
+                    if (prediction.object_class === "truck") {
+                        return "truck";
+                    }
+                    if (prediction.object_class === "bus") {
+                        return "bus";
+                    }
+                    if (prediction.object_class === "bicycle") {
+                        return "bicycle";
+                    }
+                    if (prediction.object_class === "motorcycle") {
+                        return "motorcycle";
+                    }
+                    if (prediction.object_class === "plane") {
+                        return "plane";
+                    }
+                    if (prediction.object_class === "train") {
+                        return "train";
+                    }
+                    if (prediction.object_class === "bird") {
+                        return "crow";
+                    }
+                    if (prediction.object_class === "cat") {
+                        return "cat";
+                    }
+                    if (prediction.object_class === "dog") {
+                        return "dog";
+                    }
+                    if (prediction.object_class === "horse") {
+                        return "horse";
+                    }
+                    return "circle";
+                }
+                return "";
+            },
             getData() {
                 axios.get(`/api/events/${this.id}`)
                     .then(response => {
@@ -216,7 +335,7 @@
             },
 
             hasUnmaskedUnfilteredPredictions(profile) {
-                let predictions = this.getPredictions(profile);
+                let predictions = this.getPredictionsForProfile(profile);
 
                 for (let i = 0; i < predictions.length; i++) {
                     if (!predictions[i].is_masked && !predictions[i].is_smart_filtered) {
@@ -227,11 +346,11 @@
                 return false;
             },
 
-            getPredictions(profile) {
+            getPredictionsForProfile(profile) {
                 let predictions = [];
 
                 for (let i = 0; i < this.event.ai_predictions.length; i++) {
-                    let prediction = this.event.ai_predictions[i];
+                    let prediction = this.deepCloneArray(this.event.ai_predictions[i]);
                     for (let j = 0; j < prediction.detection_profiles.length; j++) {
                         if (prediction.detection_profiles[j].id === profile.id) {
                             prediction.is_masked = prediction.detection_profiles[j].is_masked;
@@ -245,19 +364,49 @@
                 return predictions;
             },
 
-            toggleActiveProfile(profile) {
+            clearHighlightedPredictions() {
+                this.highlightPredictions = [];
+                this.highlightMask = null;
+            },
 
-                if (this.selectedProfile.id === profile.id) {
-                    this.selectedProfile = {};
-                    this.highlight = false;
-                    this.event.ai_predictions.forEach(p => p.is_masked = false);
-                    this.event.ai_predictions.forEach(p => p.is_smart_filtered = false);
+            highlightAllPredictions() {
+                this.soloPrediction = null;
+                this.highlightMask = null;
+
+                this.event.pattern_matched_profiles.forEach(p => {
+                    if (p.isSelected) this.toggleSelectedProfile(p);
+                });
+
+                let predictions = [];
+
+                if (this.highlightPredictions.length > 0) {
+                    this.clearHighlightedPredictions();
                 }
                 else {
-                    this.selectedProfile = profile;
-                    this.highlight = true;
+                    predictions = this.deepCloneArray(this.predictions);
+
+                    for (let i = 0; i < predictions.length; i++) {
+                        predictions[i].is_masked = 0;
+                        predictions[i].is_smart_filtered = 0;
+                    }
                 }
 
+                this.highlightPredictions = predictions;
+
+                this.draw();
+            },
+
+            toggleSelectedProfile(profile) {
+                this.soloPrediction = null;
+                profile.isSelected = !profile.isSelected;
+
+                if (profile.isSelected) {
+                    this.highlightPredictions = this.sortPredictions(this.getPredictionsForProfile(profile));
+                    this.highlightMask = profile.use_mask ? profile.slug + '.png' : null;
+                }
+                else {
+                    this.clearHighlightedPredictions();
+                }
                 this.draw();
             },
 
@@ -274,14 +423,6 @@
             },
 
             draw() {
-                let predictions = this.highlight ?
-                    this.getPredictions(this.selectedProfile) :
-                    [];
-
-                let mask_name = this.highlight ?
-                    this.selectedProfile.use_mask ? this.selectedProfile.slug + '.png' : null :
-                    null;
-
                 let canvas = document.getElementById('event-snapshot');
                 canvas.width = this.imageWidth;
                 canvas.height = this.imageHeight;
@@ -296,8 +437,8 @@
                     });
 
                 let mask = null;
-                if (mask_name) {
-                    mask = new Facade.Image('/storage/masks/' + mask_name, {
+                if (this.highlightMask) {
+                    mask = new Facade.Image('/storage/masks/' + this.highlightMask, {
                         x: this.imageWidth / 2,
                         y: this.imageHeight / 2,
                         height: this.imageHeight,
@@ -307,18 +448,47 @@
                 }
 
                 let rects = [];
-                predictions.forEach(prediction => {
-                    let color = this.highlight ? '#7957d5' : 'red';
-                    rects.push(new Facade.Rect({
-                        x: prediction.x_min,
-                        y: prediction.y_min,
-                        width: prediction.x_max - prediction.x_min,
-                        height: prediction.y_max - prediction.y_min,
-                        lineWidth: 4,
-                        strokeStyle: prediction.is_masked || prediction.is_smart_filtered ? 'gray' : color,
-                        fillStyle: 'rgba(0, 0, 0, 0)'
-                    }));
-                });
+                let predictions = [];
+                let showTip = false;
+                let tipText = null;
+
+                if (this.soloPrediction) {
+                    showTip = true;
+                    let text = this.soloPrediction.object_class;
+                    text += ` | ${this.$options.filters.percentage(this.soloPrediction.confidence)} confidence`;
+                    if (this.soloPrediction.is_masked) text += ' | masked';
+                    if (this.soloPrediction.is_smart_filtered) text += ' | smart filtered';
+                    tipText = new Facade.Text(text, {
+                        x: 10,
+                        y: this.imageHeight - 10,
+                        fontFamily: 'BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif',
+                        fontSize: 30,
+                        scale: this.imageWidth / 640,
+                        fillStyle: '#fff',
+                        strokeStyle: '#000',
+                        lineWidth: 1,
+                        anchor: 'bottom/left'
+                    });
+                    predictions.push(this.soloPrediction);
+                }
+                else {
+                    predictions = this.highlightPredictions;
+                }
+
+                if (predictions.length > 0) {
+                    predictions.forEach(prediction => {
+                        let color = '#7957d5';
+                        rects.push(new Facade.Rect({
+                            x: prediction.x_min,
+                            y: prediction.y_min,
+                            width: prediction.x_max - prediction.x_min,
+                            height: prediction.y_max - prediction.y_min,
+                            lineWidth: 0.00625 * this.imageWidth,
+                            strokeStyle: prediction.is_masked || prediction.is_smart_filtered ? 'gray' : color,
+                            fillStyle: 'rgba(0, 0, 0, 0)'
+                        }));
+                    });
+                }
 
                 stage.draw(function () {
                     this.clear();
@@ -329,6 +499,10 @@
 
                     for (let i = 0; i < rects.length; i++) {
                         this.addToStage(rects[i]);
+                    }
+
+                    if (showTip) {
+                        this.addToStage(tipText);
                     }
                 });
 

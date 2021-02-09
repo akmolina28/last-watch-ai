@@ -29,4 +29,19 @@ class PayloadHelper
 
         return $replaced;
     }
+
+    public static function getEventPayload(DetectionEvent $event, DetectionProfile $profile)
+    {
+        $predictions = $profile->aiPredictions()
+            ->where('detection_event_id', '=', $event->id)
+            ->get();
+
+        $payload = [
+            'detection_event' => $event->toArray(),
+            'detection_profile' => $profile->toArray(),
+            'predictions' => $predictions->toArray(),
+        ];
+
+        return json_encode($payload);
+    }
 }
