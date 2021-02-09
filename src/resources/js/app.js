@@ -15,6 +15,14 @@ Vue.filter('dateStrRelative', function(value) {
     return moment.utc(value).local().fromNow();
 });
 
+Vue.mixin({
+    methods: {
+        deepCloneArray: function(arr) {
+            return JSON.parse(JSON.stringify(arr));
+        }
+    }
+})
+
 new Vue({
     el: '#app',
     router

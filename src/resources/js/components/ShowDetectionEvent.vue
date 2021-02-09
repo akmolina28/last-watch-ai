@@ -73,13 +73,14 @@
                     <span>{{ event.occurred_at | dateStrRelative }}</span>
                 </div>
 
-                <b-menu class="mb-4">
+                <b-menu class="mb-4" :activable="false">
                     <b-menu-list label="Matched Profiles">
                         <b-menu-item
                             v-for="profile in event.pattern_matched_profiles"
-                            @click="toggleActiveProfile(profile)"
+                            @click="toggleSelectedProfile(profile)"
                             :key="profile.key"
-                            :disabled="!profile.is_profile_active">
+                            :disabled="!profile.is_profile_active"
+                            :active="profile.isSelected">
 
                             <template slot="label" slot-scope="props">
                                 <p class="heading is-size-6">
@@ -334,7 +335,7 @@
             },
 
             hasUnmaskedUnfilteredPredictions(profile) {
-                let predictions = this.getPredictions(profile);
+                let predictions = this.getPredictionsForProfile(profile);
 
                 for (let i = 0; i < predictions.length; i++) {
                     if (!predictions[i].is_masked && !predictions[i].is_smart_filtered) {
@@ -345,11 +346,11 @@
                 return false;
             },
 
-            getPredictions(profile) {
+            getPredictionsForProfile(profile) {
                 let predictions = [];
 
                 for (let i = 0; i < this.event.ai_predictions.length; i++) {
-                    let prediction = JSON.parse(JSON.stringify(this.event.ai_predictions[i]));
+                    let prediction = this.deepCloneArray(this.event.ai_predictions[i]);
                     for (let j = 0; j < prediction.detection_profiles.length; j++) {
                         if (prediction.detection_profiles[j].id === profile.id) {
                             prediction.is_masked = prediction.detection_profiles[j].is_masked;
@@ -363,17 +364,26 @@
                 return predictions;
             },
 
+            clearHighlightedPredictions() {
+                this.highlightPredictions = [];
+                this.highlightMask = null;
+            },
+
             highlightAllPredictions() {
                 this.soloPrediction = null;
                 this.highlightMask = null;
 
+                this.event.pattern_matched_profiles.forEach(p => {
+                    if (p.isSelected) this.toggleSelectedProfile(p);
+                });
+
                 let predictions = [];
 
                 if (this.highlightPredictions.length > 0) {
-                    this.highlightPredictions = [];
+                    this.clearHighlightedPredictions();
                 }
                 else {
-                    predictions = JSON.parse(JSON.stringify(this.predictions));
+                    predictions = this.deepCloneArray(this.predictions);
 
                     for (let i = 0; i < predictions.length; i++) {
                         predictions[i].is_masked = 0;
@@ -386,10 +396,17 @@
                 this.draw();
             },
 
-            toggleActiveProfile(profile) {
+            toggleSelectedProfile(profile) {
                 this.soloPrediction = null;
-                this.highlightPredictions = this.sortPredictions(this.getPredictions(profile));
-                this.highlightMask = profile.use_mask ? profile.slug + '.png' : null;
+                profile.isSelected = !profile.isSelected;
+
+                if (profile.isSelected) {
+                    this.highlightPredictions = this.sortPredictions(this.getPredictionsForProfile(profile));
+                    this.highlightMask = profile.use_mask ? profile.slug + '.png' : null;
+                }
+                else {
+                    this.clearHighlightedPredictions();
+                }
                 this.draw();
             },
 
@@ -445,8 +462,8 @@
                         x: 10,
                         y: this.imageHeight - 10,
                         fontFamily: 'BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif',
-                        fontSize: 32,
-                        scale: 0.00075 * this.imageWidth,
+                        fontSize: 30,
+                        scale: this.imageWidth / 640,
                         fillStyle: '#fff',
                         strokeStyle: '#000',
                         lineWidth: 1,
