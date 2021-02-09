@@ -396,6 +396,7 @@
             toggleSelectedProfile(profile) {
                 this.soloPrediction = null;
                 profile.isSelected = !profile.isSelected;
+
                 this.event.pattern_matched_profiles.forEach(p => {
                     if (p.id !== profile.id) p.isSelected = false;
                 });
