@@ -138,7 +138,7 @@ class ProcessDetectionEventJob implements ShouldQueue
         foreach ($relevantProfiles as $profile) {
             /* @var $automation AutomationConfig */
             foreach ($profile->automations as $automation) {
-                ProcessAutomationJob::dispatch($profile, $this->event, $automation);
+                ProcessAutomationJob::dispatch($profile, $this->event, $automation)->onQueue('high');
 //                try {
 //                    $result = $automation->run($this->event, $profile);
 //                } catch (Exception $exception) {

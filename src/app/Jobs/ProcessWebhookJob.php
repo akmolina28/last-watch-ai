@@ -24,7 +24,7 @@ class ProcessWebhookJob extends SpatieProcessWebhookJob
 
         // skip AI job if no active profiles are matched
         if ($activeMatchedProfiles > 0) {
-            ProcessDetectionEventJob::dispatch($event);
+            ProcessDetectionEventJob::dispatch($event)->onQueue('medium');
         }
     }
 

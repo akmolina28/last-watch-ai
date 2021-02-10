@@ -81,6 +81,7 @@ services:
     tty: true
     environment:
       QUEUE_CONNECTION: database
+      QUEUE_NAME: high,medium,low
       NUMPROCS: 8
       APP_URL: ${WEB_INTERFACE_URL:-localhost}:${WEB_INTERFACE_PORT:-8080}
     volumes:
