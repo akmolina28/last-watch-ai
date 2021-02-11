@@ -729,6 +729,22 @@ class ApiTest extends TestCase
             ->assertJsonCount(5, 'data');
     }
 
+    /*
+     * @test
+     */
+    public function api_can_get_web_request_configs_with_subscribed_profiles()
+    {
+        $profile1 = factory(DetectionProfile::class)->create();
+        $profile2 = factory(DetectionProfile::class)->create();
+        $profile3 = factory(DetectionProfile::class)->create();
+
+        $config = factory(WebRequestConfig::class)->create();
+
+//        AutomationConfig::create([
+//            'automation_config_id' =>
+//        ])
+    }
+
     /**
      * @test
      */
@@ -979,21 +995,11 @@ class ApiTest extends TestCase
 
         $highPriorityConfig = TelegramConfig::first();
 
-        AutomationConfig::create([
-            'detection_profile_id' => $profile->id,
-            'automation_config_type' => 'telegram_configs',
-            'automation_config_id' => $highPriorityConfig->id,
-            'is_high_priority' => true,
-        ]);
+        $profile->subscribeAutomation(TelegramConfig::class, $highPriorityConfig->id, true);
 
         $lowPriorityConfig = WebRequestConfig::first();
 
-        AutomationConfig::create([
-            'detection_profile_id' => $profile->id,
-            'automation_config_type' => 'web_request_configs',
-            'automation_config_id' => $lowPriorityConfig->id,
-            'is_high_priority' => false,
-        ]);
+        $profile->subscribeAutomation(WebRequestConfig::class, $lowPriorityConfig->id);
 
         $response = $this->json('GET', '/api/profiles/'.$profile->id.'/automations')
             ->assertStatus(200);
@@ -1153,11 +1159,7 @@ class ApiTest extends TestCase
 
         $config = factory(WebRequestConfig::class)->create();
 
-        AutomationConfig::create([
-            'detection_profile_id' => $profile->id,
-            'automation_config_type' => 'web_request_configs',
-            'automation_config_id' => $config->id,
-        ]);
+        $profile->subscribeAutomation(WebRequestConfig::class, $config->id);
 
         $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
             'type' => 'web_request_configs',

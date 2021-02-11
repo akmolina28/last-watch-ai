@@ -6,6 +6,7 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
@@ -182,6 +183,30 @@ class DetectionProfile extends Model
         }
 
         return false;
+    }
+
+    public function subscribeAutomation($automationClass, $automationId, $isHighPriority = false)
+    {
+        $this->morphedByMany($automationClass, 'automation_config')
+            ->withTimestamps()
+            ->withPivot('is_high_priority', 'deleted_at')
+            ->syncWithoutDetaching([
+                $automationId => [
+                    'is_high_priority' => $isHighPriority,
+                    'deleted_at' => null
+                ]
+            ]);
+    }
+
+    public function unsubscribeAutomation($automationClass, $automationId)
+    {
+        $type = array_search($automationClass, Relation::morphMap());
+
+        AutomationConfig::where([
+            ['detection_profile_id', '=', $this->id],
+            ['automation_config_id', '=', $automationId],
+            ['automation_config_type', '=', $type],
+        ])->delete();
     }
 
     public function isPredictionSmartFiltered(AiPrediction $prediction, DetectionEvent $lastDetectionEvent)

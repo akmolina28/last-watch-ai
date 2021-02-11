@@ -237,11 +237,7 @@ class DetectionTest extends TestCase
 
         $webRequestAutomation = factory(WebRequestConfig::class)->create();
 
-        AutomationConfig::create([
-            'detection_profile_id' => $profile->id,
-            'automation_config_id' => $webRequestAutomation->id,
-            'automation_config_type' => 'web_request_configs',
-        ]);
+        $profile->subscribeAutomation(WebRequestConfig::class, $webRequestAutomation->id);
 
         $event = factory(DetectionEvent::class)->create([
             'image_file_name' => 'events/testimage.jpg',
@@ -275,12 +271,7 @@ class DetectionTest extends TestCase
 
         $webRequestAutomation = factory(WebRequestConfig::class)->create();
 
-        AutomationConfig::create([
-            'detection_profile_id' => $profile->id,
-            'automation_config_id' => $webRequestAutomation->id,
-            'automation_config_type' => 'web_request_configs',
-            'is_high_priority' => true,
-        ]);
+        $profile->subscribeAutomation(WebRequestConfig::class, $webRequestAutomation->id, true);
 
         $event = factory(DetectionEvent::class)->create([
             'image_file_name' => 'events/testimage.jpg',
