@@ -198,7 +198,8 @@ class DetectionProfileController extends Controller
                     $type.'.id as id',
                     DB::raw("'".$type."' as type"),
                     'ac.detection_profile_id as detection_profile_id',
-                    'name'
+                    'name',
+                    'ac.is_high_priority'
                 );
 
             if ($union) {

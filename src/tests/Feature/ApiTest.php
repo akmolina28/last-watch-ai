@@ -942,6 +942,80 @@ class ApiTest extends TestCase
     /**
      * @test
      */
+    public function api_can_get_all_available_profile_automations()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+
+        factory(TelegramConfig::class, 3)->create();
+
+        factory(WebRequestConfig::class, 5)->create();
+
+        $this->json('GET', '/api/profiles/'.$profile->id.'/automations')
+            ->assertStatus(200)
+            ->assertJsonCount(8, 'data')
+            ->assertJsonStructure([
+                'data' => [
+                    0 => [
+                        'id',
+                        'name',
+                        'type',
+                        'detection_profile_id',
+                        'is_high_priority'
+                    ]
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_all_available_profile_automations_with_subscriptions()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+
+        factory(TelegramConfig::class, 3)->create();
+
+        factory(WebRequestConfig::class, 5)->create();
+
+        $highPriorityConfig = TelegramConfig::first();
+
+        AutomationConfig::create([
+            'detection_profile_id' => $profile->id,
+            'automation_config_type' => 'telegram_configs',
+            'automation_config_id' => $highPriorityConfig->id,
+            'is_high_priority' => true
+        ]);
+
+        $lowPriorityConfig = WebRequestConfig::first();
+
+        AutomationConfig::create([
+            'detection_profile_id' => $profile->id,
+            'automation_config_type' => 'web_request_configs',
+            'automation_config_id' => $lowPriorityConfig->id,
+            'is_high_priority' => false
+        ]);
+
+        $response = $this->json('GET', '/api/profiles/'.$profile->id.'/automations')
+            ->assertStatus(200);
+
+        $response->assertJsonFragment([
+            'detection_profile_id' => $profile->id,
+            'type' => 'telegram_configs',
+            'id' => $highPriorityConfig->id,
+            'is_high_priority' => 1
+        ]);
+
+        $response->assertJsonFragment([
+            'detection_profile_id' => $profile->id,
+            'type' => 'web_request_configs',
+            'id' => $lowPriorityConfig->id,
+            'is_high_priority' => 0
+        ]);
+    }
+
+    /**
+     * @test
+     */
     public function api_can_attach_a_telegram_automation()
     {
         $profile = factory(DetectionProfile::class)->create();
