@@ -240,7 +240,7 @@ class DetectionTest extends TestCase
         AutomationConfig::create([
             'detection_profile_id' => $profile->id,
             'automation_config_id' => $webRequestAutomation->id,
-            'automation_config_type' => 'web_request_configs'
+            'automation_config_type' => 'web_request_configs',
         ]);
 
         $event = factory(DetectionEvent::class)->create([
@@ -279,7 +279,7 @@ class DetectionTest extends TestCase
             'detection_profile_id' => $profile->id,
             'automation_config_id' => $webRequestAutomation->id,
             'automation_config_type' => 'web_request_configs',
-            'is_high_priority' => true
+            'is_high_priority' => true,
         ]);
 
         $event = factory(DetectionEvent::class)->create([
