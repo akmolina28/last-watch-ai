@@ -1011,6 +1011,68 @@ class ApiTest extends TestCase
     /**
      * @test
      */
+    public function api_can_attach_a_high_priority_automation()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+
+        $config = factory(WebRequestConfig::class)->create();
+
+        $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
+            'type' => 'web_request_configs',
+            'id' => $config->id,
+            'value' => true,
+            'is_high_priority' => true
+        ])
+            ->assertStatus(200);
+
+        $this->assertCount(1, AutomationConfig::all());
+
+        $automationConfig = AutomationConfig::first();
+        $this->assertEquals($config->id, $automationConfig->automation_config_id);
+        $this->assertTrue($automationConfig->is_high_priority);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_change_priority_of_an_automation()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+
+        $config = factory(WebRequestConfig::class)->create();
+
+        $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
+            'type' => 'web_request_configs',
+            'id' => $config->id,
+            'value' => true,
+            'is_high_priority' => false
+        ])
+            ->assertStatus(200);
+
+        $this->assertCount(1, AutomationConfig::all());
+
+        $automationConfig = AutomationConfig::first();
+        $this->assertEquals($config->id, $automationConfig->automation_config_id);
+        $this->assertFalse($automationConfig->is_high_priority);
+
+        $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
+            'type' => 'web_request_configs',
+            'id' => $config->id,
+            'value' => true,
+            'is_high_priority' => true
+        ])
+            ->assertStatus(200);
+
+        $this->assertCount(1, AutomationConfig::all());
+
+        $automationConfig = AutomationConfig::first();
+        $this->assertEquals($config->id, $automationConfig->automation_config_id);
+        $this->assertTrue($automationConfig->is_high_priority);
+    }
+
+    /**
+     * @test
+     */
     public function api_can_detach_a_web_request_automation()
     {
         $profile = factory(DetectionProfile::class)->create();

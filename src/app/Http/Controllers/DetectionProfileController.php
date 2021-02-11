@@ -10,6 +10,7 @@ use App\Resources\ProfileAutomationConfigResource;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class DetectionProfileController extends Controller
 {
@@ -215,23 +216,41 @@ class DetectionProfileController extends Controller
     {
         $profile = $this->lookUpProfile($param);
 
+
         $type = request()->get('type');
         $id = request()->get('id');
         $value = request()->get('value');
+        $isHighPriority = request()->get('is_high_priority', false);
 
         if ($value == 'true') {
+            Log::info('truthy!');
             $count = AutomationConfig::where([
                 ['detection_profile_id', '=', $profile->id],
                 ['automation_config_id', '=', $id],
                 ['automation_config_type', '=', $type],
             ])->count();
 
-            if ($count == 0) {
+            if ($count == 1) {
+                $config = AutomationConfig::where([
+                    ['detection_profile_id', '=', $profile->id],
+                    ['automation_config_id', '=', $id],
+                    ['automation_config_type', '=', $type],
+                ])->first();
+
+                $config->is_high_priority = $isHighPriority;
+
+                $config->save();
+            }
+            else if ($count < 1) {
                 AutomationConfig::create([
                     'detection_profile_id' => $profile->id,
                     'automation_config_id' => $id,
                     'automation_config_type' => $type,
+                    'is_high_priority' => $isHighPriority
                 ]);
+            }
+            else {
+                return response()->json('Duplicate automation configs', 422);
             }
         } else {
             AutomationConfig::where([
