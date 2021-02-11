@@ -960,9 +960,9 @@ class ApiTest extends TestCase
                         'name',
                         'type',
                         'detection_profile_id',
-                        'is_high_priority'
-                    ]
-                ]
+                        'is_high_priority',
+                    ],
+                ],
             ]);
     }
 
@@ -983,7 +983,7 @@ class ApiTest extends TestCase
             'detection_profile_id' => $profile->id,
             'automation_config_type' => 'telegram_configs',
             'automation_config_id' => $highPriorityConfig->id,
-            'is_high_priority' => true
+            'is_high_priority' => true,
         ]);
 
         $lowPriorityConfig = WebRequestConfig::first();
@@ -992,7 +992,7 @@ class ApiTest extends TestCase
             'detection_profile_id' => $profile->id,
             'automation_config_type' => 'web_request_configs',
             'automation_config_id' => $lowPriorityConfig->id,
-            'is_high_priority' => false
+            'is_high_priority' => false,
         ]);
 
         $response = $this->json('GET', '/api/profiles/'.$profile->id.'/automations')
@@ -1002,14 +1002,14 @@ class ApiTest extends TestCase
             'detection_profile_id' => $profile->id,
             'type' => 'telegram_configs',
             'id' => $highPriorityConfig->id,
-            'is_high_priority' => 1
+            'is_high_priority' => 1,
         ]);
 
         $response->assertJsonFragment([
             'detection_profile_id' => $profile->id,
             'type' => 'web_request_configs',
             'id' => $lowPriorityConfig->id,
-            'is_high_priority' => 0
+            'is_high_priority' => 0,
         ]);
     }
 
@@ -1095,7 +1095,7 @@ class ApiTest extends TestCase
             'type' => 'web_request_configs',
             'id' => $config->id,
             'value' => true,
-            'is_high_priority' => true
+            'is_high_priority' => true,
         ])
             ->assertStatus(200);
 
@@ -1119,7 +1119,7 @@ class ApiTest extends TestCase
             'type' => 'web_request_configs',
             'id' => $config->id,
             'value' => true,
-            'is_high_priority' => false
+            'is_high_priority' => false,
         ])
             ->assertStatus(200);
 
@@ -1133,7 +1133,7 @@ class ApiTest extends TestCase
             'type' => 'web_request_configs',
             'id' => $config->id,
             'value' => true,
-            'is_high_priority' => true
+            'is_high_priority' => true,
         ])
             ->assertStatus(200);
 

@@ -71,13 +71,13 @@ class WebHookTest extends TestCase
     {
         // create a test profile
         $profile = factory(DetectionProfile::class)->create([
-            'file_pattern' => 'testimage'
+            'file_pattern' => 'testimage',
         ]);
 
         $webhookCall = new WebhookCall([
             'payload' => [
-                'file' => 'testimage.jpg'
-            ]
+                'file' => 'testimage.jpg',
+            ],
         ]);
 
         $webhookJob = new ProcessWebhookJob($webhookCall);

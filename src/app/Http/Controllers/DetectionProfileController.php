@@ -217,7 +217,6 @@ class DetectionProfileController extends Controller
     {
         $profile = $this->lookUpProfile($param);
 
-
         $type = request()->get('type');
         $id = request()->get('id');
         $value = request()->get('value');
@@ -241,16 +240,14 @@ class DetectionProfileController extends Controller
                 $config->is_high_priority = $isHighPriority;
 
                 $config->save();
-            }
-            else if ($count < 1) {
+            } elseif ($count < 1) {
                 AutomationConfig::create([
                     'detection_profile_id' => $profile->id,
                     'automation_config_id' => $id,
                     'automation_config_type' => $type,
-                    'is_high_priority' => $isHighPriority
+                    'is_high_priority' => $isHighPriority,
                 ]);
-            }
-            else {
+            } else {
                 return response()->json('Duplicate automation configs', 422);
             }
         } else {
