@@ -16,33 +16,34 @@
             </template>
         </title-header>
 
-        <div class="responsive-table-wrapper mb-3">
-            <table class="table pb-5">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Url</th>
-                        <th>Post</th>
-                        <th>Body</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-if="webRequestConfigs.length === 0" class="py-4 is-italic">
-                        No configs set up yet. Add one below.
-                    </tr>
-                    <tr v-for="config in webRequestConfigs">
-                        <td>{{ config.name }}</td>
-                        <td>{{ config.url }}</td>
-                        <td>
-                            <b-icon v-if="config.is_post" icon="check"></b-icon>
-                        </td>
-                        <td>
-                            <span :title="config.body_json">{{ config.body_json | truncate }}</span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <b-table :data="webRequestConfigs">
+            <template #empty>
+                No automations set up yet. Use the form below.
+            </template>
+            <b-table-column field="name" label="Name" v-slot="props">
+                {{ props.row.name }}
+            </b-table-column>
+            <b-table-column field="url" label="Url" v-slot="props">
+                {{ props.row.url }}
+            </b-table-column>
+            <b-table-column field="is_post" label="Post" v-slot="props">
+                <b-icon v-if="props.row.is_post" icon="check"></b-icon>
+            </b-table-column>
+            <b-table-column field="body_json" label="Body" v-slot="props">
+                <span :title="props.row.body_json">{{ props.row.body_json | truncate }}</span>
+            </b-table-column>
+            <b-table-column field="profile_count" label="Used By" v-slot="props">
+                {{ props.row.detection_profiles.length }} profile(s)
+            </b-table-column>
+            <b-table-column field="delete" label="Delete" v-slot="props">
+                <b-button icon-right="trash"
+                          type="is-danger is-outlined"
+                          :loading="props.row.isDeleting"
+                          @click="deleteClick(props.row)">
+                </b-button>
+            </b-table-column>
+        </b-table>
+
         <div class="box is-6">
             <p class="subtitle">New Config</p>
 
@@ -127,15 +128,52 @@
         methods: {
             getData() {
                 axios.get('/api/automations/webRequest').then(response => {
-                    this.webRequestConfigs  = response.data.data;
+                    let configs = response.data.data;
+                    configs.forEach(c => c.isDeleting = false);
+                    this.webRequestConfigs  = configs;
                 });
+            },
+
+            deleteClick(config) {
+                if (config.detection_profiles.length > 0) {
+                    this.$buefy.dialog.confirm({
+                        title: 'Confirm Delete',
+                        message:
+                            `Deleting this automation will automatically unsubscribe ${config.detection_profiles.length} Detection Profile(s).`,
+                        confirmText: 'Delete',
+                        type: 'is-danger',
+                        hasIcon: true,
+                        onConfirm: () => this.delete(config)
+                    });
+                }
+                else {
+                    this.delete(config);
+                }
+            },
+
+            delete(config) {
+                config.isDeleting = true;
+
+                axios.delete(`/api/automations/webRequest/${config.id}`)
+                    .then(() => {
+                        this.webRequestConfigs = this.webRequestConfigs.filter(c => {
+                            return c.id !== config.id;
+                        });
+                    })
+                    .catch(() => {
+                        config.deleting = false;
+                        this.$buefy.toast.open({
+                            message: 'Something went wrong. Refresh and try again.',
+                            type: 'is-danger'
+                        });
+                    });
             },
 
             changePost() {
                 this.bodyJson = '';
             },
 
-            processForm: function () {
+            processForm() {
                 let formData = {
                     'name': this.name,
                     'url': this.url,
@@ -162,7 +200,7 @@
                     })
             },
 
-            checkForm: function (e) {
+            checkForm(e) {
                 if (this.name &&
                     this.url) {
 
