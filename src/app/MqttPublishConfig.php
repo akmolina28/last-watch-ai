@@ -5,6 +5,7 @@ namespace App;
 use Eloquent;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use PhpMqtt\Client\ConnectionSettings;
 use PhpMqtt\Client\Exceptions\DataTransferException;
 use PhpMqtt\Client\MQTTClient;
@@ -16,6 +17,8 @@ use PhpMqtt\Client\MQTTClient;
  */
 class MqttPublishConfig extends Model implements AutomationConfigInterface
 {
+    use SoftDeletes;
+
     protected $guarded = [];
 
     protected $casts = [

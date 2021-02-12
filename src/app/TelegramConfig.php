@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
@@ -34,6 +35,8 @@ use Illuminate\Support\Facades\Storage;
  */
 class TelegramConfig extends Model implements AutomationConfigInterface
 {
+    use SoftDeletes;
+
     protected $fillable = ['name', 'token', 'chat_id'];
 
     public function detectionProfiles(): MorphToMany

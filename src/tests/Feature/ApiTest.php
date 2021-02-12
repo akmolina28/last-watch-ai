@@ -729,7 +729,7 @@ class ApiTest extends TestCase
             ->assertJsonCount(5, 'data');
     }
 
-    /*
+    /**
      * @test
      */
     public function api_can_get_web_request_configs_with_subscribed_profiles()
@@ -740,9 +740,24 @@ class ApiTest extends TestCase
 
         $config = factory(WebRequestConfig::class)->create();
 
-//        AutomationConfig::create([
-//            'automation_config_id' =>
-//        ])
+        $profile1->subscribeAutomation(WebRequestConfig::class, $config->id);
+        $profile2->subscribeAutomation(WebRequestConfig::class, $config->id);
+        $profile3->subscribeAutomation(WebRequestConfig::class, $config->id);
+
+        $this->json('GET', '/api/automations/webRequest')
+            ->assertStatus(200)
+            ->assertJsonStructure([
+                'data' => [
+                    0 => [
+                        'detection_profiles' => [
+                            2 => [
+                                'id',
+                                'name'
+                            ]
+                        ]
+                    ]
+                ]
+            ]);
     }
 
     /**
@@ -761,6 +776,37 @@ class ApiTest extends TestCase
                     'url' => 'http://google.com',
                 ],
             ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_delete_a_web_request_config()
+    {
+        $config = factory(WebRequestConfig::class)->create();
+
+        $this->json('DELETE', '/api/automations/webRequest/'.$config->id)
+            ->assertStatus(200);
+
+        $this->assertSoftDeleted($config);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_delete_a_web_request_config_with_subscribers()
+    {
+        $config = factory(WebRequestConfig::class)->create();
+
+        $profile = factory(DetectionProfile::class)->create();
+
+        $profile->subscribeAutomation(WebRequestConfig::class, $config->id);
+
+        $this->json('DELETE', '/api/automations/webRequest/'.$config->id)
+            ->assertStatus(200);
+
+        $this->assertSoftDeleted($config);
+        $this->assertCount(0, $profile->automations);
     }
 
     /**
@@ -953,6 +999,78 @@ class ApiTest extends TestCase
                     'overwrite' => true,
                 ],
             ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_delete_a_telegram_config_with_subscribers()
+    {
+        $config = factory(TelegramConfig::class)->create();
+
+        $profile = factory(DetectionProfile::class)->create();
+
+        $profile->subscribeAutomation(TelegramConfig::class, $config->id);
+
+        $this->json('DELETE', '/api/automations/telegram/'.$config->id)
+            ->assertStatus(200);
+
+        $this->assertSoftDeleted($config);
+        $this->assertCount(0, $profile->automations);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_delete_a_folder_copy_config_with_subscribers()
+    {
+        $config = factory(FolderCopyConfig::class)->create();
+
+        $profile = factory(DetectionProfile::class)->create();
+
+        $profile->subscribeAutomation(FolderCopyConfig::class, $config->id);
+
+        $this->json('DELETE', '/api/automations/folderCopy/'.$config->id)
+            ->assertStatus(200);
+
+        $this->assertSoftDeleted($config);
+        $this->assertCount(0, $profile->automations);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_delete_a_smb_cifs_copy_config_with_subscribers()
+    {
+        $config = factory(SmbCifsCopyConfig::class)->create();
+
+        $profile = factory(DetectionProfile::class)->create();
+
+        $profile->subscribeAutomation(SmbCifsCopyConfig::class, $config->id);
+
+        $this->json('DELETE', '/api/automations/smbCifsCopy/'.$config->id)
+            ->assertStatus(200);
+
+        $this->assertSoftDeleted($config);
+        $this->assertCount(0, $profile->automations);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_delete_a_mqtt_publish_config_with_subscribers()
+    {
+        $config = factory(MqttPublishConfig::class)->create();
+
+        $profile = factory(DetectionProfile::class)->create();
+
+        $profile->subscribeAutomation(MqttPublishConfig::class, $config->id);
+
+        $this->json('DELETE', '/api/automations/mqttPublish/'.$config->id)
+            ->assertStatus(200);
+
+        $this->assertSoftDeleted($config);
+        $this->assertCount(0, $profile->automations);
     }
 
     /**

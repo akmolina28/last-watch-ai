@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\AutomationConfig;
+use App\AutomationConfigInterface;
 use App\FolderCopyConfig;
 use App\MqttPublishConfig;
 use App\Resources\FolderCopyConfigResource;
@@ -40,6 +42,11 @@ class AutomationController extends Controller
         return TelegramConfigResource::make($config);
     }
 
+    public function deleteTelegramConfig(TelegramConfig $config)
+    {
+        $this->deleteAutomationConfig($config);
+    }
+
     public function webRequestConfigIndex()
     {
         return WebRequestConfigResource::collection(
@@ -57,6 +64,23 @@ class AutomationController extends Controller
         $config = WebRequestConfig::create($request->all());
 
         return WebRequestConfigResource::make($config);
+    }
+
+    public function deleteAutomationConfig(AutomationConfigInterface $config)
+    {
+        $type = $config->getTable();
+
+        $config->delete();
+
+        AutomationConfig::where([
+            'automation_config_type' => $type,
+            'automation_config_id' => $config->id
+        ])->delete();
+    }
+
+    public function deleteWebRequestConfig(WebRequestConfig $config)
+    {
+        $this->deleteAutomationConfig($config);
     }
 
     public function folderCopyConfigIndex()
@@ -80,6 +104,11 @@ class AutomationController extends Controller
         ]);
 
         return FolderCopyConfigResource::make($config);
+    }
+
+    public function deletefolderCopyConfig(FolderCopyConfig $config)
+    {
+        $this->deleteAutomationConfig($config);
     }
 
     public function smbCifsCopyConfigIndex()
@@ -111,6 +140,11 @@ class AutomationController extends Controller
         return SmbCifsCopyConfigResource::make($config);
     }
 
+    public function deleteSmbCifsCopyConfig(SmbCifsCopyConfig $config)
+    {
+        $this->deleteAutomationConfig($config);
+    }
+
     public function mqttPublishConfigIndex()
     {
         return MqttPublishConfigResource::collection(
@@ -131,5 +165,10 @@ class AutomationController extends Controller
         $config = MqttPublishConfig::create($request->all());
 
         return MqttPublishConfigResource::make($config);
+    }
+
+    public function deleteMqttPublishConfig(MqttPublishConfig $config)
+    {
+        $this->deleteAutomationConfig($config);
     }
 }

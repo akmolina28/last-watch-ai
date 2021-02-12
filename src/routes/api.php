@@ -49,21 +49,31 @@ Route::get('/automations/telegram', 'AutomationController@telegramConfigIndex');
 
 Route::post('/automations/telegram', 'AutomationController@makeTelegramConfig');
 
+Route::delete('/automations/telegram/{config}', 'AutomationController@deleteTelegramConfig');
+
 Route::get('/automations/webRequest', 'AutomationController@webRequestConfigIndex');
 
 Route::post('/automations/webRequest', 'AutomationController@makeWebRequestConfig');
+
+Route::delete('/automations/webRequest/{config}', 'AutomationController@deleteWebRequestConfig');
 
 Route::get('/automations/folderCopy', 'AutomationController@folderCopyConfigIndex');
 
 Route::post('/automations/folderCopy', 'AutomationController@makeFolderCopyConfig');
 
+Route::delete('/automations/folderCopy/{config}', 'AutomationController@deleteFolderCopyConfig');
+
 Route::get('/automations/smbCifsCopy', 'AutomationController@smbCifsCopyConfigIndex');
 
 Route::post('/automations/smbCifsCopy', 'AutomationController@makeSmbCifsCopyConfig');
 
+Route::delete('/automations/smbCifsCopy/{config}', 'AutomationController@deleteSmbCifsCopyConfig');
+
 Route::get('/automations/mqttPublish', 'AutomationController@mqttPublishConfigIndex');
 
-Route::post('/automations/mqttPublish', 'AutomationController@makemqttPublishConfig');
+Route::post('/automations/mqttPublish', 'AutomationController@makeMqttPublishConfig');
+
+Route::delete('/automations/mqttPublish/{config}', 'AutomationController@deleteMqttPublishConfig');
 
 Route::get('/statistics', 'StatisticsController@index');
 

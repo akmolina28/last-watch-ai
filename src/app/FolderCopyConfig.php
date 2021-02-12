@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 /**
@@ -33,6 +34,8 @@ use Illuminate\Support\Carbon;
  */
 class FolderCopyConfig extends Model implements AutomationConfigInterface
 {
+    use SoftDeletes;
+
     protected $fillable = ['name', 'copy_to', 'overwrite'];
 
     public function detectionProfiles(): MorphToMany
