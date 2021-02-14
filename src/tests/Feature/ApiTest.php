@@ -706,6 +706,7 @@ class ApiTest extends TestCase
                     'name' => 'My Bot',
                     'token' => 'abc123wra8v7ar9e8wac987wac897ea98ce7w98f7ewa97f',
                     'chat_id' => '1192051592',
+                    'detection_profiles' => [],
                 ],
             ]);
     }
@@ -774,6 +775,7 @@ class ApiTest extends TestCase
                 'data' => [
                     'name' => 'Web Test',
                     'url' => 'http://google.com',
+                    'detection_profiles' => [],
                 ],
             ]);
     }
@@ -868,6 +870,7 @@ class ApiTest extends TestCase
                     'password' => 'testpass',
                     'payload_json' => '{"my":"payload"}',
                     'is_custom_payload' => true,
+                    'detection_profiles' => []
                 ],
             ]);
 
@@ -906,6 +909,7 @@ class ApiTest extends TestCase
                     'password' => '',
                     'payload_json' => '{"my":"payload"}',
                     'is_custom_payload' => true,
+                    'detection_profiles' => [],
                 ],
             ]);
 
@@ -948,6 +952,7 @@ class ApiTest extends TestCase
                     'name' => 'Folder Copy Test',
                     'copy_to' => '/mnt/test',
                     'overwrite' => true,
+                    'detection_profiles' => [],
                 ],
             ]);
     }
@@ -997,6 +1002,7 @@ class ApiTest extends TestCase
                     'password' => 'testpassword',
                     'remote_dest' => '/path/to/dest',
                     'overwrite' => true,
+                    'detection_profiles' => [],
                 ],
             ]);
     }

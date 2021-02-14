@@ -33,11 +33,7 @@ class AutomationController extends Controller
             'chat_id' => 'required',
         ]);
 
-        $config = TelegramConfig::create([
-            'name' => $request->get('name'),
-            'token' => $request->get('token'),
-            'chat_id' => $request->get('chat_id'),
-        ]);
+        $config = TelegramConfig::create($request->all())->load(['detectionProfiles']);
 
         return TelegramConfigResource::make($config);
     }
@@ -61,7 +57,7 @@ class AutomationController extends Controller
             'url' => 'required',
         ]);
 
-        $config = WebRequestConfig::create($request->all());
+        $config = WebRequestConfig::create($request->all())->load(['detectionProfiles']);
 
         return WebRequestConfigResource::make($config);
     }
@@ -101,7 +97,7 @@ class AutomationController extends Controller
             'name' => $request->get('name'),
             'copy_to' => $request->get('copy_to'),
             'overwrite' => $request->get('overwrite', false),
-        ]);
+        ])->load(['detectionProfiles']);
 
         return FolderCopyConfigResource::make($config);
     }
@@ -135,7 +131,7 @@ class AutomationController extends Controller
             'password' => $request->get('password'),
             'remote_dest' => $request->get('remote_dest'),
             'overwrite' => $request->get('overwrite', false),
-        ]);
+        ])->load(['detectionProfiles']);
 
         return SmbCifsCopyConfigResource::make($config);
     }
@@ -162,7 +158,7 @@ class AutomationController extends Controller
             'qos' => 'required',
         ]);
 
-        $config = MqttPublishConfig::create($request->all());
+        $config = MqttPublishConfig::create($request->all())->load(['detectionProfiles']);
 
         return MqttPublishConfigResource::make($config);
     }
