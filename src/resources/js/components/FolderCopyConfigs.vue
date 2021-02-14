@@ -16,29 +16,31 @@
             </template>
         </title-header>
 
-        <div class="responsive-table-wrapper mb-3">
-            <table class="table pb-5">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Copy To</th>
-                        <th>Overwrite</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-if="folderCopyConfigs.length === 0" class="py-4 is-italic">
-                        No configs set up yet. Add one below.
-                    </tr>
-                    <tr v-for="config in folderCopyConfigs">
-                        <td>{{ config.name }}</td>
-                        <td>{{ config.copy_to }}</td>
-                        <td>
-                            <b-icon v-if="config.overwrite" icon="check"></b-icon>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <b-table :data="folderCopyConfigs">
+            <template #empty>
+                No automations set up yet. Use the form below.
+            </template>
+            <b-table-column field="name" label="Name" v-slot="props">
+                {{ props.row.name }}
+            </b-table-column>
+            <b-table-column field="copy_to" label="Copy To" v-slot="props">
+                {{ props.row.copy_to }}
+            </b-table-column>
+            <b-table-column field="copy_to" label="Overwrite?" v-slot="props">
+                <b-icon v-if="props.row.overwrite" icon="check"></b-icon>
+            </b-table-column>
+            <b-table-column field="profile_count" label="Used By" v-slot="props">
+                {{ props.row.detection_profiles.length }} profile(s)
+            </b-table-column>
+            <b-table-column field="delete" label="Delete" v-slot="props">
+                <b-button icon-right="trash"
+                          type="is-danger is-outlined"
+                          :loading="props.row.isDeleting"
+                          @click="deleteClick(props.row)">
+                </b-button>
+            </b-table-column>
+        </b-table>
+
         <div class="box is-6">
             <p class="subtitle">New Config</p>
             <form @submit="checkForm" method="POST" action="/automations/folderCopy" ref="folderCopyForm">
@@ -112,8 +114,45 @@
         methods: {
             getData() {
                 axios.get('/api/automations/folderCopy').then(response => {
-                    this.folderCopyConfigs  = response.data.data;
+                    let configs = response.data.data;
+                    configs.forEach(c => c.isDeleting = false);
+                    this.folderCopyConfigs  = configs;
                 });
+            },
+
+            deleteClick(config) {
+                if (config.detection_profiles.length > 0) {
+                    this.$buefy.dialog.confirm({
+                        title: 'Confirm Delete',
+                        message:
+                            `Deleting this automation will automatically unsubscribe ${config.detection_profiles.length} Detection Profile(s).`,
+                        confirmText: 'Delete',
+                        type: 'is-danger',
+                        hasIcon: true,
+                        onConfirm: () => this.delete(config)
+                    });
+                }
+                else {
+                    this.delete(config);
+                }
+            },
+
+            delete(config) {
+                config.isDeleting = true;
+
+                axios.delete(`/api/automations/folderCopy/${config.id}`)
+                    .then(() => {
+                        this.folderCopyConfigs = this.folderCopyConfigs.filter(c => {
+                            return c.id !== config.id;
+                        });
+                    })
+                    .catch(() => {
+                        config.deleting = false;
+                        this.$buefy.toast.open({
+                            message: 'Something went wrong. Refresh and try again.',
+                            type: 'is-danger'
+                        });
+                    });
             },
 
             submitForm: function () {
