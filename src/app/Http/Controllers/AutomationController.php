@@ -70,7 +70,7 @@ class AutomationController extends Controller
 
         AutomationConfig::where([
             'automation_config_type' => $type,
-            'automation_config_id' => $config->id
+            'automation_config_id' => $config->id,
         ])->delete();
     }
 

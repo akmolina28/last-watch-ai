@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\AutomationConfig;
 use App\DetectionProfile;
 use App\Jobs\EnableDetectionProfileJob;
 use App\Resources\DetectionProfileResource;
@@ -10,7 +9,6 @@ use App\Resources\ProfileAutomationConfigResource;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class DetectionProfileController extends Controller
 {

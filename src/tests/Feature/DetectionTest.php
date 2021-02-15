@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\AutomationConfig;
 use App\DeepstackClient;
 use App\DetectionEvent;
 use App\DetectionProfile;
