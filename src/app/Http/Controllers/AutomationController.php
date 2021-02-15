@@ -117,7 +117,7 @@ class AutomationController extends Controller
     public function makeSmbCifsCopyConfig(Request $request)
     {
         $request->validate([
-            'name' => 'required|unique:folder_copy_configs',
+            'name' => 'required|unique:smb_cifs_copy_configs',
             'servicename' => 'required',
             'user' => 'required',
             'password' => 'required',
