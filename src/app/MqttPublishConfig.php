@@ -61,4 +61,11 @@ class MqttPublishConfig extends Model implements AutomationConfigInterface
             'response_text' => $responseText,
         ]);
     }
+
+    protected static function booted()
+    {
+        static::deleted(function ($config) {
+            $config->update(['name' => time().'::'.$config->name]);
+        });
+    }
 }

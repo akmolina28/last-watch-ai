@@ -57,4 +57,11 @@ class TelegramConfig extends Model implements AutomationConfigInterface
             'is_error' => ! $responseJson->ok,
         ]);
     }
+
+    protected static function booted()
+    {
+        static::deleted(function ($config) {
+            $config->update(['name' => time().'::'.$config->name]);
+        });
+    }
 }

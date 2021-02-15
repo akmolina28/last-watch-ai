@@ -17,6 +17,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -707,6 +708,28 @@ class ApiTest extends TestCase
                     'token' => 'abc123wra8v7ar9e8wac987wac897ea98ce7w98f7ewa97f',
                     'chat_id' => '1192051592',
                     'detection_profiles' => [],
+                ],
+            ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_reuse_name_of_a_deleted_telegram_config()
+    {
+        $config = factory(TelegramConfig::class)->create(['name' => 'my unique config']);
+
+        $config->delete();
+
+        $this->json('POST', '/api/automations/telegram', [
+            'name' => 'my unique config',
+            'token' => 'asdfasdfasdf',
+            'chat_id' => '15251252314',
+        ])
+            ->assertStatus(201)
+            ->assertJson([
+                'data' => [
+                    'name' => 'my unique config'
                 ],
             ]);
     }

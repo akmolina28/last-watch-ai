@@ -62,4 +62,11 @@ class FolderCopyConfig extends Model implements AutomationConfigInterface
             'is_error' => ! $success,
         ]);
     }
+
+    protected static function booted()
+    {
+        static::deleted(function ($config) {
+            $config->update(['name' => time().'::'.$config->name]);
+        });
+    }
 }
