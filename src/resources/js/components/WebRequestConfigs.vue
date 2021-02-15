@@ -192,12 +192,24 @@
                         this.bodyJson = '';
                         this.headersJson = '';
                     })
-                    .catch(err => {
-                        console.log(err.response);
+                    .catch(error => {
+                        let errors = error.response.data.errors;
+                        if (errors && errors.name) {
+                            this.$buefy.toast.open({
+                                message: errors.name[0],
+                                type: 'is-danger'
+                            });
+                        }
+                        else {
+                            this.$buefy.toast.open({
+                                message: 'Something went wrong. Refresh and try again.',
+                                type: 'is-danger'
+                            });
+                        }
                     })
                     .finally(() => {
                         this.isSaving = false;
-                    })
+                    });
             },
 
             checkForm(e) {
