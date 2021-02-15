@@ -17,7 +17,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Date;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -729,7 +728,7 @@ class ApiTest extends TestCase
             ->assertStatus(201)
             ->assertJson([
                 'data' => [
-                    'name' => 'my unique config'
+                    'name' => 'my unique config',
                 ],
             ]);
     }
@@ -776,11 +775,11 @@ class ApiTest extends TestCase
                         'detection_profiles' => [
                             2 => [
                                 'id',
-                                'name'
-                            ]
-                        ]
-                    ]
-                ]
+                                'name',
+                            ],
+                        ],
+                    ],
+                ],
             ]);
     }
 
@@ -893,7 +892,7 @@ class ApiTest extends TestCase
                     'password' => 'testpass',
                     'payload_json' => '{"my":"payload"}',
                     'is_custom_payload' => true,
-                    'detection_profiles' => []
+                    'detection_profiles' => [],
                 ],
             ]);
 

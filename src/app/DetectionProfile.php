@@ -193,8 +193,8 @@ class DetectionProfile extends Model
             ->syncWithoutDetaching([
                 $automationId => [
                     'is_high_priority' => $isHighPriority,
-                    'deleted_at' => null
-                ]
+                    'deleted_at' => null,
+                ],
             ]);
     }
 
