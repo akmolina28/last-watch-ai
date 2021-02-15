@@ -56,10 +56,6 @@
                 {{ props.row.min_confidence }}
             </b-table-column>
 
-            <b-table-column field="automations" label="Automations" v-slot="props">
-                <router-link :to="`/profiles/${props.row.id}/automations`">Automations</router-link>
-            </b-table-column>
-
             <b-table-column field="status" label="Status" v-slot="props">
                 <b-dropdown aria-role="list">
                     <button :class="'button is-primary' + (props.row.status === 'disabled' ? ' is-light': '') + (props.row.isStatusUpdating ? ' is-loading' : '')"

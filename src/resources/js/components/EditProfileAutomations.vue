@@ -32,12 +32,14 @@
                         <thead>
                             <tr>
                                 <th>Subscribe</th>
+                                <th>High Priority</th>
                                 <th>Name</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="config in getConfigs(type)">
-                                <td><input :checked="config.detection_profile_id != null" type="checkbox" @change="updateAutomationConfig($event, config.id, config.type)"></td>
+                                <td><input v-model="config.isSubscribed" type="checkbox" @change="subscribeChange(config)"></td>
+                                <td><input v-model="config.isHighPriority" type="checkbox" @change="highPriorityChange(config)"></td>
                                 <td>{{ config.name }}</td>
                             </tr>
                         </tbody>
@@ -100,16 +102,37 @@
 
             getData() {
                 axios.get(`/api/profiles/${this.id}`).then(response => this.profile = response.data.data);
-                axios.get(`/api/profiles/${this.id}/automations`).then(response => this.automationConfigs = response.data.data);
+                axios.get(`/api/profiles/${this.id}/automations`).then(response => {
+                    let configs = response.data.data;
+                    configs.forEach(config => {
+                        config.isSubscribed = config.detection_profile_id != null;
+                        config.isHighPriority = config.is_high_priority === 1;
+                    });
+                    this.automationConfigs = configs;
+                });
             },
 
-            updateAutomationConfig(event, id, type) {
-                let checked = event.target.checked;
+            subscribeChange(config) {
+                if (!config.isSubscribed) {
+                    config.isHighPriority = false;
+                }
+                this.updateAutomationConfig(config);
+            },
 
+            highPriorityChange(config) {
+                if (config.isHighPriority) {
+                    config.isSubscribed = true;
+                }
+                this.updateAutomationConfig(config);
+            },
+
+            updateAutomationConfig(config) {
+                console.log(config);
                 axios.put(`/api/profiles/${this.id}/automations`, {
-                    'id': id,
-                    'type': type,
-                    'value': checked
+                    'id': config.id,
+                    'type': config.type,
+                    'value': config.isSubscribed,
+                    'is_high_priority': config.isHighPriority
                 })
                     .then(() => {
                         this.$buefy.toast.open({
@@ -118,11 +141,12 @@
                         });
                     })
                     .catch(() => {
-                        event.target.checked = !checked;
                         this.$buefy.toast.open({
-                            message: 'Something went wrong',
+                            message: 'Something went wrong. Refresh and try again.',
                             type: 'is-danger'
                         });
+                        config.isSubscribed = false;
+                        config.isHighPriority = false;
                     });
             }
         }

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 
@@ -39,6 +40,8 @@ use Illuminate\Support\Facades\Http;
  */
 class WebRequestConfig extends Model implements AutomationConfigInterface
 {
+    use SoftDeletes;
+
     protected $fillable = ['name', 'url', 'is_post', 'body_json', 'headers_json'];
 
     protected $casts = [
@@ -122,5 +125,12 @@ class WebRequestConfig extends Model implements AutomationConfigInterface
             'is_error' => $isError,
             'response_text' => $responseText,
         ]);
+    }
+
+    protected static function booted()
+    {
+        static::deleted(function ($config) {
+            $config->update(['name' => time().'::'.$config->name]);
+        });
     }
 }

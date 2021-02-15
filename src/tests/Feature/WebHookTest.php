@@ -13,6 +13,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Spatie\WebhookClient\Models\WebhookCall;
+use Symfony\Component\Process\Process;
 use Tests\TestCase;
 
 class WebHookTest extends TestCase
@@ -61,6 +62,29 @@ class WebHookTest extends TestCase
         Queue::assertPushed(ProcessWebhookJob::class, function ($job) {
             return $job->webhookCall->payload['file'] === 'testimage.jpg';
         });
+    }
+
+    /**
+     * @test
+     */
+    public function webhook_job_creates_a_detection_job()
+    {
+        // create a test profile
+        $profile = factory(DetectionProfile::class)->create([
+            'file_pattern' => 'testimage',
+        ]);
+
+        $webhookCall = new WebhookCall([
+            'payload' => [
+                'file' => 'testimage.jpg',
+            ],
+        ]);
+
+        $webhookJob = new ProcessWebhookJob($webhookCall);
+
+        $webhookJob->handle();
+
+        Queue::assertPushedOn('medium', ProcessDetectionEventJob::class);
     }
 
     /**

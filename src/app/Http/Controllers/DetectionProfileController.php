@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\AutomationConfig;
 use App\DetectionProfile;
 use App\Jobs\EnableDetectionProfileJob;
 use App\Resources\DetectionProfileResource;
@@ -171,6 +170,8 @@ class DetectionProfileController extends Controller
 
     public function showAutomations($param)
     {
+        // todo: use class name (e.g. App\WebRequestConfig instead of morphs)
+
         $profile = $this->lookUpProfile($param);
 
         $configTypes = [];
@@ -197,7 +198,8 @@ class DetectionProfileController extends Controller
                     $type.'.id as id',
                     DB::raw("'".$type."' as type"),
                     'ac.detection_profile_id as detection_profile_id',
-                    'name'
+                    'name',
+                    'ac.is_high_priority'
                 );
 
             if ($union) {
@@ -218,27 +220,15 @@ class DetectionProfileController extends Controller
         $type = request()->get('type');
         $id = request()->get('id');
         $value = request()->get('value');
+        $isHighPriority = request()->get('is_high_priority', false);
+
+        // todo: pass in class name directly so morphmap is not needed
+        $automationType = Relation::morphMap()[$type];
 
         if ($value == 'true') {
-            $count = AutomationConfig::where([
-                ['detection_profile_id', '=', $profile->id],
-                ['automation_config_id', '=', $id],
-                ['automation_config_type', '=', $type],
-            ])->count();
-
-            if ($count == 0) {
-                AutomationConfig::create([
-                    'detection_profile_id' => $profile->id,
-                    'automation_config_id' => $id,
-                    'automation_config_type' => $type,
-                ]);
-            }
+            $profile->subscribeAutomation($automationType, $id, $isHighPriority);
         } else {
-            AutomationConfig::where([
-                ['detection_profile_id', '=', $profile->id],
-                ['automation_config_id', '=', $id],
-                ['automation_config_type', '=', $type],
-            ])->delete();
+            $profile->unsubscribeAutomation($automationType, $id);
         }
 
         return true;

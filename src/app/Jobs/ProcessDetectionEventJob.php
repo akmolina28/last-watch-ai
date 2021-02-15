@@ -7,9 +7,7 @@ use App\AutomationConfig;
 use App\DeepstackCall;
 use App\DeepstackClientInterface;
 use App\DetectionEvent;
-use App\DetectionEventAutomationResult;
 use App\DetectionProfile;
-use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -138,18 +136,8 @@ class ProcessDetectionEventJob implements ShouldQueue
         foreach ($relevantProfiles as $profile) {
             /* @var $automation AutomationConfig */
             foreach ($profile->automations as $automation) {
-                try {
-                    $result = $automation->run($this->event, $profile);
-                } catch (Exception $exception) {
-                    $result = new DetectionEventAutomationResult([
-                        'is_error' => 1,
-                        'response_text' => $exception->getMessage(),
-                    ]);
-                }
-
-                $result->detection_event_id = $this->event->id;
-                $result->automation_config_id = $automation->id;
-                $result->save();
+                ProcessAutomationJob::dispatch($profile, $this->event, $automation)
+                    ->onQueue($automation->is_high_priority ? 'high' : 'low');
             }
         }
     }

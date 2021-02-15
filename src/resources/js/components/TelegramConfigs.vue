@@ -17,29 +17,30 @@
             </template>
         </title-header>
 
-        <div class="responsive-table-wrapper mb-3">
-            <table class="table pb-5">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Token</th>
-                        <th>Chat ID</th>
-                        <th>Created At</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-if="telegramConfigs.length === 0" class="py-4 is-italic">
-                        No bots set up yet. Add one below.
-                    </tr>
-                    <tr v-for="config in telegramConfigs">
-                        <td>{{ config.name }}</td>
-                        <td>{{ config.token }}</td>
-                        <td>{{ config.chat_id }}</td>
-                        <td>{{ config.created_at }}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <b-table :data="telegramConfigs">
+            <template #empty>
+                No automations set up yet. Use the form below.
+            </template>
+            <b-table-column field="name" label="Name" v-slot="props">
+                {{ props.row.name }}
+            </b-table-column>
+            <b-table-column field="token" label="Token" v-slot="props">
+                {{ props.row.token }}
+            </b-table-column>
+            <b-table-column field="chat_id" label="Chat ID" v-slot="props">
+                {{ props.row.chat_id }}
+            </b-table-column>
+            <b-table-column field="profile_count" label="Used By" v-slot="props">
+                {{ props.row.detection_profiles.length }} profile(s)
+            </b-table-column>
+            <b-table-column field="delete" label="Delete" v-slot="props">
+                <b-button icon-right="trash"
+                          type="is-danger is-outlined"
+                          :loading="props.row.isDeleting"
+                          @click="deleteClick(props.row)">
+                </b-button>
+            </b-table-column>
+        </b-table>
 
         <div class="box is-6">
             <p class="subtitle">New Bot</p>
@@ -114,8 +115,45 @@
         methods: {
             getData() {
                 axios.get('/api/automations/telegram').then(response => {
-                    this.telegramConfigs  = response.data.data;
+                    let configs = response.data.data;
+                    configs.forEach(c => c.isDeleting = false);
+                    this.telegramConfigs  = configs;
                 });
+            },
+
+            deleteClick(config) {
+                if (config.detection_profiles.length > 0) {
+                    this.$buefy.dialog.confirm({
+                        title: 'Confirm Delete',
+                        message:
+                            `Deleting this automation will automatically unsubscribe ${config.detection_profiles.length} Detection Profile(s).`,
+                        confirmText: 'Delete',
+                        type: 'is-danger',
+                        hasIcon: true,
+                        onConfirm: () => this.delete(config)
+                    });
+                }
+                else {
+                    this.delete(config);
+                }
+            },
+
+            delete(config) {
+                config.isDeleting = true;
+
+                axios.delete(`/api/automations/telegram/${config.id}`)
+                    .then(() => {
+                        this.telegramConfigs = this.telegramConfigs.filter(c => {
+                            return c.id !== config.id;
+                        });
+                    })
+                    .catch(() => {
+                        config.deleting = false;
+                        this.$buefy.toast.open({
+                            message: 'Something went wrong. Refresh and try again.',
+                            type: 'is-danger'
+                        });
+                    });
             },
 
             submitForm: function () {
@@ -127,8 +165,20 @@
                         this.chat_id = '';
                         this.token = '';
                     })
-                    .catch(err => {
-                        console.log(err.response);
+                    .catch(error => {
+                        let errors = error.response.data.errors;
+                        if (errors && errors.name) {
+                            this.$buefy.toast.open({
+                                message: errors.name[0],
+                                type: 'is-danger'
+                            });
+                        }
+                        else {
+                            this.$buefy.toast.open({
+                                message: 'Something went wrong. Refresh and try again.',
+                                type: 'is-danger'
+                            });
+                        }
                     })
             },
 

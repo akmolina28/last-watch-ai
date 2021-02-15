@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\AutomationConfig;
+use App\AutomationConfigInterface;
 use App\FolderCopyConfig;
 use App\MqttPublishConfig;
 use App\Resources\FolderCopyConfigResource;
@@ -31,13 +33,14 @@ class AutomationController extends Controller
             'chat_id' => 'required',
         ]);
 
-        $config = TelegramConfig::create([
-            'name' => $request->get('name'),
-            'token' => $request->get('token'),
-            'chat_id' => $request->get('chat_id'),
-        ]);
+        $config = TelegramConfig::create($request->all())->load(['detectionProfiles']);
 
         return TelegramConfigResource::make($config);
+    }
+
+    public function deleteTelegramConfig(TelegramConfig $config)
+    {
+        $this->deleteAutomationConfig($config);
     }
 
     public function webRequestConfigIndex()
@@ -54,9 +57,26 @@ class AutomationController extends Controller
             'url' => 'required',
         ]);
 
-        $config = WebRequestConfig::create($request->all());
+        $config = WebRequestConfig::create($request->all())->load(['detectionProfiles']);
 
         return WebRequestConfigResource::make($config);
+    }
+
+    public function deleteAutomationConfig(AutomationConfigInterface $config)
+    {
+        $type = $config->getTable();
+
+        $config->delete();
+
+        AutomationConfig::where([
+            'automation_config_type' => $type,
+            'automation_config_id' => $config->id,
+        ])->delete();
+    }
+
+    public function deleteWebRequestConfig(WebRequestConfig $config)
+    {
+        $this->deleteAutomationConfig($config);
     }
 
     public function folderCopyConfigIndex()
@@ -77,9 +97,14 @@ class AutomationController extends Controller
             'name' => $request->get('name'),
             'copy_to' => $request->get('copy_to'),
             'overwrite' => $request->get('overwrite', false),
-        ]);
+        ])->load(['detectionProfiles']);
 
         return FolderCopyConfigResource::make($config);
+    }
+
+    public function deletefolderCopyConfig(FolderCopyConfig $config)
+    {
+        $this->deleteAutomationConfig($config);
     }
 
     public function smbCifsCopyConfigIndex()
@@ -92,7 +117,7 @@ class AutomationController extends Controller
     public function makeSmbCifsCopyConfig(Request $request)
     {
         $request->validate([
-            'name' => 'required|unique:folder_copy_configs',
+            'name' => 'required|unique:smb_cifs_copy_configs',
             'servicename' => 'required',
             'user' => 'required',
             'password' => 'required',
@@ -106,9 +131,14 @@ class AutomationController extends Controller
             'password' => $request->get('password'),
             'remote_dest' => $request->get('remote_dest'),
             'overwrite' => $request->get('overwrite', false),
-        ]);
+        ])->load(['detectionProfiles']);
 
         return SmbCifsCopyConfigResource::make($config);
+    }
+
+    public function deleteSmbCifsCopyConfig(SmbCifsCopyConfig $config)
+    {
+        $this->deleteAutomationConfig($config);
     }
 
     public function mqttPublishConfigIndex()
@@ -128,8 +158,13 @@ class AutomationController extends Controller
             'qos' => 'required',
         ]);
 
-        $config = MqttPublishConfig::create($request->all());
+        $config = MqttPublishConfig::create($request->all())->load(['detectionProfiles']);
 
         return MqttPublishConfigResource::make($config);
+    }
+
+    public function deleteMqttPublishConfig(MqttPublishConfig $config)
+    {
+        $this->deleteAutomationConfig($config);
     }
 }

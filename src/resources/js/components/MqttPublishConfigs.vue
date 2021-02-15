@@ -16,48 +16,39 @@
             </template>
         </title-header>
 
-        <div class="responsive-table-wrapper mb-3">
-            <table class="table pb-5">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Server</th>
-                        <th>Port</th>
-                        <th>Topic</th>
-                        <th>Client ID</th>
-                        <th>QoS</th>
-                        <th>Anonymous</th>
-                        <th>Username</th>
-                        <th>Password</th>
-                        <th>Custom Payload</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-if="mqttPublishConfigs.length === 0" class="py-4 is-italic">
-                        No configs set up yet. Add one below.
-                    </tr>
-                    <tr v-for="config in mqttPublishConfigs">
-                        <td>{{ config.name }}</td>
-                        <td>{{ config.server }}</td>
-                        <td>{{ config.port }}</td>
-                        <td>{{ config.topic }}</td>
-                        <td>{{ config.client_id }}</td>
-                        <td>{{ config.qos }}</td>
-                        <td>
-                            <b-icon v-if="config.is_anonymous" icon="check"></b-icon>
-                        </td>
-                        <td>{{ config.username }}</td>
-                        <td><span v-if="config.password">********</span></td>
-                        <td>
-                            <span v-if="config.is_custom_payload">{{ config.payload_json | truncate }}</span>
-                        </td>
-                        <td>
-                            <span :title="config.body_json">{{ config.body_json | truncate }}</span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <b-table :data="mqttPublishConfigs">
+            <template #empty>
+                No automations set up yet. Use the form below.
+            </template>
+            <b-table-column field="name" label="Name" v-slot="props">
+                {{ props.row.name }}
+            </b-table-column>
+            <b-table-column field="server" label="Server" v-slot="props">
+                {{ props.row.server }}
+            </b-table-column>
+            <b-table-column field="port" label="Port" v-slot="props">
+                {{ props.row.port }}
+            </b-table-column>
+            <b-table-column field="topic" label="Topic" v-slot="props">
+                {{ props.row.topic }}
+            </b-table-column>
+            <b-table-column field="client_id" label="Client ID" v-slot="props">
+                {{ props.row.client_id }}
+            </b-table-column>
+            <b-table-column field="qos" label="QoS ID" v-slot="props">
+                {{ props.row.qos }}
+            </b-table-column>
+            <b-table-column field="profile_count" label="Used By" v-slot="props">
+                {{ props.row.detection_profiles.length }} profile(s)
+            </b-table-column>
+            <b-table-column field="delete" label="Delete" v-slot="props">
+                <b-button icon-right="trash"
+                          type="is-danger is-outlined"
+                          :loading="props.row.isDeleting"
+                          @click="deleteClick(props.row)">
+                </b-button>
+            </b-table-column>
+        </b-table>
 
         <div class="box is-6">
             <p class="subtitle">New Config</p>
@@ -66,21 +57,6 @@
                 <b-field label="Name">
                     <b-input v-model="name" placeholder="Unique name" name="name" required></b-input>
                 </b-field>
-
-<!--                <div class="px-5 py-5 mb-3 has-background-light">-->
-<!--                    <h5 class="title is-size-5">Substitution Variables</h5>-->
-<!--                    <ul>-->
-<!--                        <li>-->
-<!--                            <strong>%image_file_name%</strong> - the event image file-->
-<!--                        </li>-->
-<!--                        <li>-->
-<!--                            <strong>%profile_name%</strong> - the triggered profile name-->
-<!--                        </li>-->
-<!--                        <li>-->
-<!--                            <strong>%object_classes%</strong> - object(s) which triggered the profile-->
-<!--                        </li>-->
-<!--                    </ul>-->
-<!--                </div>-->
 
                 <b-field label="Server">
                     <b-input v-model="server" placeholder="127.0.0.1" name="server" required></b-input>
@@ -181,12 +157,49 @@
         methods: {
             getData() {
                 axios.get('/api/automations/mqttPublish').then(response => {
-                    this.mqttPublishConfigs  = response.data.data;
+                    let configs = response.data.data;
+                    configs.forEach(c => c.isDeleting = false);
+                    this.mqttPublishConfigs  = configs;
                 });
             },
 
             changePost() {
                 this.bodyJson = '';
+            },
+
+            deleteClick(config) {
+                if (config.detection_profiles.length > 0) {
+                    this.$buefy.dialog.confirm({
+                        title: 'Confirm Delete',
+                        message:
+                            `Deleting this automation will automatically unsubscribe ${config.detection_profiles.length} Detection Profile(s).`,
+                        confirmText: 'Delete',
+                        type: 'is-danger',
+                        hasIcon: true,
+                        onConfirm: () => this.delete(config)
+                    });
+                }
+                else {
+                    this.delete(config);
+                }
+            },
+
+            delete(config) {
+                config.isDeleting = true;
+
+                axios.delete(`/api/automations/mqttPublish/${config.id}`)
+                    .then(() => {
+                        this.mqttPublishConfigs = this.mqttPublishConfigs.filter(c => {
+                            return c.id !== config.id;
+                        });
+                    })
+                    .catch(() => {
+                        config.deleting = false;
+                        this.$buefy.toast.open({
+                            message: 'Something went wrong. Refresh and try again.',
+                            type: 'is-danger'
+                        });
+                    });
             },
 
             processForm: function () {
@@ -220,8 +233,20 @@
                         this.isCustomPayload = false;
                         this.payloadJson = '';
                     })
-                    .catch(err => {
-                        console.log(err.response);
+                    .catch(error => {
+                        let errors = error.response.data.errors;
+                        if (errors && errors.name) {
+                            this.$buefy.toast.open({
+                                message: errors.name[0],
+                                type: 'is-danger'
+                            });
+                        }
+                        else {
+                            this.$buefy.toast.open({
+                                message: 'Something went wrong. Refresh and try again.',
+                                type: 'is-danger'
+                            });
+                        }
                     })
                     .finally(() => {
                         this.isSaving = false;

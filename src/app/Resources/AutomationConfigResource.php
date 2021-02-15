@@ -19,6 +19,7 @@ class AutomationConfigResource extends JsonResource
             'automation_config_id' => $this->automation_config_id,
             'automation_config_type' => $this->automation_config_type,
             'detection_profile_id' => $this->detection_profile_id,
+            'is_high_priority' => $this->is_high_priority,
         ];
     }
 }

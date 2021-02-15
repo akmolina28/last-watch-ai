@@ -5,8 +5,10 @@ namespace Tests\Feature;
 use App\DeepstackClient;
 use App\DetectionEvent;
 use App\DetectionProfile;
+use App\Jobs\ProcessAutomationJob;
 use App\Jobs\ProcessDetectionEventJob;
 use App\Mocks\FakeDeepstackClient;
+use App\WebRequestConfig;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
@@ -220,5 +222,73 @@ class DetectionTest extends TestCase
         $this->assertCount(2, $personProfile->aiPredictions);
         $this->assertCount(1, $dogProfile->aiPredictions);
         $this->assertCount(0, $carProfile->aiPredictions);
+    }
+
+    /**
+     * @test
+     */
+    public function detection_job_queues_an_automation()
+    {
+        $profile = factory(DetectionProfile::class)->create([
+            'object_classes' => ['person', 'dog'],
+            'use_mask' => false,
+        ]);
+
+        $webRequestAutomation = factory(WebRequestConfig::class)->create();
+
+        $profile->subscribeAutomation(WebRequestConfig::class, $webRequestAutomation->id);
+
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_name' => 'events/testimage.jpg',
+        ]);
+        $event->patternMatchedProfiles()->attach($profile->id);
+
+        $this->setUpTestImage();
+
+        Storage::assertExists('events/testimage.jpg');
+
+        $this->handleDetectionJob($event);
+
+        $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCall']);
+
+        $this->assertNotNull($event->deepstackCall);
+        $this->assertCount(3, $event->aiPredictions);
+        $this->assertCount(3, $event->detectionProfiles);
+
+        Queue::assertPushedOn('low', ProcessAutomationJob::class);
+    }
+
+    /**
+     * @test
+     */
+    public function detection_job_queues_a_high_priority_automation()
+    {
+        $profile = factory(DetectionProfile::class)->create([
+            'object_classes' => ['person', 'dog'],
+            'use_mask' => false,
+        ]);
+
+        $webRequestAutomation = factory(WebRequestConfig::class)->create();
+
+        $profile->subscribeAutomation(WebRequestConfig::class, $webRequestAutomation->id, true);
+
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_name' => 'events/testimage.jpg',
+        ]);
+        $event->patternMatchedProfiles()->attach($profile->id);
+
+        $this->setUpTestImage();
+
+        Storage::assertExists('events/testimage.jpg');
+
+        $this->handleDetectionJob($event);
+
+        $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCall']);
+
+        $this->assertNotNull($event->deepstackCall);
+        $this->assertCount(3, $event->aiPredictions);
+        $this->assertCount(3, $event->detectionProfiles);
+
+        Queue::assertPushedOn('high', ProcessAutomationJob::class);
     }
 }

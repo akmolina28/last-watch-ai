@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $detection_profile_id
  * @property string $automation_config_type
  * @property int $automation_config_id
+ * @property bool @is_high_priority
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
@@ -42,6 +43,11 @@ class AutomationConfig extends Model
         'automation_config_id',
         'automation_config_type',
         'detection_profile_id',
+        'is_high_priority',
+    ];
+
+    protected $casts = [
+        'is_high_priority' => 'boolean',
     ];
 
     public function getConfigClassName()
