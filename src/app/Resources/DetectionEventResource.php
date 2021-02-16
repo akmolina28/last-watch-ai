@@ -24,6 +24,7 @@ class DetectionEventResource extends JsonResource
                 $this->imageFile->width : 0,
             'image_height' => $this->whenLoaded('imageFile') ?
                 $this->imageFile->height : 0,
+            'occurred_at' => $this->occurred_at,
             'ai_predictions' => AiPredictionResource::collection($this->whenLoaded('aiPredictions')),
             'detection_profiles_count' => $this->detection_profiles_count,
             'pattern_matched_profiles' => DetectionProfileResource::collection($this->whenLoaded('patternMatchedProfiles')),
