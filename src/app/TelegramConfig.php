@@ -57,7 +57,7 @@ class TelegramConfig extends Model implements AutomationConfigInterface
         if (!$responseJson) {
             $isError = true;
         }
-        else if (!property_exists('ok', $responseJson) || !$responseJson->ok) {
+        else if (!$responseJson->ok) {
             $isError = true;
         }
 
