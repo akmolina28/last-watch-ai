@@ -62,7 +62,7 @@ class DetectionEventController extends Controller
 
         if ($request->has('image_file')) {
             $file = $request->file('image_file');
-            $path = $file->store('events');
+            $path = $file->store('events', 'public');
             $fileName = $file->getClientOriginalName();
 
             ProcessEventUploadJob::dispatch($path, $fileName, $occurredAt)->onQueue('medium');
