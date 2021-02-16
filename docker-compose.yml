@@ -12,7 +12,6 @@ services:
       - "${WEB_INTERFACE_PORT:-8080}:80"
     volumes:
       - ./src:/var/www/app
-      - ${WATCH_FOLDER}:/var/www/app/storage/app/public/events
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - php
@@ -55,7 +54,6 @@ services:
     ports:
       - "9000:9000"
     volumes:
-      - ${WATCH_FOLDER}:/var/www/app/storage/app/public/events
       - ./src:/var/www/app
     networks:
       - laravel
@@ -85,7 +83,6 @@ services:
       NUMPROCS: 8
       APP_URL: ${WEB_INTERFACE_URL:-localhost}:${WEB_INTERFACE_PORT:-8080}
     volumes:
-      - ${WATCH_FOLDER}:/var/www/app/storage/app/public/events
       - ./src:/var/www/app
     networks:
       - laravel
@@ -139,7 +136,7 @@ services:
       - "5001:5000"
 
   watcher:
-    image: akmolina28/webhook-folder-watcher
+    image: akmolina28/webhook-folder-watcher:dev
     container_name: lw_watcher
     volumes:
       - ./src:/var/www/app
@@ -147,8 +144,9 @@ services:
     restart: unless-stopped
     environment:
       - WATCH_FOLDER=/var/www/app/storage/app/public/events
-      - WEBHOOK_URL=http://lw_nginx:80/webhook-receiving-url
+      - WEBHOOK_URL=http://lw_nginx:80/api/events
       - WATCH_USE_POLLING=${WATCH_USE_POLLING:-false}
+      - DELETE_AFTER_POSTING=${WATCH_FOLDER_AUTO_DELETE:-false}
     networks:
       - laravel
 

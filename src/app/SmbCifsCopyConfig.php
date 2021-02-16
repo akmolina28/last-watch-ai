@@ -52,11 +52,11 @@ class SmbCifsCopyConfig extends Model implements AutomationConfigInterface
 
     public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
     {
-        $localPath = Storage::path($event->image_file_name);
-        $destPath = $event->image_file_name;
+        $localPath = $event->imageFile->path;
+        $destPath = $event->imageFile;
 
         if ($this->overwrite) {
-            $ext = pathinfo($event->image_file_name, PATHINFO_EXTENSION);
+            $ext = pathinfo($event->imageFile->file_name, PATHINFO_EXTENSION);
             $destPath = $profile->slug.'.'.$ext;
         }
 

@@ -45,14 +45,14 @@ class FolderCopyConfig extends Model implements AutomationConfigInterface
 
     public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
     {
-        $basename = basename($event->image_file_name);
-        $ext = pathinfo($event->image_file_name, PATHINFO_EXTENSION);
+        $basename = basename($event->imageFile->file_name);
+        $ext = pathinfo($event->imageFile->file_name, PATHINFO_EXTENSION);
 
         if ($this->overwrite) {
             $basename = $profile->slug.'.'.$ext;
         }
 
-        $src = $event->image_file_name;
+        $src = $event->imageFile->path;
         $dest = $this->copy_to.$basename;
 
         $success = copy($src, $dest);

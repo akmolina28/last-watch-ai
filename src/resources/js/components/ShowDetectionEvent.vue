@@ -169,19 +169,19 @@
                 return 0;
             },
             imageWidth() {
-                if (this.event && this.event.image_dimensions) {
-                    return parseInt(this.event.image_dimensions.substring(0, this.event.image_dimensions.indexOf('x')));
+                if (this.event) {
+                    return this.event.image_width;
                 }
                 return 0;
             },
             imageHeight() {
-                if (this.event && this.event.image_dimensions) {
-                    return parseInt(this.event.image_dimensions.substring(this.event.image_dimensions.indexOf('x') + 1));
+                if (this.event) {
+                    return this.event.image_height;
                 }
                 return 0;
             },
             imageFile() {
-                return this.event ? '/storage/' + this.event.image_file_name : '';
+                return this.event ? '/storage/' + this.event.image_file_path : '';
             },
             relevant() {
                 if (this.event && this.event.ai_predictions) {

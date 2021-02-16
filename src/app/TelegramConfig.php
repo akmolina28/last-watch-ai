@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -48,13 +49,21 @@ class TelegramConfig extends Model implements AutomationConfigInterface
     {
         $client = new TelegramClient($this->token, $this->chat_id);
 
-        $response = $client->sendPhoto(Storage::path($event->image_file_name));
+        $response = $client->sendPhoto(Storage::path($event->imageFile->path));
 
         $responseJson = json_decode($response);
 
+        $isError = false;
+        if (!$responseJson) {
+            $isError = true;
+        }
+        else if (!property_exists('ok', $responseJson) || !$responseJson->ok) {
+            $isError = true;
+        }
+
         return new DetectionEventAutomationResult([
             'response_text' => $response,
-            'is_error' => ! $responseJson->ok,
+            'is_error' => $isError,
         ]);
     }
 

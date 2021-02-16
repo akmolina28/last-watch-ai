@@ -9,7 +9,7 @@ class PayloadHelper
     {
         $replaced = $payload;
 
-        $replaced = str_replace('%image_file_name%', $event->image_file_name, $replaced);
+        $replaced = str_replace('%image_file_name%', $event->imageFile->file_name, $replaced);
 
         $replaced = str_replace('%profile_name%', $profile->name, $replaced);
 

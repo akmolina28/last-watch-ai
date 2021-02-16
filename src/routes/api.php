@@ -35,6 +35,8 @@ Route::get('/objectClasses', 'DeepstackController@showObjectClasses');
 
 Route::get('/events', 'DetectionEventController@index');
 
+Route::post('/events', 'DetectionEventController@make');
+
 Route::get('/events/latest', 'DetectionEventController@showLatest');
 
 Route::get('/events/{event}', 'DetectionEventController@show');
