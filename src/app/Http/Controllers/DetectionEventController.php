@@ -10,6 +10,7 @@ use App\ImageFile;
 use App\Jobs\ProcessDetectionEventJob;
 use App\Jobs\ProcessEventUploadJob;
 use App\Resources\DetectionEventResource;
+use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -60,6 +61,14 @@ class DetectionEventController extends Controller
     {
         $occurredAt = Carbon::now();
 
+        if ($request->has('occurred_at')) {
+            try {
+                $occurredAt = new Carbon($request->get('occurred_at'));
+            } catch (Exception $e) {
+                return response()->json(['message' => $e->getMessage()], 201);
+            }
+        }
+
         if ($request->has('image_file')) {
             $file = $request->file('image_file');
             $path = $file->store('events', 'public');
@@ -91,7 +100,7 @@ class DetectionEventController extends Controller
 
     public function showImage(DetectionEvent $event)
     {
-        return response()->file($event->imageFile->path);
+        return Storage::download($event->imageFile->path);
     }
 
     public function showLatest()

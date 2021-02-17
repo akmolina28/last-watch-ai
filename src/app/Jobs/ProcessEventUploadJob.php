@@ -44,7 +44,7 @@ class ProcessEventUploadJob implements ShouldQueue
      * @param DeepstackClientInterface $client
      * @return void
      */
-    public function handle(DeepstackClientInterface $client)
+    public function handle()
     {
         $absolutePath = Storage::path($this->path);
         [$width, $height] = getimagesize($absolutePath);

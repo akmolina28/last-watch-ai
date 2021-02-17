@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\DetectionEvent;
 use App\DetectionProfile;
 use App\Jobs\ProcessDetectionEventJob;
+use App\Jobs\ProcessEventUploadJob;
 use App\Jobs\ProcessWebhookJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -48,43 +49,57 @@ class WebHookTest extends TestCase
         $job->handle($occurred_at);
     }
 
+    protected function triggerWebhook($fileName = 'testimage.jpg', $occurredAt = null)
+    {
+        if (!$occurredAt) {
+            $occurredAt = Carbon::now();
+        }
+
+        $imageFile = UploadedFile::fake()->image($fileName, 640, 480)->size(128);
+        $path = $imageFile->storeAs('events', $fileName);
+
+        $uploadJob = new ProcessEventUploadJob($path, $fileName, $occurredAt);
+
+        $uploadJob->handle();
+
+        return $path;
+    }
+
     /**
      * @test
      */
-    public function webhook_creates_a_queued_job()
+    public function webhook_creates_a_queued_event_job()
     {
+        $imageFile = UploadedFile::fake()->image('testimage.jpg', 640, 480)->size(128);
+
         // hit the webhook
-        $this->post('/webhook-receiving-url', [
-            'file' => 'testimage.jpg',
-        ])->assertStatus(200);
+        $this->json('POST', '/api/events', [
+            'image_file' => $imageFile,
+        ], [
+            'enctype' => 'multipart/form-data'
+        ])->assertStatus(201);
 
         // check for webhook job on queue and process it
-        Queue::assertPushed(ProcessWebhookJob::class, function ($job) {
-            return $job->webhookCall->payload['file'] === 'testimage.jpg';
+        Queue::assertPushedOn('medium', ProcessEventUploadJob::class, function ($job) {
+            return $job->fileName === 'testimage.jpg';
         });
     }
 
     /**
      * @test
      */
-    public function webhook_job_creates_a_detection_job()
+    public function event_upload_job_creates_a_detection_job()
     {
-        // create a test profile
-        $profile = factory(DetectionProfile::class)->create([
+        // create a matched profile
+        factory(DetectionProfile::class)->create([
             'file_pattern' => 'testimage',
         ]);
 
-        $webhookCall = new WebhookCall([
-            'payload' => [
-                'file' => 'testimage.jpg',
-            ],
-        ]);
+        $this->triggerWebhook();
 
-        $webhookJob = new ProcessWebhookJob($webhookCall);
-
-        $webhookJob->handle();
-
-        Queue::assertPushedOn('medium', ProcessDetectionEventJob::class);
+        Queue::assertPushedOn('medium', ProcessDetectionEventJob::class, function($job) {
+            return $job->event->imageFile->file_name === 'testimage.jpg';
+        });
     }
 
     /**
@@ -92,12 +107,13 @@ class WebHookTest extends TestCase
      */
     public function webhook_job_can_create_non_matched_detection_event()
     {
-        $this->handleWebhookJob();
+        $this->triggerWebhook();
 
         // see that detection event was generated
         $event = DetectionEvent::first();
-        $this->assertEquals('events/testimage.jpg', $event->image_file_name);
-        $this->assertEquals('640x480', $event->image_dimensions);
+        $this->assertEquals('testimage.jpg', $event->imageFile->file_name);
+        $this->assertEquals(640, $event->imageFile->width);
+        $this->assertEquals(480, $event->imageFile->height);
         $this->assertCount(0, $event->patternMatchedProfiles);
     }
 
@@ -118,18 +134,19 @@ class WebHookTest extends TestCase
         ]);
 
         // hit the webhook
-        $this->handleWebhookJob();
+        $this->triggerWebhook();
 
         // see that detection event was generated
         $this->assertDatabaseCount('detection_events', 1);
         $event = DetectionEvent::with(['patternMatchedProfiles'])->first();
-        $this->assertEquals('events/testimage.jpg', $event->image_file_name);
-        $this->assertEquals('640x480', $event->image_dimensions);
+        $this->assertEquals('testimage.jpg', $event->imageFile->file_name);
+        $this->assertEquals(640, $event->imageFile->width);
+        $this->assertEquals(480, $event->imageFile->height);
         $this->assertCount(1, $event->patternMatchedProfiles);
         $this->assertEquals(1, $event->patternMatchedProfiles()->first()->pivot->is_profile_active);
 
-        Queue::assertPushed(ProcessDetectionEventJob::class, function ($job) {
-            return $job->event->image_file_name === 'events/testimage.jpg';
+        Queue::assertPushedOn('medium', ProcessDetectionEventJob::class, function($job) {
+            return $job->event->imageFile->file_name === 'testimage.jpg';
         });
     }
 
@@ -150,17 +167,18 @@ class WebHookTest extends TestCase
         ]);
 
         // hit the webhook
-        $this->handleWebhookJob();
+        $this->triggerWebhook();
 
         // see that detection event was generated
         $this->assertDatabaseCount('detection_events', 1);
         $event = DetectionEvent::first();
-        $this->assertEquals('events/testimage.jpg', $event->image_file_name);
-        $this->assertEquals('640x480', $event->image_dimensions);
+        $this->assertEquals('testimage.jpg', $event->imageFile->file_name);
+        $this->assertEquals(640, $event->imageFile->width);
+        $this->assertEquals(480, $event->imageFile->height);
         $this->assertCount(3, $event->patternMatchedProfiles);
 
-        Queue::assertPushed(ProcessDetectionEventJob::class, function ($job) {
-            return $job->event->image_file_name === 'events/testimage.jpg';
+        Queue::assertPushedOn('medium', ProcessDetectionEventJob::class, function($job) {
+            return $job->event->imageFile->file_name === 'testimage.jpg';
         });
     }
 
@@ -180,7 +198,7 @@ class WebHookTest extends TestCase
         $profile->save();
 
         // hit the webhook
-        $this->handleWebhookJob();
+        $this->triggerWebhook();
 
         // see that detection event was generated
         $this->assertDatabaseCount('detection_events', 1);
@@ -205,7 +223,7 @@ class WebHookTest extends TestCase
         $profile->save();
 
         // hit the webhook
-        $this->handleWebhookJob();
+        $this->triggerWebhook();
 
         // see that detection event was generated
         $this->assertDatabaseCount('detection_events', 1);
@@ -233,8 +251,8 @@ class WebHookTest extends TestCase
         $profile->save();
 
         // hit the webhook
-        $occurred_at = Carbon::create(2020, 1, 1, 1, 25, 33);
-        $this->handleWebhookJob($occurred_at);
+        $occurredAt = Carbon::create(2020, 1, 1, 1, 25, 33);
+        $this->triggerWebhook('testimage.jpg', $occurredAt);
 
         // see that detection event was generated
         $this->assertDatabaseCount('detection_events', 1);
@@ -262,8 +280,8 @@ class WebHookTest extends TestCase
         $profile->save();
 
         // hit the webhook
-        $occurred_at = Carbon::create(2020, 1, 1, 3, 25, 33);
-        $this->handleWebhookJob($occurred_at);
+        $occurredAt = Carbon::create(2020, 1, 1, 3, 25, 33);
+        $this->triggerWebhook('testimage.jpg', $occurredAt);
 
         // see that detection event was generated
         $this->assertDatabaseCount('detection_events', 1);

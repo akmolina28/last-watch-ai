@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\AiPrediction;
 use App\DetectionEvent;
 use App\DetectionProfile;
+use App\ImageFile;
 use App\WebRequestConfig;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -21,7 +22,11 @@ class WebRequestAutomationTest extends TestCase
      */
     public function web_request_can_have_no_replacements()
     {
-        $event = factory(DetectionEvent::class)->create();
+        $imageFile = factory(ImageFile::class)->create();
+
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile
+        ]);
 
         $profile = factory(DetectionProfile::class)->create();
 
@@ -48,8 +53,10 @@ class WebRequestAutomationTest extends TestCase
     {
         $profile = factory(DetectionProfile::class)->create();
 
+        $imageFile = factory(ImageFile::class)->create();
+
         $event = factory(DetectionEvent::class)->create([
-            'image_file_name' => 'events/testimage.jpg',
+            'image_file_id' => $imageFile
         ]);
 
         $config = factory(WebRequestConfig::class)->create([
@@ -59,13 +66,13 @@ class WebRequestAutomationTest extends TestCase
         ]);
 
         $replacedUrl = $config->getUrlWithReplacements($event, $profile);
-        $this->assertEquals('http://foobar.win/?image=events/testimage.jpg', $replacedUrl);
+        $this->assertEquals('http://foobar.win/?image=testimage.jpg', $replacedUrl);
 
         $replacedHeaders = $config->getHeadersWithReplacements($event, $profile);
-        $this->assertEquals(['foo' => 'events/testimage.jpg'], $replacedHeaders);
+        $this->assertEquals(['foo' => 'testimage.jpg'], $replacedHeaders);
 
         $replacedBody = $config->getBodyWithReplacements($event, $profile);
-        $this->assertEquals(['baz' => 'storage/events/testimage.jpg'], $replacedBody);
+        $this->assertEquals(['baz' => 'storage/testimage.jpg'], $replacedBody);
     }
 
     /**
@@ -75,7 +82,11 @@ class WebRequestAutomationTest extends TestCase
     {
         $profile = factory(DetectionProfile::class)->create();
 
-        $event = factory(DetectionEvent::class)->create();
+        $imageFile = factory(ImageFile::class)->create();
+
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile
+        ]);
 
         $carPrediction = factory(AiPrediction::class)->create([
             'object_class' => 'car',
@@ -120,7 +131,11 @@ class WebRequestAutomationTest extends TestCase
             'name' => 'My Awesome Profile',
         ]);
 
-        $event = factory(DetectionEvent::class)->create();
+        $imageFile = factory(ImageFile::class)->create();
+
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile
+        ]);
 
         $config = factory(WebRequestConfig::class)->create([
             'url' => 'http://foobar.win/?profile=%profile_name%',
@@ -157,7 +172,11 @@ class WebRequestAutomationTest extends TestCase
             'automation_config_type' => $config->getTable(),
         ]);
 
-        $event = factory(DetectionEvent::class)->create();
+        $imageFile = factory(ImageFile::class)->create();
+
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile
+        ]);
 
         Http::fake([
             $url => Http::response(['message' => 'OK.'], 200),
@@ -189,7 +208,11 @@ class WebRequestAutomationTest extends TestCase
             'automation_config_type' => $config->getTable(),
         ]);
 
-        $event = factory(DetectionEvent::class)->create();
+        $imageFile = factory(ImageFile::class)->create();
+
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile
+        ]);
 
         Http::fake([
             $url => Http::response(['message' => 'not found.'], 404),

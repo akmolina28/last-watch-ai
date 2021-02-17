@@ -53,6 +53,8 @@ class DetectionEvent extends Model
         'image_file_id',
     ];
 
+    protected $with = ['imageFile'];
+
     public function detectionProfiles()
     {
         return $this->hasManyDeep('App\DetectionProfile', ['App\AiPrediction', 'ai_prediction_detection_profile'])
@@ -136,7 +138,9 @@ class DetectionEvent extends Model
     protected static function booted()
     {
         static::deleted(function ($event) {
-            DeleteEventImageJob::dispatch($event->imageFile)->onQueue('low');
+            if ($event->imageFile) {
+                DeleteEventImageJob::dispatch($event->imageFile)->onQueue('low');
+            }
         });
     }
 }

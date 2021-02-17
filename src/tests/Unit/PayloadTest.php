@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\AiPrediction;
 use App\DetectionEvent;
 use App\DetectionProfile;
+use App\ImageFile;
 use App\PayloadHelper;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -18,7 +19,11 @@ class PayloadTest extends TestCase
      */
     public function automation_payload_can_replace_event_url()
     {
-        $event = factory(DetectionEvent::class)->create();
+        $imageFile = factory(ImageFile::class)->create();
+
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile
+        ]);
         $profile = factory(DetectionProfile::class)->create();
         $payload = '{"link"="%event_url%"}';
 
@@ -32,13 +37,17 @@ class PayloadTest extends TestCase
      */
     public function automation_payload_can_replace_image_file_name()
     {
-        $event = factory(DetectionEvent::class)->create();
+        $imageFile = factory(ImageFile::class)->create();
+
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile
+        ]);
         $profile = factory(DetectionProfile::class)->create();
         $payload = '{"image"="%image_file_name%"}';
 
         $replaced = PayloadHelper::doReplacements($payload, $event, $profile);
 
-        $this->assertEquals('{"image"="'.$event->image_file_name.'"}', $replaced);
+        $this->assertEquals('{"image"="'.$event->imageFile->file_name.'"}', $replaced);
     }
 
     /**
@@ -46,7 +55,11 @@ class PayloadTest extends TestCase
      */
     public function automation_payload_can_replace_profile_name()
     {
-        $event = factory(DetectionEvent::class)->create();
+        $imageFile = factory(ImageFile::class)->create();
+
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile
+        ]);
         $profile = factory(DetectionProfile::class)->create();
         $payload = '{"profile"="%profile_name%"}';
 
@@ -60,7 +73,13 @@ class PayloadTest extends TestCase
      */
     public function automation_payload_can_replace_object_classes()
     {
-        $event = factory(DetectionEvent::class)->create();
+        $imageFile = factory(ImageFile::class)->create();
+
+        $imageFile = factory(ImageFile::class)->create();
+
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile
+        ]);
         $profile = factory(DetectionProfile::class)->create([
             'object_classes' => ['car', 'person', 'truck'],
         ]);
@@ -95,8 +114,10 @@ class PayloadTest extends TestCase
      */
     public function automation_payload_can_replace_image_url()
     {
+        $imageFile = factory(ImageFile::class)->create();
+
         $event = factory(DetectionEvent::class)->create([
-            'image_file_name' => 'events/testimage.jpg',
+            'image_file_id' => $imageFile
         ]);
         $profile = factory(DetectionProfile::class)->create();
         $payload = '{"link"="%image_url%"}';
