@@ -94,7 +94,7 @@
                 </b-menu>
 
                 <div class="content">
-                    <a :href="imageFile" download>
+                    <a :href="`/api/events/${event.id}/img`" download>
                         <span class="icon">
                             <b-icon icon="image"></b-icon>
                         </span>

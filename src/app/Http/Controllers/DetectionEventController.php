@@ -100,7 +100,7 @@ class DetectionEventController extends Controller
 
     public function showImage(DetectionEvent $event)
     {
-        return Storage::download($event->imageFile->path);
+        return Storage::download($event->imageFile->path, $event->imageFile->file_name);
     }
 
     public function showLatest()
