@@ -131,10 +131,6 @@
             </b-table-column>
         </b-table>
 
-        <div class="container is-spaced">
-            <pagination :data="meta" @pagination-change-page="getData"></pagination>
-        </div>
-
         <b-modal
             v-model="isModalActive"
             trap-focus
@@ -267,9 +263,9 @@
                 return c;
             },
 
-            getData(page = 1) {
+            getData() {
                 this.profilesLoading = true;
-                axios.get(`/api/profiles?page=${page}`)
+                axios.get(`/api/profiles`)
                     .then(response => {
                         let profiles = response.data.data;
                         profiles.forEach(p => p.isDeleting = false);

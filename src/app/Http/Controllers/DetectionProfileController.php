@@ -14,7 +14,7 @@ class DetectionProfileController extends Controller
 {
     public function index()
     {
-        return DetectionProfileResource::collection(DetectionProfile::paginate(10));
+        return DetectionProfileResource::collection(DetectionProfile::orderBy('created_at')->get());
     }
 
     protected function lookUpProfile($param): DetectionProfile
