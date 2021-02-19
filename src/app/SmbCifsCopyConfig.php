@@ -50,9 +50,13 @@ class SmbCifsCopyConfig extends Model implements AutomationConfigInterface
         return $this->morphToMany('App\DetectionProfile', 'automation_config');
     }
 
-    public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
+    public function getLocalPath(DetectionEvent $event)
     {
-        $localPath = Storage::path($event->imageFile->path);
+        return Storage::path($event->imageFile->path);
+    }
+
+    public function getDestPath(DetectionEvent $event, DetectionProfile $profile)
+    {
         $destPath = $event->imageFile->file_name;
 
         if ($this->overwrite) {
@@ -60,13 +64,29 @@ class SmbCifsCopyConfig extends Model implements AutomationConfigInterface
             $destPath = $profile->slug.'.'.$ext;
         }
 
-        // todo: use format string
-        // todo: use facade so this can be mocked
-        $cmd = 'smbclient '
-            .$this->servicename
-            .' -U '.$this->user.'%'.$this->password
-            .' -c \'cd "'.$this->remote_dest
-            .'" ; put "'.$localPath.'" "'.$destPath.'"\'';
+        return $destPath;
+    }
+
+    public function getSmbclientCommand($localPath, $destPath)
+    {
+        $cmd = sprintf('smbclient %s -U %s%%%s -c \'cd "%s" ; put "%s" "%s"\'',
+            $this->servicename,
+            $this->user,
+            $this->password,
+            $this->remote_dest,
+            $localPath,
+            $destPath
+        );
+
+        return $cmd;
+    }
+
+    public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
+    {
+        $localPath = $this->getLocalPath($event);
+        $destPath = $this->getDestPath($event, $profile);
+
+        $cmd = $this->getSmbclientCommand($localPath, $destPath);
 
         $response = shell_exec($cmd);
 
