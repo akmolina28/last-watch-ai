@@ -62,6 +62,7 @@ services:
       APP_URL: ${WEB_INTERFACE_URL:-localhost}:${WEB_INTERFACE_PORT:-8080}
       APP_DEBUG: ${APP_DEBUG:-false}
       DEEPSTACK_BASE_URL: ${DEEPSTACK_BASE_URL:-http://deepstack:5000/}
+      COMPRESS_IMAGES: ${COMPRESS_IMAGES:-true}
 
   scheduler:
     image: mcuadros/ofelia:latest
@@ -73,7 +74,7 @@ services:
       - php
 
   queue:
-    image: akmolina28/laravel-queue-worker
+    image: akmolina28/laravel-queue-worker:php7.3-v4.4.1
     container_name: lw_queue
     restart: unless-stopped
     tty: true
@@ -136,7 +137,7 @@ services:
       - "5001:5000"
 
   watcher:
-    image: akmolina28/webhook-folder-watcher:dev
+    image: akmolina28/webhook-folder-watcher:0.2.0
     container_name: lw_watcher
     volumes:
       - ./src:/var/www/app

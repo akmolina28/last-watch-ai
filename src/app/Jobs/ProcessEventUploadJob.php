@@ -41,7 +41,6 @@ class ProcessEventUploadJob implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @param DeepstackClientInterface $client
      * @return void
      */
     public function handle()
@@ -63,8 +62,9 @@ class ProcessEventUploadJob implements ShouldQueue
 
         $activeMatchedProfiles = $event->matchEventToProfiles(DetectionProfile::all());
 
+        $compressImages = config('app.compress_images');
         if ($activeMatchedProfiles > 0) {
-            ProcessDetectionEventJob::dispatch($event)->onQueue('medium');
+            ProcessDetectionEventJob::dispatch($event, $compressImages)->onQueue('medium');
         }
     }
 }

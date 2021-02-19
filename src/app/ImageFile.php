@@ -4,6 +4,7 @@ namespace App;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * AiPrediction.
@@ -18,4 +19,9 @@ class ImageFile extends Model
         'width',
         'height',
     ];
+
+    public function getAbsolutePath()
+    {
+        return Storage::path($this->path);
+    }
 }

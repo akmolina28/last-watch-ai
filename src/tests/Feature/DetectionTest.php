@@ -8,6 +8,7 @@ use App\DetectionProfile;
 use App\ImageFile;
 use App\Jobs\ProcessAutomationJob;
 use App\Jobs\ProcessDetectionEventJob;
+use App\Jobs\ProcessImageOptimizationJob;
 use App\Mocks\FakeDeepstackClient;
 use App\WebRequestConfig;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -49,9 +50,9 @@ class DetectionTest extends TestCase
         ]);
     }
 
-    protected function handleDetectionJob(DetectionEvent $event)
+    protected function handleDetectionJob(DetectionEvent $event, $compressImage = true)
     {
-        $job = new ProcessDetectionEventJob($event);
+        $job = new ProcessDetectionEventJob($event, $compressImage);
         $job->handle(new FakeDeepstackClient());
     }
 
@@ -302,5 +303,37 @@ class DetectionTest extends TestCase
         $this->assertCount(3, $event->detectionProfiles);
 
         Queue::assertPushedOn('high', ProcessAutomationJob::class);
+    }
+
+    /**
+     * @test
+     */
+    public function detection_job_creates_image_compression_job()
+    {
+        $imageFile = $this->createImageFile();
+
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile->id,
+        ]);
+
+        $this->handleDetectionJob($event, true);
+
+        Queue::assertPushedOn('low', ProcessImageOptimizationJob::class);
+    }
+
+    /**
+     * @test
+     */
+    public function detection_job_can_skip_image_compression_job()
+    {
+        $imageFile = $this->createImageFile();
+
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile->id,
+        ]);
+
+        $this->handleDetectionJob($event, false);
+
+        Queue::assertNothingPushed();
     }
 }
