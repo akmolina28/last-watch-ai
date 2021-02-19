@@ -170,8 +170,6 @@ class DetectionProfileController extends Controller
 
     public function showAutomations($param)
     {
-        // todo: use class name (e.g. App\WebRequestConfig instead of morphs)
-
         $profile = $this->lookUpProfile($param);
 
         $configTypes = [];
@@ -222,7 +220,6 @@ class DetectionProfileController extends Controller
         $value = request()->get('value');
         $isHighPriority = request()->get('is_high_priority', false);
 
-        // todo: pass in class name directly so morphmap is not needed
         $automationType = Relation::morphMap()[$type];
 
         if ($value == 'true') {
