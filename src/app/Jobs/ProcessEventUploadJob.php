@@ -3,8 +3,6 @@
 
 namespace App\Jobs;
 
-
-use App\DeepstackClientInterface;
 use App\DetectionEvent;
 use App\DetectionProfile;
 use App\ImageFile;

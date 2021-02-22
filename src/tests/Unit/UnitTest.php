@@ -99,6 +99,7 @@ class UnitTest extends TestCase
 
         $cmd = $smbConfig->getSmbclientCommand($localPath, $destPath);
 
+        // @codingStandardsIgnoreLine
         $this->assertEquals('smbclient //192.168.1.101/share -U smith%secret -c \'cd "/dest/folder" ; put "/local/path/my-image.jpg" "dest-path.jpg"\'', $cmd);
     }
 }

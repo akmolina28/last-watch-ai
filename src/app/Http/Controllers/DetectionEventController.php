@@ -2,12 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\DeepstackClient;
 use App\DetectionEvent;
-use App\DetectionProfile;
-use App\Factories\DetectionEventModelFactory;
-use App\ImageFile;
-use App\Jobs\ProcessDetectionEventJob;
 use App\Jobs\ProcessEventUploadJob;
 use App\Resources\DetectionEventResource;
 use Exception;
@@ -74,8 +69,7 @@ class DetectionEventController extends Controller
             $fileName = $file->getClientOriginalName();
 
             ProcessEventUploadJob::dispatch($path, $fileName, $occurredAt)->onQueue('medium');
-        }
-        else {
+        } else {
             return response()->json(['message' => 'Missing key image_file.'], 422);
         }
 

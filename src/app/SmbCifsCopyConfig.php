@@ -69,7 +69,8 @@ class SmbCifsCopyConfig extends Model implements AutomationConfigInterface
 
     public function getSmbclientCommand($localPath, $destPath)
     {
-        $cmd = sprintf('smbclient %s -U %s%%%s -c \'cd "%s" ; put "%s" "%s"\'',
+        $cmd = sprintf(
+            'smbclient %s -U %s%%%s -c \'cd "%s" ; put "%s" "%s"\'',
             $this->servicename,
             $this->user,
             $this->password,

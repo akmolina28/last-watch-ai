@@ -14,7 +14,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Spatie\WebhookClient\Models\WebhookCall;
-use Symfony\Component\Process\Process;
 use Tests\TestCase;
 
 class WebHookTest extends TestCase
@@ -97,7 +96,7 @@ class WebHookTest extends TestCase
 
         $this->triggerWebhook();
 
-        Queue::assertPushedOn('medium', ProcessDetectionEventJob::class, function($job) {
+        Queue::assertPushedOn('medium', ProcessDetectionEventJob::class, function ($job) {
             return $job->event->imageFile->file_name === 'testimage.jpg';
         });
     }
@@ -145,7 +144,7 @@ class WebHookTest extends TestCase
         $this->assertCount(1, $event->patternMatchedProfiles);
         $this->assertEquals(1, $event->patternMatchedProfiles()->first()->pivot->is_profile_active);
 
-        Queue::assertPushedOn('medium', ProcessDetectionEventJob::class, function($job) {
+        Queue::assertPushedOn('medium', ProcessDetectionEventJob::class, function ($job) {
             return $job->event->imageFile->file_name === 'testimage.jpg';
         });
     }
@@ -177,7 +176,7 @@ class WebHookTest extends TestCase
         $this->assertEquals(480, $event->imageFile->height);
         $this->assertCount(3, $event->patternMatchedProfiles);
 
-        Queue::assertPushedOn('medium', ProcessDetectionEventJob::class, function($job) {
+        Queue::assertPushedOn('medium', ProcessDetectionEventJob::class, function ($job) {
             return $job->event->imageFile->file_name === 'testimage.jpg';
         });
     }

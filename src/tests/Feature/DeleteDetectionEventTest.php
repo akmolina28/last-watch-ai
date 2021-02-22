@@ -44,8 +44,8 @@ class DeleteDetectionEventTest extends TestCase
         $event = factory(DetectionEvent::class)
             ->create();
         $event->aiPredictions()->createMany(
-                    factory(AiPrediction::class, 3)->make()->toArray()
-                )
+            factory(AiPrediction::class, 3)->make()->toArray()
+        )
             ->each(function ($prediction) {
                 $prediction->detectionProfiles()->attach(
                     factory(DetectionProfile::class)->create()

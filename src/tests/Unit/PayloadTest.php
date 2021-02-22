@@ -75,8 +75,6 @@ class PayloadTest extends TestCase
     {
         $imageFile = factory(ImageFile::class)->create();
 
-        $imageFile = factory(ImageFile::class)->create();
-
         $event = factory(DetectionEvent::class)->create([
             'image_file_id' => $imageFile
         ]);

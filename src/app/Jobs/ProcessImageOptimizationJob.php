@@ -3,7 +3,6 @@
 
 namespace App\Jobs;
 
-
 use App\ImageFile;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
