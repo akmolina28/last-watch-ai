@@ -141,10 +141,10 @@ services:
     container_name: lw_watcher
     volumes:
       - ./src:/var/www/app
-      - ${WATCH_FOLDER}:/var/www/app/storage/app/public/events
+      - ${WATCH_FOLDER}:/watch
     restart: unless-stopped
     environment:
-      - WATCH_FOLDER=/var/www/app/storage/app/public/events
+      - WATCH_FOLDER=/watch
       - WEBHOOK_URL=http://lw_nginx:80/api/events
       - WATCH_USE_POLLING=${WATCH_USE_POLLING:-false}
       - DELETE_AFTER_POSTING=${WATCH_FOLDER_AUTO_DELETE:-false}
