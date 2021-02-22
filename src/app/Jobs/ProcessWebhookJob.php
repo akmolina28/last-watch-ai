@@ -6,10 +6,17 @@ use App\DetectionProfile;
 use App\Exceptions\WebhookRequestException;
 use App\Factories\DetectionEventModelFactory;
 use Illuminate\Support\Carbon;
+use Spatie\WebhookClient\Models\WebhookCall;
 use Spatie\WebhookClient\ProcessWebhookJob as SpatieProcessWebhookJob;
 
 class ProcessWebhookJob extends SpatieProcessWebhookJob
 {
+    public function __construct(WebhookCall $webhookCall)
+    {
+        parent::__construct($webhookCall);
+        $this->onQueue('low');
+    }
+
     /**
      * @param Carbon|null $occurred_at
      * @throws WebhookRequestException
