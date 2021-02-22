@@ -38,6 +38,11 @@ use Illuminate\Support\Facades\Storage;
  * @method static Builder|SmbCifsCopyConfig whereServicename($value)
  * @method static Builder|SmbCifsCopyConfig whereUpdatedAt($value)
  * @method static Builder|SmbCifsCopyConfig whereUser($value)
+ * @property Carbon|null $deleted_at
+ * @method static Builder|SmbCifsCopyConfig onlyTrashed()
+ * @method static Builder|SmbCifsCopyConfig whereDeletedAt($value)
+ * @method static Builder|SmbCifsCopyConfig withTrashed()
+ * @method static Builder|SmbCifsCopyConfig withoutTrashed()
  */
 class SmbCifsCopyConfig extends Model implements AutomationConfigInterface
 {

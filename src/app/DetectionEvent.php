@@ -42,6 +42,11 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @property-read Collection|\App\DetectionEventAutomationResult[] $automationResults
  * @property-read int|null $automation_results_count
  * @property-read DeepstackCall|null $deepstackCall
+ * @property int|null $image_file_id
+ * @property-read mixed $event_url
+ * @property-read mixed $image_url
+ * @property-read ImageFile|null $imageFile
+ * @method static Builder|DetectionEvent whereImageFileId($value)
  */
 class DetectionEvent extends Model
 {

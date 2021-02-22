@@ -32,6 +32,11 @@ use Illuminate\Support\Facades\Storage;
  * @method static Builder|TelegramConfig whereName($value)
  * @method static Builder|TelegramConfig whereToken($value)
  * @method static Builder|TelegramConfig whereUpdatedAt($value)
+ * @property Carbon|null $deleted_at
+ * @method static Builder|TelegramConfig onlyTrashed()
+ * @method static Builder|TelegramConfig whereDeletedAt($value)
+ * @method static Builder|TelegramConfig withTrashed()
+ * @method static Builder|TelegramConfig withoutTrashed()
  */
 class TelegramConfig extends Model implements AutomationConfigInterface
 {

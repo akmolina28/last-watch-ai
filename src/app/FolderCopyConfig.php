@@ -31,6 +31,11 @@ use Illuminate\Support\Carbon;
  * @method static Builder|FolderCopyConfig whereName($value)
  * @method static Builder|FolderCopyConfig whereOverwrite($value)
  * @method static Builder|FolderCopyConfig whereUpdatedAt($value)
+ * @property Carbon|null $deleted_at
+ * @method static Builder|FolderCopyConfig onlyTrashed()
+ * @method static Builder|FolderCopyConfig whereDeletedAt($value)
+ * @method static Builder|FolderCopyConfig withTrashed()
+ * @method static Builder|FolderCopyConfig withoutTrashed()
  */
 class FolderCopyConfig extends Model implements AutomationConfigInterface
 {

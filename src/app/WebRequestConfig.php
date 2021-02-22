@@ -37,6 +37,11 @@ use Illuminate\Support\Facades\Http;
  * @method static Builder|WebRequestConfig whereBodyJson($value)
  * @method static Builder|WebRequestConfig whereHeadersJson($value)
  * @method static Builder|WebRequestConfig whereIsPost($value)
+ * @property Carbon|null $deleted_at
+ * @method static Builder|WebRequestConfig onlyTrashed()
+ * @method static Builder|WebRequestConfig whereDeletedAt($value)
+ * @method static Builder|WebRequestConfig withTrashed()
+ * @method static Builder|WebRequestConfig withoutTrashed()
  */
 class WebRequestConfig extends Model implements AutomationConfigInterface
 {

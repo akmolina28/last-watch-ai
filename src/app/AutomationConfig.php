@@ -34,6 +34,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|AutomationConfig onlyTrashed()
  * @method static Builder|AutomationConfig withTrashed()
  * @method static Builder|AutomationConfig withoutTrashed()
+ * @property bool $is_high_priority
+ * @method static Builder|AutomationConfig whereIsHighPriority($value)
  */
 class AutomationConfig extends Model
 {
