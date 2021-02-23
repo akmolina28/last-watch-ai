@@ -9,6 +9,6 @@ $factory->define(ImageFile::class, function () {
         'path' => 'events/'.Str::random(40).'jpeg',
         'file_name' => 'testimage.jpg',
         'width' => 640,
-        'height' => 480
+        'height' => 480,
     ];
 });

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Jobs;
 
 use App\ImageFile;

@@ -652,7 +652,7 @@ class ApiTest extends TestCase
         $imageFile = $this->createImageFile();
 
         $event = factory(DetectionEvent::class)->create([
-            'image_file_id' => $imageFile->id
+            'image_file_id' => $imageFile->id,
         ]);
 
         $this->get('/api/events/'.$event->id)
@@ -660,7 +660,7 @@ class ApiTest extends TestCase
             ->assertJson([
                 'data' => [
                     'image_file_name' => 'testimage.jpg',
-                    'image_file_path' => 'events/testimage.jpg'
+                    'image_file_path' => 'events/testimage.jpg',
                 ],
             ]);
 
@@ -1801,7 +1801,7 @@ class ApiTest extends TestCase
             'path' => $path,
             'file_name' => $fileName,
             'width' => 640,
-            'height' => 480
+            'height' => 480,
         ]);
     }
 
@@ -1813,7 +1813,7 @@ class ApiTest extends TestCase
         $imageFile = $this->createImageFile();
 
         $event = factory(DetectionEvent::class)->create([
-            'image_file_id' => $imageFile->id
+            'image_file_id' => $imageFile->id,
         ]);
 
         $this->json('GET', '/api/events/'.$event->id.'/img')

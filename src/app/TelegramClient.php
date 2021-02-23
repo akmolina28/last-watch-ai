@@ -35,9 +35,10 @@ class TelegramClient
 
         $ret = curl_exec($ch);
 
-        if (!$ret) {
+        if (! $ret) {
             return curl_error($ch);
         }
+
         return $ret;
     }
 }
