@@ -22,7 +22,7 @@ class PayloadTest extends TestCase
         $imageFile = factory(ImageFile::class)->create();
 
         $event = factory(DetectionEvent::class)->create([
-            'image_file_id' => $imageFile
+            'image_file_id' => $imageFile,
         ]);
         $profile = factory(DetectionProfile::class)->create();
         $payload = '{"link"="%event_url%"}';
@@ -40,7 +40,7 @@ class PayloadTest extends TestCase
         $imageFile = factory(ImageFile::class)->create();
 
         $event = factory(DetectionEvent::class)->create([
-            'image_file_id' => $imageFile
+            'image_file_id' => $imageFile,
         ]);
         $profile = factory(DetectionProfile::class)->create();
         $payload = '{"image"="%image_file_name%"}';
@@ -58,7 +58,7 @@ class PayloadTest extends TestCase
         $imageFile = factory(ImageFile::class)->create();
 
         $event = factory(DetectionEvent::class)->create([
-            'image_file_id' => $imageFile
+            'image_file_id' => $imageFile,
         ]);
         $profile = factory(DetectionProfile::class)->create();
         $payload = '{"profile"="%profile_name%"}';
@@ -76,7 +76,7 @@ class PayloadTest extends TestCase
         $imageFile = factory(ImageFile::class)->create();
 
         $event = factory(DetectionEvent::class)->create([
-            'image_file_id' => $imageFile
+            'image_file_id' => $imageFile,
         ]);
         $profile = factory(DetectionProfile::class)->create([
             'object_classes' => ['car', 'person', 'truck'],
@@ -115,7 +115,7 @@ class PayloadTest extends TestCase
         $imageFile = factory(ImageFile::class)->create();
 
         $event = factory(DetectionEvent::class)->create([
-            'image_file_id' => $imageFile
+            'image_file_id' => $imageFile,
         ]);
         $profile = factory(DetectionProfile::class)->create();
         $payload = '{"link"="%image_url%"}';

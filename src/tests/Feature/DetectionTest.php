@@ -46,7 +46,7 @@ class DetectionTest extends TestCase
             'path' => $path,
             'file_name' => $fileName,
             'width' => 640,
-            'height' => 480
+            'height' => 480,
         ]);
     }
 

@@ -23,7 +23,7 @@ class UnitTest extends TestCase
         $imageFile = factory(ImageFile::class)->create();
 
         $event = factory(DetectionEvent::class)->create([
-            'image_file_id' => $imageFile->id
+            'image_file_id' => $imageFile->id,
         ]);
 
         $smbConfig = factory(SmbCifsCopyConfig::class)->create();
@@ -41,15 +41,15 @@ class UnitTest extends TestCase
         $imageFile = factory(ImageFile::class)->create();
 
         $event = factory(DetectionEvent::class)->create([
-            'image_file_id' => $imageFile->id
+            'image_file_id' => $imageFile->id,
         ]);
 
         $profile = factory(DetectionProfile::class)->create([
-            'name' => 'Test Profile'
+            'name' => 'Test Profile',
         ]);
 
         $smbConfig = factory(SmbCifsCopyConfig::class)->create([
-            'overwrite' => false
+            'overwrite' => false,
         ]);
 
         $destPath = $smbConfig->getDestPath($event, $profile);
@@ -65,15 +65,15 @@ class UnitTest extends TestCase
         $imageFile = factory(ImageFile::class)->create();
 
         $event = factory(DetectionEvent::class)->create([
-            'image_file_id' => $imageFile->id
+            'image_file_id' => $imageFile->id,
         ]);
 
         $profile = factory(DetectionProfile::class)->create([
-            'name' => 'Test Profile'
+            'name' => 'Test Profile',
         ]);
 
         $smbConfig = factory(SmbCifsCopyConfig::class)->create([
-            'overwrite' => true
+            'overwrite' => true,
         ]);
 
         $destPath = $smbConfig->getDestPath($event, $profile);
@@ -91,7 +91,7 @@ class UnitTest extends TestCase
             'user' => 'smith',
             'password' => 'secret',
             'remote_dest' => '/dest/folder',
-            'overwrite' => true
+            'overwrite' => true,
         ]);
 
         $localPath = '/local/path/my-image.jpg';

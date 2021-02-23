@@ -25,7 +25,7 @@ class WebRequestAutomationTest extends TestCase
         $imageFile = factory(ImageFile::class)->create();
 
         $event = factory(DetectionEvent::class)->create([
-            'image_file_id' => $imageFile
+            'image_file_id' => $imageFile,
         ]);
 
         $profile = factory(DetectionProfile::class)->create();
@@ -56,7 +56,7 @@ class WebRequestAutomationTest extends TestCase
         $imageFile = factory(ImageFile::class)->create();
 
         $event = factory(DetectionEvent::class)->create([
-            'image_file_id' => $imageFile
+            'image_file_id' => $imageFile,
         ]);
 
         $config = factory(WebRequestConfig::class)->create([
@@ -85,7 +85,7 @@ class WebRequestAutomationTest extends TestCase
         $imageFile = factory(ImageFile::class)->create();
 
         $event = factory(DetectionEvent::class)->create([
-            'image_file_id' => $imageFile
+            'image_file_id' => $imageFile,
         ]);
 
         $carPrediction = factory(AiPrediction::class)->create([
@@ -134,7 +134,7 @@ class WebRequestAutomationTest extends TestCase
         $imageFile = factory(ImageFile::class)->create();
 
         $event = factory(DetectionEvent::class)->create([
-            'image_file_id' => $imageFile
+            'image_file_id' => $imageFile,
         ]);
 
         $config = factory(WebRequestConfig::class)->create([
@@ -175,7 +175,7 @@ class WebRequestAutomationTest extends TestCase
         $imageFile = factory(ImageFile::class)->create();
 
         $event = factory(DetectionEvent::class)->create([
-            'image_file_id' => $imageFile
+            'image_file_id' => $imageFile,
         ]);
 
         Http::fake([
@@ -211,7 +211,7 @@ class WebRequestAutomationTest extends TestCase
         $imageFile = factory(ImageFile::class)->create();
 
         $event = factory(DetectionEvent::class)->create([
-            'image_file_id' => $imageFile
+            'image_file_id' => $imageFile,
         ]);
 
         Http::fake([

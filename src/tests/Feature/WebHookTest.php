@@ -50,7 +50,7 @@ class WebHookTest extends TestCase
 
     protected function triggerWebhook($fileName = 'testimage.jpg', $occurredAt = null)
     {
-        if (!$occurredAt) {
+        if (! $occurredAt) {
             $occurredAt = Carbon::now();
         }
 
@@ -75,7 +75,7 @@ class WebHookTest extends TestCase
         $this->json('POST', '/api/events', [
             'image_file' => $imageFile,
         ], [
-            'enctype' => 'multipart/form-data'
+            'enctype' => 'multipart/form-data',
         ])->assertStatus(201);
 
         // check for webhook job on queue and process it

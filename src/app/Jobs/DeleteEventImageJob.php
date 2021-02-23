@@ -1,9 +1,7 @@
 <?php
 
-
 namespace App\Jobs;
 
-use App\DeepstackClientInterface;
 use App\ImageFile;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

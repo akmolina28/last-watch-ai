@@ -58,9 +58,9 @@ class TelegramConfig extends Model implements AutomationConfigInterface
         $responseJson = json_decode($response);
 
         $isError = false;
-        if (!$responseJson) {
+        if (! $responseJson) {
             $isError = true;
-        } elseif (!$responseJson->ok) {
+        } elseif (! $responseJson->ok) {
             $isError = true;
         }
 
