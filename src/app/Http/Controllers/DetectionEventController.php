@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\DetectionEvent;
+use App\Jobs\ProcessEventUploadJob;
 use App\Resources\DetectionEventResource;
+use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 class DetectionEventController extends Controller
@@ -42,9 +45,35 @@ class DetectionEventController extends Controller
 
         return DetectionEventResource::collection(
             $query
+                ->with('imageFile')
                 ->orderByDesc('occurred_at')
                 ->paginate(10)
         );
+    }
+
+    public function make(Request $request)
+    {
+        $occurredAt = Carbon::now();
+
+        if ($request->has('occurred_at')) {
+            try {
+                $occurredAt = new Carbon($request->get('occurred_at'));
+            } catch (Exception $e) {
+                return response()->json(['message' => $e->getMessage()], 201);
+            }
+        }
+
+        if ($request->has('image_file')) {
+            $file = $request->file('image_file');
+            $path = $file->store('events', 'public');
+            $fileName = $file->getClientOriginalName();
+
+            ProcessEventUploadJob::dispatch($path, $fileName, $occurredAt)->onQueue('medium');
+        } else {
+            return response()->json(['message' => 'Missing key image_file.'], 422);
+        }
+
+        return response()->json(['message' => 'OK'], 201);
     }
 
     public function show(DetectionEvent $event)
@@ -64,9 +93,7 @@ class DetectionEventController extends Controller
 
     public function showImage(DetectionEvent $event)
     {
-        $path = Storage::path($event->image_file_name);
-
-        return response()->file($path);
+        return Storage::download($event->imageFile->path, $event->imageFile->file_name);
     }
 
     public function showLatest()

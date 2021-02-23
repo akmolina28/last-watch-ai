@@ -6,9 +6,13 @@ use Illuminate\Support\Facades\Http;
 
 class DeepstackClient implements DeepstackClientInterface
 {
-    private string $api_base_url;
+    public string $api_base_url;
 
-    public function __construct($api_base_url)
+    /**
+     * DeepstackClient constructor.
+     * @param string $api_base_url
+     */
+    public function __construct(string $api_base_url)
     {
         $this->api_base_url = rtrim($api_base_url, '/');
     }

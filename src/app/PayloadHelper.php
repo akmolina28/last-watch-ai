@@ -5,11 +5,13 @@ namespace App;
 class PayloadHelper
 {
     public static function doReplacements(
-        string $payload, DetectionEvent $event, DetectionProfile $profile)
-    {
+        string $payload,
+        DetectionEvent $event,
+        DetectionProfile $profile
+    ) {
         $replaced = $payload;
 
-        $replaced = str_replace('%image_file_name%', $event->image_file_name, $replaced);
+        $replaced = str_replace('%image_file_name%', $event->imageFile->file_name, $replaced);
 
         $replaced = str_replace('%profile_name%', $profile->name, $replaced);
 

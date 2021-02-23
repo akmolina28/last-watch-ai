@@ -31,6 +31,11 @@ use Illuminate\Support\Carbon;
  * @method static Builder|FolderCopyConfig whereName($value)
  * @method static Builder|FolderCopyConfig whereOverwrite($value)
  * @method static Builder|FolderCopyConfig whereUpdatedAt($value)
+ * @property Carbon|null $deleted_at
+ * @method static Builder|FolderCopyConfig onlyTrashed()
+ * @method static Builder|FolderCopyConfig whereDeletedAt($value)
+ * @method static Builder|FolderCopyConfig withTrashed()
+ * @method static Builder|FolderCopyConfig withoutTrashed()
  */
 class FolderCopyConfig extends Model implements AutomationConfigInterface
 {
@@ -45,14 +50,14 @@ class FolderCopyConfig extends Model implements AutomationConfigInterface
 
     public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
     {
-        $basename = basename($event->image_file_name);
-        $ext = pathinfo($event->image_file_name, PATHINFO_EXTENSION);
+        $basename = basename($event->imageFile->file_name);
+        $ext = pathinfo($event->imageFile->file_name, PATHINFO_EXTENSION);
 
         if ($this->overwrite) {
             $basename = $profile->slug.'.'.$ext;
         }
 
-        $src = $event->image_file_name;
+        $src = $event->imageFile->path;
         $dest = $this->copy_to.$basename;
 
         $success = copy($src, $dest);

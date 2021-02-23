@@ -8,6 +8,7 @@ use App\DeepstackCall;
 use App\DetectionEvent;
 use App\DetectionProfile;
 use App\FolderCopyConfig;
+use App\ImageFile;
 use App\Jobs\EnableDetectionProfileJob;
 use App\MqttPublishConfig;
 use App\SmbCifsCopyConfig;
@@ -316,7 +317,7 @@ class ApiTest extends TestCase
     /**
      * @test
      */
-    public function api_can_first_page_of_events()
+    public function api_can_get_first_page_of_events()
     {
         factory(DetectionEvent::class, 30)->create();
 
@@ -328,9 +329,7 @@ class ApiTest extends TestCase
                 'data' => [0 => [
                     'id',
                     'image_file_name',
-                    'image_dimensions',
                     'detection_profiles_count',
-
                 ]],
             ])
             ->assertJsonCount(10, 'data');
@@ -386,7 +385,6 @@ class ApiTest extends TestCase
                 'data' => [0 => [
                     'id',
                     'image_file_name',
-                    'image_dimensions',
                     'detection_profiles_count',
                 ]],
             ])
@@ -410,7 +408,6 @@ class ApiTest extends TestCase
                 'data' => [0 => [
                     'id',
                     'image_file_name',
-                    'image_dimensions',
                     'detection_profiles_count',
                 ]],
             ])
@@ -434,7 +431,6 @@ class ApiTest extends TestCase
                 'data' => [0 => [
                     'id',
                     'image_file_name',
-                    'image_dimensions',
                     'detection_profiles_count',
                 ]],
             ])
@@ -453,7 +449,6 @@ class ApiTest extends TestCase
             ->assertJson([
                 'data' => [
                     'image_file_name' => $event->image_file_name,
-                    'image_dimensions' => $event->image_dimensions,
                     'detection_profiles_count' => 0,
                 ],
             ]);
@@ -513,7 +508,8 @@ class ApiTest extends TestCase
             ->assertJsonStructure([
                 'data' => [
                     'image_file_name',
-                    'image_dimensions',
+                    'image_height',
+                    'image_width',
                     'detection_profiles_count',
                     'pattern_matched_profiles' => [
                         2 => [
@@ -547,7 +543,8 @@ class ApiTest extends TestCase
             ->assertJsonStructure([
                 'data' => [
                     'image_file_name',
-                    'image_dimensions',
+                    'image_height',
+                    'image_width',
                     'detection_profiles_count',
                     'pattern_matched_profiles' => [
                         2 => [
@@ -580,7 +577,8 @@ class ApiTest extends TestCase
             ->assertJsonStructure([
                 'data' => [
                     'image_file_name',
-                    'image_dimensions',
+                    'image_height',
+                    'image_width',
                     'detection_profiles_count',
                     'pattern_matched_profiles' => [
                         2 => [
@@ -622,7 +620,8 @@ class ApiTest extends TestCase
             ->assertJsonStructure([
                 'data' => [
                     'image_file_name',
-                    'image_dimensions',
+                    'image_height',
+                    'image_width',
                     'detection_profiles_count',
                     'pattern_matched_profiles' => [
                         2 => [
@@ -650,19 +649,18 @@ class ApiTest extends TestCase
      */
     public function api_can_get_a_detection_event_with_valid_image_url()
     {
-        Storage::fake('public');
-        $imageFile = UploadedFile::fake()->image('testimage.jpg', 640, 480)->size(128);
-        $file = $imageFile->storeAs('events', 'testimage.jpg');
+        $imageFile = $this->createImageFile();
 
-        $event = factory(DetectionEvent::class)->make();
-        $event->image_file_name = $file;
-        $event->save();
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile->id,
+        ]);
 
         $this->get('/api/events/'.$event->id)
             ->assertStatus(200)
             ->assertJson([
                 'data' => [
-                    'image_file_name' => 'events/testimage.jpg',
+                    'image_file_name' => 'testimage.jpg',
+                    'image_file_path' => 'events/testimage.jpg',
                 ],
             ]);
 
@@ -1793,18 +1791,29 @@ class ApiTest extends TestCase
         $this->assertEquals(0.77, $profile->smart_filter_precision);
     }
 
+    protected function createImageFile($fileName = 'testimage.jpg'): ImageFile
+    {
+        Storage::fake('public');
+        $imageFile = UploadedFile::fake()->image($fileName, 640, 480)->size(128);
+        $path = $imageFile->storeAs('events', $fileName);
+
+        return ImageFile::create([
+            'path' => $path,
+            'file_name' => $fileName,
+            'width' => 640,
+            'height' => 480,
+        ]);
+    }
+
     /**
      * @test
      */
     public function api_can_get_event_image_file()
     {
-        Storage::fake('public');
-
-        $imageFile = UploadedFile::fake()->image('testimage.jpg', 640, 480)->size(128);
-        $imageFile->storeAs('events', 'testimage.jpg');
+        $imageFile = $this->createImageFile();
 
         $event = factory(DetectionEvent::class)->create([
-            'image_file_name' => 'events/testimage.jpg',
+            'image_file_id' => $imageFile->id,
         ]);
 
         $this->json('GET', '/api/events/'.$event->id.'/img')

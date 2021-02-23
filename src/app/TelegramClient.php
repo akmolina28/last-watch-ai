@@ -33,6 +33,12 @@ class TelegramClient
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields);
 
-        return curl_exec($ch);
+        $ret = curl_exec($ch);
+
+        if (! $ret) {
+            return curl_error($ch);
+        }
+
+        return $ret;
     }
 }

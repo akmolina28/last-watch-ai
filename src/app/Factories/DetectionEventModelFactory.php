@@ -17,7 +17,7 @@ class DetectionEventModelFactory
      */
     public static function createFromImageFile(string $imageFileName, Carbon $occurred_at = null)
     {
-        $storage_name = 'events/'.$imageFileName;
+        $storage_name = $imageFileName;
         $path = Storage::path($storage_name);
 
         [$width, $height] = getimagesize($path);

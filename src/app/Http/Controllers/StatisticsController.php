@@ -55,6 +55,7 @@ class StatisticsController extends Controller
                 return $q->withTrashed();
             },
             'detectionEvent',
+            'detectionEvent.imageFile',
         ])
             ->where('is_error', '=', 1)
             ->latest()

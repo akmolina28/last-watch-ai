@@ -235,4 +235,16 @@ return [
     */
 
     'data_retention_days' => env('DATA_RETENTION_DAYS', 7),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Compress Images
+    |--------------------------------------------------------------------------
+    |
+    | Should the web server save space by compressing images after running the
+    | AI detection?
+    |
+    */
+
+    'compress_images' => env('COMPRESS_IMAGES', true),
 ];

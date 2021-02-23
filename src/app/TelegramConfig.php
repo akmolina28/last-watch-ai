@@ -32,6 +32,11 @@ use Illuminate\Support\Facades\Storage;
  * @method static Builder|TelegramConfig whereName($value)
  * @method static Builder|TelegramConfig whereToken($value)
  * @method static Builder|TelegramConfig whereUpdatedAt($value)
+ * @property Carbon|null $deleted_at
+ * @method static Builder|TelegramConfig onlyTrashed()
+ * @method static Builder|TelegramConfig whereDeletedAt($value)
+ * @method static Builder|TelegramConfig withTrashed()
+ * @method static Builder|TelegramConfig withoutTrashed()
  */
 class TelegramConfig extends Model implements AutomationConfigInterface
 {
@@ -48,13 +53,20 @@ class TelegramConfig extends Model implements AutomationConfigInterface
     {
         $client = new TelegramClient($this->token, $this->chat_id);
 
-        $response = $client->sendPhoto(Storage::path($event->image_file_name));
+        $response = $client->sendPhoto(Storage::path($event->imageFile->path));
 
         $responseJson = json_decode($response);
 
+        $isError = false;
+        if (! $responseJson) {
+            $isError = true;
+        } elseif (! $responseJson->ok) {
+            $isError = true;
+        }
+
         return new DetectionEventAutomationResult([
             'response_text' => $response,
-            'is_error' => ! $responseJson->ok,
+            'is_error' => $isError,
         ]);
     }
 

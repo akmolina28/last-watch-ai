@@ -38,6 +38,11 @@ use Illuminate\Support\Facades\Storage;
  * @method static Builder|SmbCifsCopyConfig whereServicename($value)
  * @method static Builder|SmbCifsCopyConfig whereUpdatedAt($value)
  * @method static Builder|SmbCifsCopyConfig whereUser($value)
+ * @property Carbon|null $deleted_at
+ * @method static Builder|SmbCifsCopyConfig onlyTrashed()
+ * @method static Builder|SmbCifsCopyConfig whereDeletedAt($value)
+ * @method static Builder|SmbCifsCopyConfig withTrashed()
+ * @method static Builder|SmbCifsCopyConfig withoutTrashed()
  */
 class SmbCifsCopyConfig extends Model implements AutomationConfigInterface
 {
@@ -50,23 +55,44 @@ class SmbCifsCopyConfig extends Model implements AutomationConfigInterface
         return $this->morphToMany('App\DetectionProfile', 'automation_config');
     }
 
-    public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
+    public function getLocalPath(DetectionEvent $event)
     {
-        $localPath = Storage::path($event->image_file_name);
-        $destPath = $event->image_file_name;
+        return Storage::path($event->imageFile->path);
+    }
+
+    public function getDestPath(DetectionEvent $event, DetectionProfile $profile)
+    {
+        $destPath = $event->imageFile->file_name;
 
         if ($this->overwrite) {
-            $ext = pathinfo($event->image_file_name, PATHINFO_EXTENSION);
+            $ext = pathinfo($event->imageFile->file_name, PATHINFO_EXTENSION);
             $destPath = $profile->slug.'.'.$ext;
         }
 
-        // todo: use format string
-        // todo: use facade so this can be mocked
-        $cmd = 'smbclient '
-            .$this->servicename
-            .' -U '.$this->user.'%'.$this->password
-            .' -c \'cd "'.$this->remote_dest
-            .'" ; put "'.$localPath.'" "'.$destPath.'"\'';
+        return $destPath;
+    }
+
+    public function getSmbclientCommand($localPath, $destPath)
+    {
+        $cmd = sprintf(
+            'smbclient %s -U %s%%%s -c \'cd "%s" ; put "%s" "%s"\'',
+            $this->servicename,
+            $this->user,
+            $this->password,
+            $this->remote_dest,
+            $localPath,
+            $destPath
+        );
+
+        return $cmd;
+    }
+
+    public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
+    {
+        $localPath = $this->getLocalPath($event);
+        $destPath = $this->getDestPath($event, $profile);
+
+        $cmd = $this->getSmbclientCommand($localPath, $destPath);
 
         $response = shell_exec($cmd);
 

@@ -5,8 +5,10 @@ namespace Tests\Feature;
 use App\DeepstackClient;
 use App\DetectionEvent;
 use App\DetectionProfile;
+use App\ImageFile;
 use App\Jobs\ProcessAutomationJob;
 use App\Jobs\ProcessDetectionEventJob;
+use App\Jobs\ProcessImageOptimizationJob;
 use App\Mocks\FakeDeepstackClient;
 use App\WebRequestConfig;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -34,15 +36,23 @@ class DetectionTest extends TestCase
         });
     }
 
-    protected function setUpTestImage()
+    protected function createImageFile($fileName = 'testimage.jpg'): ImageFile
     {
-        $imageFile = UploadedFile::fake()->image('testimage.jpg', 640, 480)->size(128);
-        $imageFile->storeAs('events', 'testimage.jpg');
+        Storage::fake('public');
+        $imageFile = UploadedFile::fake()->image($fileName, 640, 480)->size(128);
+        $path = $imageFile->storeAs('events', $fileName);
+
+        return ImageFile::create([
+            'path' => $path,
+            'file_name' => $fileName,
+            'width' => 640,
+            'height' => 480,
+        ]);
     }
 
-    protected function handleDetectionJob(DetectionEvent $event)
+    protected function handleDetectionJob(DetectionEvent $event, $compressImage = true)
     {
-        $job = new ProcessDetectionEventJob($event);
+        $job = new ProcessDetectionEventJob($event, $compressImage);
         $job->handle(new FakeDeepstackClient());
     }
 
@@ -56,14 +66,12 @@ class DetectionTest extends TestCase
             'use_mask' => false,
         ]);
 
+        $imageFile = $this->createImageFile();
+
         $event = factory(DetectionEvent::class)->create([
-            'image_file_name' => 'events/testimage.jpg',
+            'image_file_id' => $imageFile->id,
         ]);
         $event->patternMatchedProfiles()->attach($profile->id);
-
-        $this->setUpTestImage();
-
-        Storage::assertExists('events/testimage.jpg');
 
         $this->handleDetectionJob($event);
 
@@ -77,7 +85,7 @@ class DetectionTest extends TestCase
     /**
      * @test
      */
-    public function detection__job_creates_relevant_relationship_for_active_matches()
+    public function detection_job_creates_relevant_relationship_for_active_matches()
     {
         factory(DetectionProfile::class, 5)->create();
 
@@ -86,8 +94,11 @@ class DetectionTest extends TestCase
             'object_classes' => ['person', 'dog'],
             'use_mask' => false,
         ]);
+
+        $imageFile = $this->createImageFile();
+
         $event = factory(DetectionEvent::class)->create([
-            'image_file_name' => 'events/testimage.jpg',
+            'image_file_id' => $imageFile->id,
         ]);
         $event->patternMatchedProfiles()->attach($profile->id);
 
@@ -124,16 +135,18 @@ class DetectionTest extends TestCase
             'smart_filter_precision' => '0.90',
         ]);
 
+        $imageFile = $this->createImageFile();
+
         // process an event
         $event = factory(DetectionEvent::class)->create([
-            'image_file_name' => 'events/testimage.jpg',
+            'image_file_id' => $imageFile->id,
         ]);
         $event->patternMatchedProfiles()->attach($profile->id);
         $this->handleDetectionJob($event);
 
         // process another event with the same predictions
         $event = factory(DetectionEvent::class)->create([
-            'image_file_name' => 'events/testimage.jpg',
+            'image_file_id' => $imageFile->id,
         ]);
         $event->patternMatchedProfiles()->attach($profile->id);
         $this->handleDetectionJob($event);
@@ -161,9 +174,11 @@ class DetectionTest extends TestCase
             'name' => 'test-mask3',
         ]);
 
+        $imageFile = $this->createImageFile();
+
         // process an event
         $event = factory(DetectionEvent::class)->create([
-            'image_file_name' => 'events/testimage.jpg',
+            'image_file_id' => $imageFile->id,
         ]);
         $event->patternMatchedProfiles()->attach($profile->id);
         $this->handleDetectionJob($event);
@@ -202,9 +217,11 @@ class DetectionTest extends TestCase
             'use_mask' => false,
         ]);
 
+        $imageFile = $this->createImageFile();
+
         // process an event
         $event = factory(DetectionEvent::class)->create([
-            'image_file_name' => 'events/testimage.jpg',
+            'image_file_id' => $imageFile->id,
         ]);
         $event->patternMatchedProfiles()->attach([
             $personProfile->id,
@@ -238,14 +255,12 @@ class DetectionTest extends TestCase
 
         $profile->subscribeAutomation(WebRequestConfig::class, $webRequestAutomation->id);
 
+        $imageFile = $this->createImageFile();
+
         $event = factory(DetectionEvent::class)->create([
-            'image_file_name' => 'events/testimage.jpg',
+            'image_file_id' => $imageFile->id,
         ]);
         $event->patternMatchedProfiles()->attach($profile->id);
-
-        $this->setUpTestImage();
-
-        Storage::assertExists('events/testimage.jpg');
 
         $this->handleDetectionJob($event);
 
@@ -272,14 +287,12 @@ class DetectionTest extends TestCase
 
         $profile->subscribeAutomation(WebRequestConfig::class, $webRequestAutomation->id, true);
 
+        $imageFile = $this->createImageFile();
+
         $event = factory(DetectionEvent::class)->create([
-            'image_file_name' => 'events/testimage.jpg',
+            'image_file_id' => $imageFile->id,
         ]);
         $event->patternMatchedProfiles()->attach($profile->id);
-
-        $this->setUpTestImage();
-
-        Storage::assertExists('events/testimage.jpg');
 
         $this->handleDetectionJob($event);
 
@@ -290,5 +303,37 @@ class DetectionTest extends TestCase
         $this->assertCount(3, $event->detectionProfiles);
 
         Queue::assertPushedOn('high', ProcessAutomationJob::class);
+    }
+
+    /**
+     * @test
+     */
+    public function detection_job_creates_image_compression_job()
+    {
+        $imageFile = $this->createImageFile();
+
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile->id,
+        ]);
+
+        $this->handleDetectionJob($event, true);
+
+        Queue::assertPushedOn('low', ProcessImageOptimizationJob::class);
+    }
+
+    /**
+     * @test
+     */
+    public function detection_job_can_skip_image_compression_job()
+    {
+        $imageFile = $this->createImageFile();
+
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile->id,
+        ]);
+
+        $this->handleDetectionJob($event, false);
+
+        Queue::assertNothingPushed();
     }
 }

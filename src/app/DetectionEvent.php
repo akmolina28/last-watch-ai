@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Jobs\DeleteEventImageJob;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -41,12 +42,23 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @property-read Collection|\App\DetectionEventAutomationResult[] $automationResults
  * @property-read int|null $automation_results_count
  * @property-read DeepstackCall|null $deepstackCall
+ * @property int|null $image_file_id
+ * @property-read mixed $event_url
+ * @property-read mixed $image_url
+ * @property-read ImageFile|null $imageFile
+ * @method static Builder|DetectionEvent whereImageFileId($value)
  */
 class DetectionEvent extends Model
 {
     use HasRelationships;
 
-    protected $fillable = ['image_file_name', 'deepstack_call_id', 'image_dimensions', 'occurred_at'];
+    protected $fillable = [
+        'deepstack_call_id',
+        'occurred_at',
+        'image_file_id',
+    ];
+
+    protected $with = ['imageFile'];
 
     public function detectionProfiles()
     {
@@ -75,13 +87,18 @@ class DetectionEvent extends Model
         return $this->hasOne('App\DeepstackCall');
     }
 
+    public function imageFile()
+    {
+        return $this->belongsTo('App\ImageFile');
+    }
+
     public function matchEventToProfiles(Collection $profiles)
     {
         $activeMatchedProfiles = 0;
 
         foreach ($profiles as $profile) {
             $profile_active = $profile->isActive($this->occurred_at);
-            $pattern_match = $profile->patternMatch($this->image_file_name);
+            $pattern_match = $profile->patternMatch($this->imageFile->file_name);
 
             if ($pattern_match) {
                 if ($profile_active) {
@@ -121,5 +138,14 @@ class DetectionEvent extends Model
         $attributes['image_url'] = $this->imageUrl;
 
         return $attributes;
+    }
+
+    protected static function booted()
+    {
+        static::deleted(function ($event) {
+            if ($event->imageFile) {
+                DeleteEventImageJob::dispatch($event->imageFile)->onQueue('low');
+            }
+        });
     }
 }
