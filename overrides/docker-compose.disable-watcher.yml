@@ -1,0 +1,6 @@
+version: '3.2'
+
+services:
+  watcher:
+    entrypoint: ["echo", "File watcher disabled"]
+    restart: 'no'

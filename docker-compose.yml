@@ -88,6 +88,34 @@ services:
     networks:
       - laravel
 
+
+
+  deepstack:
+    image: deepquestai/deepstack
+    container_name: lw_deepstack
+    restart: unless-stopped
+    environment:
+      - VISION-DETECTION=True
+    networks:
+      - laravel
+    ports:
+      - "5001:5000"
+
+  watcher:
+    image: akmolina28/webhook-folder-watcher:0.2.0
+    container_name: lw_watcher
+    volumes:
+      - ./src:/var/www/app
+      - ${WATCH_FOLDER}:/watch
+    restart: unless-stopped
+    environment:
+      - WATCH_FOLDER=/watch
+      - WEBHOOK_URL=http://lw_nginx:80/api/events
+      - WATCH_USE_POLLING=${WATCH_USE_POLLING:-false}
+      - DELETE_AFTER_POSTING=${WATCH_FOLDER_AUTO_DELETE:-false}
+    networks:
+      - laravel
+
   composer:
     image: composer:1.9
     container_name: lw_composer
@@ -125,57 +153,3 @@ services:
       - laravel
     entrypoint: ['php', '/var/www/app/artisan']
 
-  deepstack:
-    image: deepquestai/deepstack
-    container_name: lw_deepstack
-    restart: unless-stopped
-    environment:
-      - VISION-DETECTION=True
-    networks:
-      - laravel
-    ports:
-      - "5001:5000"
-
-  watcher:
-    image: akmolina28/webhook-folder-watcher:0.2.0
-    container_name: lw_watcher
-    volumes:
-      - ./src:/var/www/app
-      - ${WATCH_FOLDER}:/watch
-    restart: unless-stopped
-    environment:
-      - WATCH_FOLDER=/watch
-      - WEBHOOK_URL=http://lw_nginx:80/api/events
-      - WATCH_USE_POLLING=${WATCH_USE_POLLING:-false}
-      - DELETE_AFTER_POSTING=${WATCH_FOLDER_AUTO_DELETE:-false}
-    networks:
-      - laravel
-
-  mysql_testing:
-    image: mysql:5.7.29
-    container_name: lw_mysql_testing
-    tty: true
-    ports:
-      - "33066:3306"
-    environment:
-      MYSQL_DATABASE: homestead
-      MYSQL_USER: homestead
-      MYSQL_PASSWORD: secret
-      MYSQL_ROOT_PASSWORD: secret
-      SERVICE_TAGS: dev
-      SERVICE_NAME: mysql_testing
-
-  phpunit:
-    build:
-      context: .
-      dockerfile: php.dockerfile
-      args:
-        - USER_ID=${UID:-1000}
-        - GROUP_ID=${GID:-1000}
-    container_name: phpunit
-    volumes:
-      - ./src:/var/www/app
-    depends_on:
-      - mysql_testing
-    working_dir: /var/www/app
-    entrypoint: ['./vendor/phpunit/phpunit/phpunit']

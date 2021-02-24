@@ -1,0 +1,6 @@
+version: '3.2'
+
+services:
+  deepstack:
+    entrypoint: ["echo", "Deepstack disabled"]
+    restart: 'no'
