@@ -28,7 +28,7 @@ There are a few .env variables you can use to configure the watcher.
 
 ### Disabling the watcher
 
-The watch folder is included as a convenience to make it easy to integrate Last Watch with programs like Blue Iris. It is not required to use Last Watch. You have the option to call the webhook and pass in the image data yourself.
+The watcher is included as a convenience to make it easy to integrate Last Watch with programs like Blue Iris. The watcher is not required to use Last Watch. You have the option to call the [webhook](https://github.com/akmolina28/last-watch-ai/blob/dev/docs/API.md#event-webhook) and pass in the image data yourself.
 
 If you decide to bypass the watcher, you can disable it completely by adding this line to your .env file:
 
