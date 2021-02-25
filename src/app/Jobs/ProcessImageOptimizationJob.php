@@ -8,7 +8,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 use Spatie\LaravelImageOptimizer\Facades\ImageOptimizer;
 
 class ProcessImageOptimizationJob implements ShouldQueue
@@ -34,7 +33,6 @@ class ProcessImageOptimizationJob implements ShouldQueue
      */
     public function handle()
     {
-        Log::info('optimizing '.$this->imageFile->getAbsolutePath());
         ImageOptimizer::optimize($this->imageFile->getAbsolutePath());
     }
 }
