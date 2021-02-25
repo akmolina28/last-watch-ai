@@ -1,6 +1,6 @@
 # Last Watch AI - File Watcher
 
-Last Watch AI includes a container, the File Watcher, which automatically creates Detection Events when a new image is created in a configurable location. This way, you can set your IP Camera to save jpegs somewhere and Last Watch will automatically pick them up.
+Last Watch AI includes a container, the File Watcher, which automatically creates Detection Events when a new image is created in a configurable directory on your file system. This way, you can set your IP Camera to save jpegs somewhere and Last Watch will automatically pick them up.
 
 This document will explain how the File Watcher works, and how it can be configured or disabled completely.
 
