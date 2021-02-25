@@ -61,4 +61,4 @@ cd /path/to/last-watch-ai
 cat src/storage/logs/laravel.log
 ```
 
-If you cannot resolve the error, create a new issue on Github.
+If you cannot resolve the error, [create a new issue on Github.](https://github.com/akmolina28/last-watch-ai/issues)
