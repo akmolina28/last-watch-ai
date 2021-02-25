@@ -116,4 +116,12 @@ Options:
 
 `/api/deepstackLogs?page=<page_number>` | `GET` | Get latest logs from the Deepstack API starting with page 1
 
+### Event Webhook
 
+If you want to create detection events without using the watch folder, you can use the following webhook.
+
+`/api/events` | `POST` | Create a new detection event
+
+Options:
+
+* `image_file=<data>` | Required. Data stream of the jpg file.
