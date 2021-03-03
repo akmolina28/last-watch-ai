@@ -11180,17 +11180,6 @@
                         /** @var \Illuminate\Routing\Router $instance */
                         return $instance->macroCall($method, $parameters);
         }
-                    /**
-         * 
-         *
-         * @param string $url
-         * @param string $name
-         * @static 
-         */ 
-        public static function webhooks($url, $name = 'default')
-        {
-                        return \Illuminate\Routing\Router::webhooks($url, $name);
-        }
          
     }
             /**
@@ -15637,29 +15626,6 @@
         public static function hasValidSignature($absolute = true)
         {
                         return \Illuminate\Http\Request::hasValidSignature($absolute);
-        }
-         
-    }
-     
-}
-
-    namespace Illuminate\Routing { 
-            /**
-     * 
-     *
-     * @mixin \Illuminate\Routing\RouteRegistrar
-     */ 
-        class Router {
-                    /**
-         * 
-         *
-         * @param string $url
-         * @param string $name
-         * @static 
-         */ 
-        public static function webhooks($url, $name = 'default')
-        {
-                        return \Illuminate\Routing\Router::webhooks($url, $name);
         }
          
     }
