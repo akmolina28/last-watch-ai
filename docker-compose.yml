@@ -88,8 +88,6 @@ services:
     networks:
       - laravel
 
-
-
   deepstack:
     image: deepquestai/deepstack
     container_name: lw_deepstack
@@ -152,4 +150,3 @@ services:
     networks:
       - laravel
     entrypoint: ['php', '/var/www/app/artisan']
-
