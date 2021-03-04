@@ -76,7 +76,7 @@ class DetectionEventController extends Controller
 
             Log::info(json_encode($compressionSettings));
 
-            ProcessEventUploadJob::dispatch($path, $fileName, $occurredAt, $compressionSettings)
+            ProcessEventUploadJob::dispatchAfterResponse($path, $fileName, $occurredAt, $compressionSettings)
                 ->onQueue('medium');
         } else {
             return response()->json(['message' => 'Missing key image_file.'], 422);
