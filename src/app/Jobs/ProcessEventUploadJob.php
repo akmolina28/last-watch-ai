@@ -63,8 +63,11 @@ class ProcessEventUploadJob implements ShouldQueue
         $activeMatchedProfiles = $event->matchEventToProfiles(DetectionProfile::all());
 
         if ($activeMatchedProfiles > 0) {
-            ProcessDetectionEventJob::dispatch($event, $this->compressionSettings)
+            ProcessDetectionEventJob::dispatchAfterResponse($event, $this->compressionSettings)
                 ->onQueue('medium');
+        }
+        else {
+            ProcessImageOptimizationJob::dispatchAfterResponse($imageFile, $this->compressionSettings);
         }
     }
 }
