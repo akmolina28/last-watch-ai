@@ -181,7 +181,7 @@
                 return 0;
             },
             imageFile() {
-                return this.event ? '/storage/' + this.event.image_file_path : '';
+                return this.event ? this.event.image_file_path : '';
             },
             relevant() {
                 if (this.event && this.event.ai_predictions) {

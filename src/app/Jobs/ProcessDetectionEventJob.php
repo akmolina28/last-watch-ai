@@ -22,18 +22,18 @@ class ProcessDetectionEventJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public DetectionEvent $event;
-    public bool $compressImage;
+    public array $compressionSettings;
 
     /**
      * Create a new job instance.
      *
      * @param DetectionEvent $event
-     * @param bool $compressImage
+     * @param array $settings
      */
-    public function __construct(DetectionEvent $event, bool $compressImage = true)
+    public function __construct(DetectionEvent $event, array $compressionSettings = [])
     {
         $this->event = $event;
-        $this->compressImage = $compressImage;
+        $this->compressionSettings = $compressionSettings;
     }
 
     /**
@@ -58,9 +58,8 @@ class ProcessDetectionEventJob implements ShouldQueue
         $deepstackCall->returned_at = Carbon::now();
         $deepstackCall->save();
 
-        if ($this->compressImage) {
-            ProcessImageOptimizationJob::dispatch($this->event->imageFile)->onQueue('low');
-        }
+        ProcessImageOptimizationJob::dispatch($this->event->imageFile, $this->compressionSettings)
+            ->onQueue('low');
 
         $relevantProfiles = [];
 

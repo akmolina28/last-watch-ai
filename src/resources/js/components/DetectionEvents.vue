@@ -61,6 +61,10 @@
             @click="rowClick"
             class="mb-3">
 
+            <b-table-column field="thumbnail" v-slot="props">
+                <img :src="props.row.thumbnail_path" alt="thumbnail" height="90" width="170"/>
+            </b-table-column>
+
             <b-table-column field="image_file_name" label="Image File" v-slot="props">
                 {{ props.row.image_file_name }}
             </b-table-column>

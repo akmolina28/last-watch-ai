@@ -9,6 +9,7 @@ use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class DetectionEventController extends Controller
@@ -68,7 +69,15 @@ class DetectionEventController extends Controller
             $path = $file->store('events', 'public');
             $fileName = $file->getClientOriginalName();
 
-            ProcessEventUploadJob::dispatch($path, $fileName, $occurredAt)->onQueue('medium');
+            $compressionSettings = [
+                'compress_images' => config('app.compress_images'),
+                'image_quality' => config('app.image_quality'),
+            ];
+
+            Log::info(json_encode($compressionSettings));
+
+            ProcessEventUploadJob::dispatch($path, $fileName, $occurredAt, $compressionSettings)
+                ->onQueue('medium');
         } else {
             return response()->json(['message' => 'Missing key image_file.'], 422);
         }

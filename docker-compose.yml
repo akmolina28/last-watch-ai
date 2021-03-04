@@ -4,6 +4,8 @@ networks:
   laravel:
 
 services:
+
+
   site:
     image: nginx:stable
     container_name: lw_nginx
@@ -63,6 +65,7 @@ services:
       APP_DEBUG: ${APP_DEBUG:-false}
       DEEPSTACK_BASE_URL: ${DEEPSTACK_BASE_URL:-http://deepstack:5000/}
       COMPRESS_IMAGES: ${COMPRESS_IMAGES:-true}
+      IMAGE_QUALITY: ${IMAGE_QUALITY:-75}
 
   scheduler:
     image: mcuadros/ofelia:latest
@@ -83,6 +86,8 @@ services:
       QUEUE_NAME: high,medium,low
       NUMPROCS: 8
       APP_URL: ${WEB_INTERFACE_URL:-localhost}:${WEB_INTERFACE_PORT:-8080}
+      COMPRESS_IMAGES: ${COMPRESS_IMAGES:-true}
+      IMAGE_QUALITY: ${IMAGE_QUALITY:-75}
     volumes:
       - ./src:/var/www/app
     networks:

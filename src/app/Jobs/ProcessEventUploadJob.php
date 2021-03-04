@@ -20,6 +20,7 @@ class ProcessEventUploadJob implements ShouldQueue
     public string $path;
     public string $fileName;
     public Carbon $occurredAt;
+    public array $compressionSettings;
 
     /**
      * Create a new job instance.
@@ -27,12 +28,14 @@ class ProcessEventUploadJob implements ShouldQueue
      * @param $path
      * @param $fileName
      * @param Carbon $occurredAt
+     * @param array $compressionSettings
      */
-    public function __construct($path, $fileName, $occurredAt)
+    public function __construct($path, $fileName, $occurredAt, array $compressionSettings = [])
     {
         $this->path = $path;
         $this->fileName = $fileName;
         $this->occurredAt = $occurredAt;
+        $this->compressionSettings = $compressionSettings;
     }
 
     /**
@@ -59,9 +62,9 @@ class ProcessEventUploadJob implements ShouldQueue
 
         $activeMatchedProfiles = $event->matchEventToProfiles(DetectionProfile::all());
 
-        $compressImages = config('app.compress_images');
         if ($activeMatchedProfiles > 0) {
-            ProcessDetectionEventJob::dispatch($event, $compressImages)->onQueue('medium');
+            ProcessDetectionEventJob::dispatch($event, $this->compressionSettings)
+                ->onQueue('medium');
         }
     }
 }
