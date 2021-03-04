@@ -67,7 +67,8 @@ class ProcessEventUploadJob implements ShouldQueue
                 ->onQueue('medium');
         }
         else {
-            ProcessImageOptimizationJob::dispatch($imageFile, $this->compressionSettings);
+            ProcessImageOptimizationJob::dispatch($imageFile, $this->compressionSettings)
+                ->onQueue('low');
         }
     }
 }
