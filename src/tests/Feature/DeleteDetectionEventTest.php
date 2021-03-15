@@ -27,14 +27,19 @@ class DeleteDetectionEventTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Storage::fake('public');
+    }
+
     protected function createImageFile($fileName = 'testimage.jpg', $thumbFileName = 'testimage-thumb.jpg'): ImageFile
     {
-        Storage::fake('public');
         $imageFile = UploadedFile::fake()->image($fileName, 640, 480)->size(128);
-        $path = $imageFile->storeAs('events', $fileName);
+        $path = Storage::putFileAs('events', $imageFile, $fileName);
 
         $thumbFile = UploadedFile::fake()->image($fileName, 100, 100)->size(24);
-        $thumbFile->storeAs('events', $thumbFileName);
+        Storage::putFileAs('events', $thumbFile, $thumbFileName);
 
         return ImageFile::create([
             'path' => $path,
@@ -220,5 +225,111 @@ class DeleteDetectionEventTest extends TestCase
         Storage::assertMissing($thumbnailPath);
 
         $this->assertDeleted($imageFile);
+    }
+
+    /**
+     * @test
+     */
+    public function delete_range_of_events_dispatches_delete_jobs()
+    {
+        Queue::fake();
+
+        $imageFile1 = $this->createImageFile('test-image-01.jpg', 'test-image-01-thumb.jpg');
+        $imageFile2 = $this->createImageFile('test-image-02.jpg', 'test-image-02-thumb.jpg');
+        $imageFile3 = $this->createImageFile('test-image-03.jpg', 'test-image-03-thumb.jpg');
+
+        Storage::assertExists($imageFile1->getPath());
+        Storage::assertExists($imageFile1->getPath(true));
+        Storage::assertExists($imageFile2->getPath());
+        Storage::assertExists($imageFile2->getPath(true));
+        Storage::assertExists($imageFile3->getPath());
+        Storage::assertExists($imageFile3->getPath(true));
+
+        factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile1->id
+        ]);
+
+        factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile2->id
+        ]);
+
+        factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile3->id
+        ]);
+
+        $events = DetectionEvent::all();
+
+        $this->assertCount(3, $events);
+
+        foreach($events as $event) $event->delete();
+
+        $this->assertCount(0, DetectionEvent::all());
+
+        Queue::assertPushedOn('low', DeleteEventImageJob::class, function ($job) use ($imageFile1) {
+            return $job->imageFile->id === $imageFile1->id;
+        });
+
+        Queue::assertPushedOn('low', DeleteEventImageJob::class, function ($job) use ($imageFile2) {
+            return $job->imageFile->id === $imageFile2->id;
+        });
+
+        Queue::assertPushedOn('low', DeleteEventImageJob::class, function ($job) use ($imageFile3) {
+            return $job->imageFile->id === $imageFile3->id;
+        });
+    }
+
+    /**
+     * @test
+     */
+    public function scheduled_task_can_delete_events_with_image_files()
+    {
+        Queue::fake();
+
+        $imageFile1 = $this->createImageFile('test-image-01.jpg', 'test-image-01-thumb.jpg');
+        $imageFile2 = $this->createImageFile('test-image-02.jpg', 'test-image-02-thumb.jpg');
+        $imageFile3 = $this->createImageFile('test-image-03.jpg', 'test-image-03-thumb.jpg');
+
+        Storage::assertExists($imageFile1->getPath());
+        Storage::assertExists($imageFile1->getPath(true));
+        Storage::assertExists($imageFile2->getPath());
+        Storage::assertExists($imageFile2->getPath(true));
+        Storage::assertExists($imageFile3->getPath());
+        Storage::assertExists($imageFile3->getPath(true));
+
+        // create three 10-day-old events
+        factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile1->id,
+            'occurred_at' => Date::now()->addDays(-10),
+        ]);
+
+        factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile2->id,
+            'occurred_at' => Date::now()->addDays(-10),
+        ]);
+
+        factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile3->id,
+            'occurred_at' => Date::now()->addDays(-10),
+        ]);
+
+        $this->assertCount(3, DetectionEvent::get());
+
+        // delete all of the events
+        DeleteDetectionEventsTask::run(5);
+
+        $this->assertCount(0, DetectionEvent::get());
+
+        // make sure deletion jobs were queued
+        Queue::assertPushedOn('low', DeleteEventImageJob::class, function ($job) use ($imageFile1) {
+            return $job->imageFile->id === $imageFile1->id;
+        });
+
+        Queue::assertPushedOn('low', DeleteEventImageJob::class, function ($job) use ($imageFile2) {
+            return $job->imageFile->id === $imageFile2->id;
+        });
+
+        Queue::assertPushedOn('low', DeleteEventImageJob::class, function ($job) use ($imageFile3) {
+            return $job->imageFile->id === $imageFile3->id;
+        });
     }
 }
