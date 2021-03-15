@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\DeepstackClient;
+use App\DeepstackClientInterface;
 use App\DetectionEvent;
+use App\Facades\Deepstack;
 use App\Jobs\ProcessEventUploadJob;
 use App\Resources\DetectionEventResource;
 use Exception;
@@ -66,6 +69,10 @@ class DetectionEventController extends Controller
 
         if ($request->has('image_file')) {
             $file = $request->file('image_file');
+
+//            $client = resolve(DeepstackClientInterface::class);
+//            $s = $client->detection($file->get());
+
             $path = $file->store('events', 'public');
             $fileName = $file->getClientOriginalName();
 

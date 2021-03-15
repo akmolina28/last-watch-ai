@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
 
 /**
@@ -143,6 +144,7 @@ class DetectionEvent extends Model
     protected static function booted()
     {
         static::deleted(function ($event) {
+            Log::info('here');
             if ($event->imageFile) {
                 DeleteEventImageJob::dispatch($event->imageFile)->onQueue('low');
             }

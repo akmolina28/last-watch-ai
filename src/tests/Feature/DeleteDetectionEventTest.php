@@ -8,19 +8,41 @@ use App\DeepstackCall;
 use App\DetectionEvent;
 use App\DetectionEventAutomationResult;
 use App\DetectionProfile;
+use App\ImageFile;
+use App\Jobs\DeleteEventImageJob;
 use App\Tasks\DeleteDetectionEventsTask;
 use App\WebRequestConfig;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class DeleteDetectionEventTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
+
+    protected function createImageFile($fileName = 'testimage.jpg', $thumbFileName = 'testimage-thumb.jpg'): ImageFile
+    {
+        Storage::fake('public');
+        $imageFile = UploadedFile::fake()->image($fileName, 640, 480)->size(128);
+        $path = $imageFile->storeAs('events', $fileName);
+
+        $thumbFile = UploadedFile::fake()->image($fileName, 100, 100)->size(24);
+        $thumbFile->storeAs('events', $thumbFileName);
+
+        return ImageFile::create([
+            'path' => $path,
+            'file_name' => $fileName,
+            'width' => 640,
+            'height' => 480,
+        ]);
+    }
 
     /**
      * @test
@@ -151,5 +173,52 @@ class DeleteDetectionEventTest extends TestCase
         // first occurence is 7 days ago
         $this->assertLessThan(Date::now()->addDays(-7), new Carbon(DetectionEvent::min('occurred_at')));
         $this->assertGreaterThan(Date::now()->addDays(-8), new Carbon(DetectionEvent::min('occurred_at')));
+    }
+
+    /**
+     * @test
+     */
+    public function deleting_a_detection_event_deletes_image_files()
+    {
+        Queue::fake();
+
+        $imageFile = $this->createImageFile();
+
+        Storage::assertExists($imageFile->path);
+
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile->id
+        ]);
+
+        $event->delete();
+
+        $this->assertCount(0, DetectionEvent::get());
+
+        Queue::assertPushedOn('low', DeleteEventImageJob::class, function ($job) use ($imageFile) {
+            return $job->imageFile->id === $imageFile->id;
+        });
+    }
+
+    /**
+     * @test
+     */
+    public function delete_image_job_can_delete_image_and_thumbnail()
+    {
+        $imageFile = $this->createImageFile();
+
+        $filePath = $imageFile->getPath();
+        $thumbnailPath = $imageFile->getPath(true);
+
+        Storage::assertExists($filePath);
+        Storage::assertExists($thumbnailPath);
+
+        $job = new DeleteEventImageJob($imageFile);
+
+        $job->handle();
+
+        Storage::assertMissing($filePath);
+        Storage::assertMissing($thumbnailPath);
+
+        $this->assertDeleted($imageFile);
     }
 }
