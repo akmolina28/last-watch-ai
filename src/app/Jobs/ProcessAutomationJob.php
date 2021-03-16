@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class ProcessAutomationJob implements ShouldQueue
@@ -57,7 +58,8 @@ class ProcessAutomationJob implements ShouldQueue
      */
     public function failed(Throwable $exception)
     {
-        $result = new DetectionEventAutomationResult([
+        Log::info($exception->getMessage());
+        $result = DetectionEventAutomationResult::make([
             'is_error' => 1,
             'response_text' => $exception->getMessage(),
         ]);

@@ -3,6 +3,8 @@
 namespace App;
 
 use Eloquent;
+use Illuminate\Contracts\Filesystem\FileExistsException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -53,11 +55,20 @@ class TelegramConfig extends Model implements AutomationConfigInterface
     {
         $client = new TelegramClient($this->token, $this->chat_id);
 
-        $response = $client->sendPhoto(Storage::path($event->imageFile->path));
+        $path = Storage::path($event->imageFile->path);
+        $imageExists = Storage::exists($event->imageFile->path);
+
+        if ($imageExists) {
+            $response = $client->sendPhoto($path);
+        }
+        else {
+            throw new FileNotFoundException('File not found at '.$path);
+        }
 
         $responseJson = json_decode($response);
 
         $isError = false;
+
         if (! $responseJson) {
             $isError = true;
         } elseif (! $responseJson->ok) {

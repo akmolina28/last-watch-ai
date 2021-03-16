@@ -77,7 +77,7 @@ services:
       - php
 
   queue:
-    image: akmolina28/laravel-queue-worker:php7.3-v4.4.1
+    image: akmolina28/laravel-queue-worker:dev
     container_name: lw_queue
     restart: unless-stopped
     tty: true
@@ -88,6 +88,8 @@ services:
       APP_URL: ${WEB_INTERFACE_URL:-localhost}:${WEB_INTERFACE_PORT:-8080}
       COMPRESS_IMAGES: ${COMPRESS_IMAGES:-true}
       IMAGE_QUALITY: ${IMAGE_QUALITY:-75}
+      DELAY: 3
+      TRIES: 3
     volumes:
       - ./src:/var/www/app
     networks:
