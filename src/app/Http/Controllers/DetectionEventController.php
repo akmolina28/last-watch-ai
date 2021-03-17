@@ -81,8 +81,6 @@ class DetectionEventController extends Controller
                 'image_quality' => config('app.image_quality'),
             ];
 
-            Log::info(json_encode($compressionSettings));
-
             ProcessEventUploadJob::dispatch($path, $fileName, $occurredAt, $compressionSettings)
                 ->onQueue('medium')->afterResponse();
         } else {

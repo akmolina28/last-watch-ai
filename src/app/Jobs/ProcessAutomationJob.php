@@ -6,6 +6,7 @@ use App\AutomationConfig;
 use App\DetectionEvent;
 use App\DetectionEventAutomationResult;
 use App\DetectionProfile;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -58,7 +59,6 @@ class ProcessAutomationJob implements ShouldQueue
      */
     public function failed(Throwable $exception)
     {
-        Log::info($exception->getMessage());
         $result = DetectionEventAutomationResult::make([
             'is_error' => 1,
             'response_text' => $exception->getMessage(),

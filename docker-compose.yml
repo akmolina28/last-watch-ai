@@ -77,7 +77,7 @@ services:
       - php
 
   queue:
-    image: akmolina28/laravel-queue-worker:dev
+    image: akmolina28/laravel-queue-worker:php7.3-v4.4.2
     container_name: lw_queue
     restart: unless-stopped
     tty: true
