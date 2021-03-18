@@ -2,13 +2,14 @@
 
 namespace App;
 
+use App\Exceptions\AutomationException;
 use Eloquent;
-use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 
@@ -58,7 +59,7 @@ class WebRequestConfig extends Model implements AutomationConfigInterface
         return $this->morphToMany('App\DetectionProfile', 'automation_config');
     }
 
-    public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
+    public function run(DetectionEvent $event, DetectionProfile $profile): bool
     {
         $headers = $this->getHeadersWithReplacements($event, $profile);
         $url = $this->getUrlWithReplacements($event, $profile);
@@ -98,38 +99,49 @@ class WebRequestConfig extends Model implements AutomationConfigInterface
         return [];
     }
 
-    protected function postRequest(array $headers, string $url, array $body): DetectionEventAutomationResult
+    /**
+     * @param array $headers
+     * @param string $url
+     * @param array $body
+     * @return bool
+     * @throws AutomationException
+     */
+    protected function postRequest(array $headers, string $url, array $body): bool
     {
-        try {
-            $response = Http::withHeaders($headers)->post($url, $body);
-            $isError = ! in_array($response->status(), [200, 201]);
-            $responseText = $response->body();
-        } catch (Exception $exception) {
-            $isError = true;
-            $responseText = $exception->getMessage();
-        }
+        $response = Http::withHeaders($headers)->post($url, $body);
 
-        return new DetectionEventAutomationResult([
-            'is_error' => $isError,
-            'response_text' => $responseText,
-        ]);
+        $this->checkResponseForErrors($response);
+
+        return true;
     }
 
-    protected function getRequest(array $headers, string $url): DetectionEventAutomationResult
+    /**
+     * @param array $headers
+     * @param string $url
+     * @return bool
+     * @throws AutomationException
+     */
+    protected function getRequest(array $headers, string $url): bool
     {
-        try {
-            $response = Http::withHeaders($headers)->get($url);
-            $isError = $response->status() != 200;
-            $responseText = $response->body();
-        } catch (Exception $exception) {
-            $isError = true;
-            $responseText = $exception->getMessage();
-        }
+        $response = Http::withHeaders($headers)->get($url);
 
-        return new DetectionEventAutomationResult([
-            'is_error' => $isError,
-            'response_text' => $responseText,
-        ]);
+        $this->checkResponseForErrors($response);
+
+        return true;
+    }
+
+    /**
+     * @param Response $response
+     * @throws AutomationException
+     */
+    protected function checkResponseForErrors(Response $response)
+    {
+        $isError = intval($response->status() / 200) !== 1; // check status is 2XX
+
+        if ($isError) {
+            $message = $response->status().' | '.$response->body();
+            throw AutomationException::automationFailure($message);
+        }
     }
 
     protected static function booted()

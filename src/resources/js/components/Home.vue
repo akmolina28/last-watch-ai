@@ -40,7 +40,7 @@
                 <p class="subtitle is-size-6">{{ event.image_file_name }}</p>
 
                 <a :href="`events/${event.id}`">
-                    <img alt="Event Image" :src="'storage/' + event.image_file_path"/>
+                    <img alt="Event Image" :src="event.image_file_path"/>
                 </a>
             </div>
         </div>

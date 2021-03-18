@@ -167,10 +167,10 @@ return [
          */
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\DeepstackServiceProvider::class,
+        Intervention\Image\ImageServiceProvider::class,
     ],
 
     /*
@@ -223,6 +223,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Deepstack' => App\Facades\Deepstack::class,
+        'Image' => Intervention\Image\Facades\Image::class,
     ],
 
     /*
@@ -247,4 +248,5 @@ return [
     */
 
     'compress_images' => env('COMPRESS_IMAGES', true),
+    'image_quality' => env('IMAGE_QUALITY', 75),
 ];

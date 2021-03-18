@@ -14,13 +14,13 @@
         "fideloper/proxy": "^4.2",
         "fruitcake/laravel-cors": "^1.0",
         "guzzlehttp/guzzle": "^6.3",
+        "intervention/image": "^2.5",
         "laracasts/utilities": "^3.2",
         "laravel/framework": "^7.0",
         "laravel/tinker": "^2.0",
         "laravelcollective/html": "^6.2",
         "php-mqtt/client": "^1.0",
         "spatie/laravel-image-optimizer": "^1.6",
-        "spatie/laravel-webhook-client": "^2.7",
         "staudenmeir/eloquent-has-many-deep": "^1.7"
     },
     "require-dev": {

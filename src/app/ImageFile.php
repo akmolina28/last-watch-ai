@@ -39,8 +39,54 @@ class ImageFile extends Model
         'height',
     ];
 
-    public function getAbsolutePath()
+    public function getStoredExtension()
     {
-        return Storage::path($this->path);
+        if ($this->path) {
+            return pathinfo($this->path, PATHINFO_EXTENSION);
+        }
+
+        return null;
+    }
+
+    public function getStoredFilename()
+    {
+        if ($this->path) {
+            return pathinfo($this->path, PATHINFO_FILENAME);
+        }
+
+        return null;
+    }
+
+    public function getStoredDirectoryName()
+    {
+        if ($this->path) {
+            return pathinfo($this->path, PATHINFO_DIRNAME);
+        }
+    }
+
+    public function getStoragePath($thumbnail = false)
+    {
+        if ($this->path) {
+            return '/storage/'.$this->getPath($thumbnail);
+        }
+
+        return null;
+    }
+
+    public function getPath($thumbnail = false)
+    {
+        $path = $this->path;
+
+        if ($thumbnail) {
+            $path = $this->getStoredDirectoryName().'/'
+                .$this->getStoredFilename().'-thumb.'.$this->getStoredExtension();
+        }
+
+        return $path;
+    }
+
+    public function getAbsolutePath($thumbnail = false)
+    {
+        return Storage::path($this->getPath($thumbnail));
     }
 }

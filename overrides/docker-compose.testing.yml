@@ -1,0 +1,35 @@
+version: '3.2'
+
+services:
+  mysql_testing:
+    image: mysql:5.7.29
+    container_name: lw_mysql_testing
+    tty: true
+    ports:
+      - "33066:3306"
+    environment:
+      MYSQL_DATABASE: homestead
+      MYSQL_USER: homestead
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql_testing
+    networks:
+      - laravel
+
+  phpunit:
+    build:
+      context: .
+      dockerfile: php.dockerfile
+      args:
+        - USER_ID=${UID:-1000}
+        - GROUP_ID=${GID:-1000}
+    container_name: phpunit
+    volumes:
+      - ./src:/var/www/app
+    depends_on:
+      - mysql_testing
+    working_dir: /var/www/app
+    entrypoint: ['./vendor/phpunit/phpunit/phpunit']
+    networks:
+      - laravel

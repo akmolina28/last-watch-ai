@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class DeleteEventImageJob implements ShouldQueue
 {
@@ -33,7 +33,8 @@ class DeleteEventImageJob implements ShouldQueue
      */
     public function handle()
     {
-        Storage::delete($this->imageFile->path);
+        File::delete($this->imageFile->getAbsolutePath(false));
+        File::delete($this->imageFile->getAbsolutePath(true));
 
         $this->imageFile->delete();
     }

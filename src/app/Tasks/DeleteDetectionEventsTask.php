@@ -10,10 +10,14 @@ class DeleteDetectionEventsTask
     public static function run($retentionDays)
     {
         if ($retentionDays > 0) {
-            DetectionEvent::
-            where('occurred_at', '<', Date::now()
-                ->addDays(-1 * $retentionDays)->format('Y-m-d H:i:s'))
-                ->delete();
+            $deleteEvents = DetectionEvent::
+                where('occurred_at', '<', Date::now()
+                    ->addDays(-1 * $retentionDays)->format('Y-m-d H:i:s'))
+                    ->get();
+
+            foreach ($deleteEvents as $event) {
+                $event->delete();
+            }
         }
     }
 }

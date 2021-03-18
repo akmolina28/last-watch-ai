@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Exceptions\AutomationException;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -87,7 +88,7 @@ class SmbCifsCopyConfig extends Model implements AutomationConfigInterface
         return $cmd;
     }
 
-    public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
+    public function run(DetectionEvent $event, DetectionProfile $profile): bool
     {
         $localPath = $this->getLocalPath($event);
         $destPath = $this->getDestPath($event, $profile);
@@ -96,10 +97,11 @@ class SmbCifsCopyConfig extends Model implements AutomationConfigInterface
 
         $response = shell_exec($cmd);
 
-        return new DetectionEventAutomationResult([
-            'response_text' => $response,
-            'is_error' => 0,
-        ]);
+        if ($response) {
+            throw new AutomationException('smbclient did not return successfully: '.$response);
+        }
+
+        return true;
     }
 
     protected static function booted()

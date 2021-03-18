@@ -57,7 +57,7 @@ class AutomationConfig extends Model
         return Relation::morphMap()[$this->automation_config_type];
     }
 
-    public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
+    public function run(DetectionEvent $event, DetectionProfile $profile): bool
     {
         $className = $this->getConfigClassName();
 

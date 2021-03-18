@@ -17,6 +17,7 @@ use App\WebRequestConfig;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
@@ -27,13 +28,21 @@ class ApiTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutMiddleware(
+            ThrottleRequests::class
+        );
+    }
+
     /**
      * @test
      */
     public function missing_api_routes_should_return_a_json_404()
     {
         $this->withoutExceptionHandling();
-        $response = $this->get('/api/missing/route');
+        $response = $this->withoutMiddleware()->get('/api/missing/route');
 
         $response->assertStatus(404);
         $response->assertHeader('Content-Type', 'application/json');
@@ -333,6 +342,26 @@ class ApiTest extends TestCase
                 ]],
             ])
             ->assertJsonCount(10, 'data');
+    }
+
+    /**
+     * @test
+     */
+    public function api_does_not_get_unprocessed_events()
+    {
+        factory(DetectionEvent::class, 5)->create();
+
+        $this->get('/api/events')
+            ->assertStatus(200)
+            ->assertJsonCount(5, 'data');
+
+        $event = DetectionEvent::first();
+        $event->is_processed = false;
+        $event->save();
+
+        $this->get('/api/events')
+            ->assertStatus(200)
+            ->assertJsonCount(4, 'data');
     }
 
     /**
@@ -660,7 +689,7 @@ class ApiTest extends TestCase
             ->assertJson([
                 'data' => [
                     'image_file_name' => 'testimage.jpg',
-                    'image_file_path' => 'events/testimage.jpg',
+                    'image_file_path' => '/storage/events/testimage.jpg',
                 ],
             ]);
 

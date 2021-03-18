@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\AiPrediction;
 use App\DetectionEvent;
 use App\DetectionProfile;
+use App\Exceptions\AutomationException;
 use App\ImageFile;
 use App\WebRequestConfig;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -184,9 +185,7 @@ class WebRequestAutomationTest extends TestCase
 
         $result = $profile->automations()->first()->run($event, $profile);
 
-        $this->assertNotNull($result);
-        $this->assertEquals(false, $result->is_error);
-        $this->assertEquals('{"message":"OK."}', $result->response_text);
+        $this->assertTrue($result);
     }
 
     /**
@@ -218,10 +217,8 @@ class WebRequestAutomationTest extends TestCase
             $url => Http::response(['message' => 'not found.'], 404),
         ]);
 
-        $result = $profile->automations()->first()->run($event, $profile);
+        $this->expectException(AutomationException::class);
 
-        $this->assertNotNull($result);
-        $this->assertEquals(1, $result->is_error);
-        $this->assertEquals('{"message":"not found."}', $result->response_text);
+        $profile->automations()->first()->run($event, $profile);
     }
 }

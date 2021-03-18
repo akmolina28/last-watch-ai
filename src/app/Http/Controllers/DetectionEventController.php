@@ -22,7 +22,8 @@ class DetectionEventController extends Controller
                         ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false);
                 },
                 'patternMatchedProfiles',
-            ]);
+            ])
+            ->where('is_processed', '=', 1);
 
         if ($request->has('profileId')) {
             $profileId = $request->get('profileId');
@@ -65,10 +66,20 @@ class DetectionEventController extends Controller
 
         if ($request->has('image_file')) {
             $file = $request->file('image_file');
+
+//            $client = resolve(DeepstackClientInterface::class);
+//            $s = $client->detection($file->get());
+
             $path = $file->store('events', 'public');
             $fileName = $file->getClientOriginalName();
 
-            ProcessEventUploadJob::dispatch($path, $fileName, $occurredAt)->onQueue('medium');
+            $compressionSettings = [
+                'compress_images' => config('app.compress_images'),
+                'image_quality' => config('app.image_quality'),
+            ];
+
+            ProcessEventUploadJob::dispatch($path, $fileName, $occurredAt, $compressionSettings)
+                ->onQueue('medium');
         } else {
             return response()->json(['message' => 'Missing key image_file.'], 422);
         }
