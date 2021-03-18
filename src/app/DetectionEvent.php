@@ -149,7 +149,6 @@ class DetectionEvent extends Model
     protected static function booted()
     {
         static::deleted(function ($event) {
-            Log::info('here');
             if ($event->imageFile) {
                 DeleteEventImageJob::dispatch($event->imageFile)->onQueue('low');
             }

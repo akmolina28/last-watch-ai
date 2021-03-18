@@ -46,7 +46,6 @@ class ProcessImageOptimizationJob implements ShouldQueue
 
         // compress original
         if ($this->compressImage) {
-            Log::info('compressing to '.$this->imageQuality);
             $image->interlace(true)->save($path, $this->imageQuality);
         }
 
