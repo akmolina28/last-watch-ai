@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Exceptions\AutomationException;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -48,7 +49,13 @@ class FolderCopyConfig extends Model implements AutomationConfigInterface
         return $this->morphToMany('App\DetectionProfile', 'automation_config');
     }
 
-    public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
+    /**
+     * @param DetectionEvent $event
+     * @param DetectionProfile $profile
+     * @return bool
+     * @throws AutomationException
+     */
+    public function run(DetectionEvent $event, DetectionProfile $profile): bool
     {
         $basename = basename($event->imageFile->file_name);
         $ext = pathinfo($event->imageFile->file_name, PATHINFO_EXTENSION);
@@ -62,10 +69,11 @@ class FolderCopyConfig extends Model implements AutomationConfigInterface
 
         $success = copy($src, $dest);
 
-        return new DetectionEventAutomationResult([
-            'response_text' => $success ? '' : 'Failed to copy '.$src.' to '.$dest,
-            'is_error' => ! $success,
-        ]);
+        if (!$success) {
+            throw new AutomationException("Unable to copy image to ".$dest);
+        }
+
+        return true;
     }
 
     protected static function booted()

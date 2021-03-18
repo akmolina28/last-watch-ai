@@ -72,7 +72,7 @@ class MqttPublishConfig extends Model implements AutomationConfigInterface
         return $this->morphToMany('App\DetectionProfile', 'automation_config');
     }
 
-    public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
+    public function run(DetectionEvent $event, DetectionProfile $profile): bool
     {
         $payload = $this->payload_json;
         if (! $this->is_custom_payload) {
@@ -88,19 +88,9 @@ class MqttPublishConfig extends Model implements AutomationConfigInterface
             $mqtt->connect($this->username, $this->password, $connectionSettings, true);
         }
 
-        $isError = false;
-        $responseText = '';
-        try {
-            $mqtt->publish($this->topic, $payload, $this->qos);
-        } catch (DataTransferException $e) {
-            $isError = true;
-            $responseText = $e->getMessage();
-        }
+        $mqtt->publish($this->topic, $payload, $this->qos);
 
-        return new DetectionEventAutomationResult([
-            'is_error' => $isError,
-            'response_text' => $responseText,
-        ]);
+        return true;
     }
 
     protected static function booted()

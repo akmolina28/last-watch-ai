@@ -9,14 +9,23 @@ class TelegramClient
     private $token;
     private $chat_id;
 
+    protected $error;
+
     public function __construct($token, $chat_id)
     {
         $this->token = $token;
         $this->chat_id = $chat_id;
     }
 
+    public function getError()
+    {
+        return $this->error;
+    }
+
     public function sendPhoto($photo_path)
     {
+        $this->error = null;
+
         $url = 'https://api.telegram.org/bot'.$this->token.'/sendPhoto?chat_id='.$this->chat_id;
 
         $post_fields = [
@@ -33,12 +42,20 @@ class TelegramClient
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields);
 
-        $ret = curl_exec($ch);
+        $response = curl_exec($ch);
 
-        if (! $ret) {
-            return curl_error($ch);
+        if (! $response) {
+            $this->error = curl_error($ch);
+            return false;
         }
 
-        return $ret;
+        $responseJson = json_decode($response);
+
+        if (!$responseJson->ok) {
+            $this->error = 'The telegram service did not return successfully: '.$response;
+            return false;
+        }
+
+        return true;
     }
 }

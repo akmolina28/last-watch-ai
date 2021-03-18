@@ -12,5 +12,5 @@ interface AutomationConfigInterface
 
     public function delete();
 
-    public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult;
+    public function run(DetectionEvent $event, DetectionProfile $profile): bool;
 }

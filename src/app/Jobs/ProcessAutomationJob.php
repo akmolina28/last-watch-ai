@@ -44,11 +44,13 @@ class ProcessAutomationJob implements ShouldQueue
      */
     public function handle()
     {
-        $result = $this->automation->run($this->event, $this->profile);
+        $success = $this->automation->run($this->event, $this->profile);
 
-        $result->detection_event_id = $this->event->id;
-        $result->automation_config_id = $this->automation->id;
-        $result->save();
+        DetectionEventAutomationResult::create([
+            'detection_event_id' => $this->event->id,
+            'automation_config_id' => $this->automation->id,
+            'is_error' => !$success,
+        ]);
     }
 
     /**
@@ -59,13 +61,11 @@ class ProcessAutomationJob implements ShouldQueue
      */
     public function failed(Throwable $exception)
     {
-        $result = DetectionEventAutomationResult::make([
+        DetectionEventAutomationResult::create([
+            'detection_event_id' => $this->event->id,
+            'automation_config_id' => $this->automation->id,
             'is_error' => 1,
             'response_text' => $exception->getMessage(),
         ]);
-
-        $result->detection_event_id = $this->event->id;
-        $result->automation_config_id = $this->automation->id;
-        $result->save();
     }
 }

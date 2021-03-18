@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Exceptions\AutomationException;
 use Eloquent;
 use Illuminate\Contracts\Filesystem\FileExistsException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -51,34 +52,31 @@ class TelegramConfig extends Model implements AutomationConfigInterface
         return $this->morphToMany('App\DetectionProfile', 'automation_config');
     }
 
-    public function run(DetectionEvent $event, DetectionProfile $profile): DetectionEventAutomationResult
+    /**
+     * @param DetectionEvent $event
+     * @param DetectionProfile $profile
+     * @return bool
+     * @throws AutomationException
+     * @throws FileNotFoundException
+     */
+    public function run(DetectionEvent $event, DetectionProfile $profile): bool
     {
         $client = new TelegramClient($this->token, $this->chat_id);
 
         $path = Storage::path($event->imageFile->path);
         $imageExists = Storage::exists($event->imageFile->path);
 
-        if ($imageExists) {
-            $response = $client->sendPhoto($path);
-        }
-        else {
+        if (!$imageExists) {
             throw new FileNotFoundException('File not found at '.$path);
         }
 
-        $responseJson = json_decode($response);
+        $success = $client->sendPhoto($path);
 
-        $isError = false;
-
-        if (! $responseJson) {
-            $isError = true;
-        } elseif (! $responseJson->ok) {
-            $isError = true;
+        if (!$success) {
+            throw new AutomationException($client->getError());
         }
 
-        return new DetectionEventAutomationResult([
-            'response_text' => $response,
-            'is_error' => $isError,
-        ]);
+        return true;
     }
 
     protected static function booted()
