@@ -69,8 +69,8 @@ class FolderCopyConfig extends Model implements AutomationConfigInterface
 
         $success = copy($src, $dest);
 
-        if (!$success) {
-            throw new AutomationException("Unable to copy image to ".$dest);
+        if (! $success) {
+            throw new AutomationException('Unable to copy image to '.$dest);
         }
 
         return true;

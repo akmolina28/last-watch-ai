@@ -4,7 +4,6 @@ namespace App;
 
 use App\Exceptions\AutomationException;
 use Eloquent;
-use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +12,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 /**
  * WebRequestConfig.

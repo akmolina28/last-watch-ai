@@ -46,13 +46,15 @@ class TelegramClient
 
         if (! $response) {
             $this->error = curl_error($ch);
+
             return false;
         }
 
         $responseJson = json_decode($response);
 
-        if (!$responseJson->ok) {
+        if (! $responseJson->ok) {
             $this->error = 'The telegram service did not return successfully: '.$response;
+
             return false;
         }
 

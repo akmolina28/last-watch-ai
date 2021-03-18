@@ -192,7 +192,7 @@ class DeleteDetectionEventTest extends TestCase
         Storage::assertExists($imageFile->path);
 
         $event = factory(DetectionEvent::class)->create([
-            'image_file_id' => $imageFile->id
+            'image_file_id' => $imageFile->id,
         ]);
 
         $event->delete();
@@ -246,22 +246,24 @@ class DeleteDetectionEventTest extends TestCase
         Storage::assertExists($imageFile3->getPath(true));
 
         factory(DetectionEvent::class)->create([
-            'image_file_id' => $imageFile1->id
+            'image_file_id' => $imageFile1->id,
         ]);
 
         factory(DetectionEvent::class)->create([
-            'image_file_id' => $imageFile2->id
+            'image_file_id' => $imageFile2->id,
         ]);
 
         factory(DetectionEvent::class)->create([
-            'image_file_id' => $imageFile3->id
+            'image_file_id' => $imageFile3->id,
         ]);
 
         $events = DetectionEvent::all();
 
         $this->assertCount(3, $events);
 
-        foreach($events as $event) $event->delete();
+        foreach ($events as $event) {
+            $event->delete();
+        }
 
         $this->assertCount(0, DetectionEvent::all());
 
