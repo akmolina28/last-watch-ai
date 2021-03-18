@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\DetectionEvent;
 use App\ImageFile;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -55,5 +56,12 @@ class ProcessImageOptimizationJob implements ShouldQueue
             ->interlace(true)
             ->encode('jpg', $jpegQuality = $this->imageQuality);
         Storage::disk('public')->put('events/'.$thumbName, $thumb);
+
+        // mark processing completed
+        $events = DetectionEvent::where('image_file_id', $this->imageFile->id)->get();
+        foreach ($events as $event) {
+            $event->is_processed = true;
+            $event->save();
+        }
     }
 }

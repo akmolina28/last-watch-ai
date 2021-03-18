@@ -57,6 +57,11 @@ class DetectionEvent extends Model
         'deepstack_call_id',
         'occurred_at',
         'image_file_id',
+        'is_processed',
+    ];
+
+    protected $casts = [
+        'is_processed' => 'boolean'
     ];
 
     protected $with = ['imageFile'];

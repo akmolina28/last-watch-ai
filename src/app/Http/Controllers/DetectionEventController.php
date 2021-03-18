@@ -26,7 +26,8 @@ class DetectionEventController extends Controller
                         ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false);
                 },
                 'patternMatchedProfiles',
-            ]);
+            ])
+            ->where('is_processed', '=', 1);
 
         if ($request->has('profileId')) {
             $profileId = $request->get('profileId');
