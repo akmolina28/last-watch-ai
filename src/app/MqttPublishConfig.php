@@ -10,8 +10,8 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use PhpMqtt\Client\ConnectionSettings;
-use PhpMqtt\Client\Exceptions\DataTransferException;
-use PhpMqtt\Client\MQTTClient;
+use PhpMqtt\Client\Exceptions\MqttClientException;
+use PhpMqtt\Client\MqttClient;
 
 /**
  * AiPrediction.
@@ -79,16 +79,24 @@ class MqttPublishConfig extends Model implements AutomationConfigInterface
             $payload = PayloadHelper::getEventPayload($event, $profile);
         }
 
-        $mqtt = new MQTTClient($this->server, $this->port, $this->client_id);
+        $mqtt = new MqttClient($this->server, $this->port, $this->client_id);
 
-        if ($this->is_anonymous) {
-            $mqtt->connect();
-        } else {
-            $connectionSettings = new ConnectionSettings();
-            $mqtt->connect($this->username, $this->password, $connectionSettings, true);
+        $connectionSettings = (new ConnectionSettings)
+            ->setUsername($this->is_anonymous ? null : $this->username)
+            ->setPassword($this->is_anonymous ? null : $this->password);
+
+        $isError = false;
+        $responseText = '';
+        try {
+            $mqtt->connect($connectionSettings, true);
+
+            $mqtt->publish($this->topic, $payload, $this->qos);
+
+            $mqtt->disconnect();
+        } catch (MqttClientException $e) {
+            $isError = true;
+            $responseText = $e->getMessage();
         }
-
-        $mqtt->publish($this->topic, $payload, $this->qos);
 
         return true;
     }
