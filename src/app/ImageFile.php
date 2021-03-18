@@ -44,6 +44,7 @@ class ImageFile extends Model
         if ($this->path) {
             return pathinfo($this->path, PATHINFO_EXTENSION);
         }
+
         return null;
     }
 
@@ -52,6 +53,7 @@ class ImageFile extends Model
         if ($this->path) {
             return pathinfo($this->path, PATHINFO_FILENAME);
         }
+
         return null;
     }
 
@@ -67,6 +69,7 @@ class ImageFile extends Model
         if ($this->path) {
             return '/storage/'.$this->getPath($thumbnail);
         }
+
         return null;
     }
 

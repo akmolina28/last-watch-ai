@@ -217,7 +217,6 @@ class WebRequestAutomationTest extends TestCase
             $url => Http::response(['message' => 'not found.'], 404),
         ]);
 
-
         $this->expectException(AutomationException::class);
 
         $profile->automations()->first()->run($event, $profile);

@@ -60,7 +60,7 @@ class DetectionEvent extends Model
     ];
 
     protected $casts = [
-        'is_processed' => 'boolean'
+        'is_processed' => 'boolean',
     ];
 
     protected $with = ['imageFile'];

@@ -15,7 +15,9 @@ class DeleteDetectionEventsTask
                     ->addDays(-1 * $retentionDays)->format('Y-m-d H:i:s'))
                     ->get();
 
-            foreach($deleteEvents as $event) $event->delete();
+            foreach ($deleteEvents as $event) {
+                $event->delete();
+            }
         }
     }
 }
