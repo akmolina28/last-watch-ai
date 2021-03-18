@@ -4,7 +4,6 @@ namespace App;
 
 use App\Exceptions\AutomationException;
 use Eloquent;
-use Illuminate\Contracts\Filesystem\FileExistsException;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -66,13 +65,13 @@ class TelegramConfig extends Model implements AutomationConfigInterface
         $path = Storage::path($event->imageFile->path);
         $imageExists = Storage::exists($event->imageFile->path);
 
-        if (!$imageExists) {
+        if (! $imageExists) {
             throw new FileNotFoundException('File not found at '.$path);
         }
 
         $success = $client->sendPhoto($path);
 
-        if (!$success) {
+        if (! $success) {
             throw new AutomationException($client->getError());
         }
 

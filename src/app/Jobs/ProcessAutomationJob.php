@@ -6,13 +6,11 @@ use App\AutomationConfig;
 use App\DetectionEvent;
 use App\DetectionEventAutomationResult;
 use App\DetectionProfile;
-use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class ProcessAutomationJob implements ShouldQueue
@@ -49,7 +47,7 @@ class ProcessAutomationJob implements ShouldQueue
         DetectionEventAutomationResult::create([
             'detection_event_id' => $this->event->id,
             'automation_config_id' => $this->automation->id,
-            'is_error' => !$success,
+            'is_error' => ! $success,
         ]);
     }
 
