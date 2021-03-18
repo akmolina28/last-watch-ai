@@ -83,7 +83,7 @@ class DetectionEventController extends Controller
             ];
 
             ProcessEventUploadJob::dispatch($path, $fileName, $occurredAt, $compressionSettings)
-                ->onQueue('medium')->afterResponse();
+                ->onQueue('medium');
         } else {
             return response()->json(['message' => 'Missing key image_file.'], 422);
         }

@@ -184,31 +184,6 @@ class WebHookTest extends TestCase
     /**
      * @test
      */
-    public function webhook_job_does_not_push_detection_job_for_inactive_profile()
-    {
-        // create a profile to match the event
-        $profile = factory(DetectionProfile::class)->make();
-        $profile->file_pattern = 'testimage';
-        $profile->use_regex = false;
-
-        // inactive
-        $profile->is_enabled = false;
-
-        $profile->save();
-
-        // hit the webhook
-        $this->triggerWebhook();
-
-        // see that detection event was generated
-        $this->assertDatabaseCount('detection_events', 1);
-
-        // ensure no deepstack job was created
-        Queue::assertNothingPushed();
-    }
-
-    /**
-     * @test
-     */
     public function webhook_job_creates_inactive_match_for_inactive_profile()
     {
         // create a profile to match the event

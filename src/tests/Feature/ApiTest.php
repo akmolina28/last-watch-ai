@@ -347,6 +347,26 @@ class ApiTest extends TestCase
     /**
      * @test
      */
+    public function api_does_not_get_unprocessed_events()
+    {
+        factory(DetectionEvent::class, 5)->create();
+
+        $this->get('/api/events')
+            ->assertStatus(200)
+            ->assertJsonCount(5, 'data');
+
+        $event = DetectionEvent::first();
+        $event->is_processed = false;
+        $event->save();
+
+        $this->get('/api/events')
+            ->assertStatus(200)
+            ->assertJsonCount(4, 'data');
+    }
+
+    /**
+     * @test
+     */
     public function api_can_get_latest_relevant_event()
     {
         $profile = factory(DetectionProfile::class)->create();
