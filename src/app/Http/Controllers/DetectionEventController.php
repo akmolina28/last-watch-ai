@@ -2,17 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\DeepstackClient;
-use App\DeepstackClientInterface;
 use App\DetectionEvent;
-use App\Facades\Deepstack;
 use App\Jobs\ProcessEventUploadJob;
 use App\Resources\DetectionEventResource;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class DetectionEventController extends Controller
