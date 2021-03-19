@@ -10,7 +10,9 @@ This project was heavily inspired by [gentlepumpkin/bi-aidetection](https://gith
 
 Last Watch watches for new image files in a configurable directory, then checks each image for a range of objects such as cars or people. Different automations can be set up to trigger if the AI detects relevant objects in the images.
 
-A primary use case for Last Watch is to enhance Video Management Systems such as Blue Iris. For example, Last Watch can be set up to send messages and trigger video recording when a person is detected on security camera.
+A primary use case for Last Watch is to enhance Video Management Systems such as Blue Iris. For example, Last Watch can be set up to trigger security recordings *only* when a person is detected on security camera, thereby eliminating irrelevant motion events.
+
+Last Watch can also be integrated with automation platforms suchs as Home Assistant, Node-RED, or openHAB. For instance, you can create virtual sensors which are set when a person is in a room, or when a car is parked in the garage.
 
 ## Features
 
