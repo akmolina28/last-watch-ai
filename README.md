@@ -42,36 +42,35 @@ Last Watch has been tested on Windows, Debian, and Arch Linux. Dual-core CPU and
 1. Clone the repo
 
 ```
-git clone https://github.com/akmolina28/last-watch-ai.git
-
-cd last-watch-ai
+$ git clone https://github.com/akmolina28/last-watch-ai.git
+$ cd last-watch-ai
 ```
 
-2. Create the .env file and set your config variables as desired
+2. Create the .env file from one of the examples
 
 ```
-cp .env.example .env
-nano .env
+$ cp configs/.env.linux .env
+$ nano .env
 ```
 
 3. Build the application
 
 ```
-sudo cp src/.env.example src/.env &&
-sudo docker-compose up -d mysql &&
-sudo docker-compose run --rm composer install --optimize-autoloader --no-dev &&
-sudo docker-compose run --rm artisan route:cache &&
-sudo docker-compose run --rm artisan key:generate --force &&
-sudo docker-compose run --rm artisan storage:link &&
-sudo docker-compose run --rm artisan migrate --force &&
-sudo docker-compose run --rm npm install --verbose &&
-sudo docker-compose run --rm npm run prod --verbose
+$ sudo cp src/.env.example src/.env &&
+  sudo docker-compose up -d mysql &&
+  sudo docker-compose run --rm composer install --optimize-autoloader --no-dev &&
+  sudo docker-compose run --rm artisan route:cache &&
+  sudo docker-compose run --rm artisan key:generate --force &&
+  sudo docker-compose run --rm artisan storage:link &&
+  sudo docker-compose run --rm artisan migrate --force &&
+  sudo docker-compose run --rm npm install --verbose &&
+  sudo docker-compose run --rm npm run prod --verbose
 ```
 
 4. Start the containers
 
 ```
-sudo docker-compose up -d --build site
+$ sudo docker-compose up -d --build site
 ```
 
 ### Upgrading
@@ -79,32 +78,32 @@ sudo docker-compose up -d --build site
 1. Stop the containers during the upgrade
 
 ```
-cd /path/to/last-watch-ai
+$ cd /path/to/last-watch-ai
 
-sudo docker-compose down
+$ sudo docker-compose down
 ```
 
 2. Pull latest source code
 
 ```
-git pull
+$ git pull
 ```
 
-3. Re-build application
+3. Re-build application and migrate database
 
 ```
-sudo docker-compose run --rm composer install --optimize-autoloader --no-dev &&
-sudo docker-compose run --rm artisan route:cache &&
-sudo docker-compose run --rm artisan migrate --force &&
-sudo docker-compose run --rm npm install --verbose &&
-sudo docker-compose run --rm npm rebuild &&
-sudo docker-compose run --rm npm run prod --verbose
+$ sudo docker-compose run --rm composer install --optimize-autoloader --no-dev &&
+  sudo docker-compose run --rm artisan route:cache &&
+  sudo docker-compose run --rm artisan migrate --force &&
+  sudo docker-compose run --rm npm install --verbose &&
+  sudo docker-compose run --rm npm rebuild &&
+  sudo docker-compose run --rm npm run prod --verbose
 ```
 
 4. Restart the containers
 
 ```
-sudo docker-compose up -d --build site
+$ sudo docker-compose up -d --build site
 ```
 
 ### Install From Release Build
@@ -150,7 +149,7 @@ The application is made up of several Docker containers. Each container serves a
 * The Scheduler is a cron-like container that handles [scheduled tasks](https://laravel.com/docs/8.x/scheduling) from the Laravel app
 * NPM, artisan, composer, and testing containers are also defined to help with development and building
 
-To get started with development, follow the steps to install the project from source. Use your favorite IDE to edit the source files and recompile the front-end using Webpack. You can run `docker-compose run --rm npm run watch` to automatically recompile when files are changed.
+To get started with development, follow the steps to install the project from source. Use your favorite IDE to edit the source files and recompile the front-end using Webpack. You can run `docker-compose run --rm npm run watch` to automatically recompile when scripts are changed.
 
 To execute tests, use the built in phpunit container by running `docker-compose run --rm phpunit`. This container will also stand up separate testing containers for mysql and deepstack to run the feature tests.
 
