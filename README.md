@@ -26,7 +26,7 @@ Supported Automations:
 
 * Telegram - send images to bot
 * Folder Copy - copy images to a local folder
-* Smb/Cifs - upload images to a Samba share (Home Assistant, Synology)
+* Smb/Cifs - upload images to a Samba share (Synology, Windows share, Home Assistant)
 * Web Request - make http GET and POST requests
 * MQTT - publish out MQTT messages
 
