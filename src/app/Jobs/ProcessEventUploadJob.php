@@ -48,7 +48,7 @@ class ProcessEventUploadJob implements ShouldQueue
         $absolutePath = Storage::path($this->path);
         [$width, $height] = getimagesize($absolutePath);
 
-        $imageFile = ImageFile::create([
+        $imageFile = ImageFile::findOrCreate([
             'path' => $this->path,
             'file_name' => $this->fileName,
             'width' => $width,

@@ -39,6 +39,19 @@ class ImageFile extends Model
         'height',
     ];
 
+    public static function findOrCreate($attributes = []): ImageFile
+    {
+        if ($attributes['path']) {
+            $existingImage = ImageFile::where('path', $attributes['path']);
+
+            if ($existingImage->count() > 0) {
+                return $existingImage->first();
+            }
+        }
+
+        return ImageFile::create($attributes);
+    }
+
     public function getStoredExtension()
     {
         if ($this->path) {
