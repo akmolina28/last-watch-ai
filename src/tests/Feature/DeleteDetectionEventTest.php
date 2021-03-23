@@ -30,7 +30,7 @@ class DeleteDetectionEventTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Storage::fake('public');
+        Storage::fake();
     }
 
     protected function createImageFile($fileName = 'testimage.jpg', $thumbFileName = 'testimage-thumb.jpg'): ImageFile
