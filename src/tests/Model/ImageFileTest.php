@@ -18,13 +18,13 @@ class ImageFileTest extends TestCase
     public function image_file_can_be_findorcreated()
     {
         $imageFile1 = factory(ImageFile::class)->create([
-            'path' => 'events/myimagefile.jpeg'
+            'path' => 'events/myimagefile.jpeg',
         ]);
 
         $this->assertCount(1, ImageFile::all());
 
         $imageFile2 = ImageFile::findOrCreate([
-            'path' => 'events/myimagefile.jpeg'
+            'path' => 'events/myimagefile.jpeg',
         ]);
 
         $this->assertCount(1, ImageFile::all());
@@ -34,7 +34,7 @@ class ImageFileTest extends TestCase
             'file_name' => 'eufy101.20210315_105649119.jpg',
             'path' => 'events/myimagefile.foo.jpeg',
             'width' => 1920,
-            'height' => 1080
+            'height' => 1080,
         ]);
 
         $this->assertCount(2, ImageFile::all());

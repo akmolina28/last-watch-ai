@@ -53,8 +53,7 @@ class DeleteEventImageJob implements ShouldQueue
         try {
             $this->imageFile->delete();
             Log::debug('Successfully deleted ImageFile #'.$id);
-        }
-        catch (ModelNotFoundException $ex) {
+        } catch (ModelNotFoundException $ex) {
             Log::debug('Unable to delete, model does not exist for ImageFile #'.$id);
         }
     }
@@ -65,7 +64,10 @@ class DeleteEventImageJob implements ShouldQueue
 
         $success = Storage::delete($storagePath);
 
-        if ($success)   Log::debug('Successfully deleted '.$storagePath);
-        else            Log::debug('Unable to delete file '.$storagePath);
+        if ($success) {
+            Log::debug('Successfully deleted '.$storagePath);
+        } else {
+            Log::debug('Unable to delete file '.$storagePath);
+        }
     }
 }
