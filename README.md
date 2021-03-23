@@ -75,7 +75,7 @@ $ sudo cp src/.env.example src/.env &&
 $ sudo docker-compose up -d --build site
 ```
 
-### Upgrading
+### Upgrade from source
 
 1. Stop the containers during the upgrade
 
