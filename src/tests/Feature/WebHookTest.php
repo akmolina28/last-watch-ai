@@ -104,6 +104,16 @@ class WebHookTest extends TestCase
     /**
      * @test
      */
+    public function event_upload_job_does_not_fail_second_attempt()
+    {
+        $this->triggerWebhook();
+        $this->triggerWebhook();
+        $this->assertTrue(1 === 1);
+    }
+
+    /**
+     * @test
+     */
     public function webhook_job_can_create_non_matched_detection_event()
     {
         $this->triggerWebhook();
