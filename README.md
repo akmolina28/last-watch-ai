@@ -58,7 +58,7 @@ $ nano .env
 3. Build the application
 
 ```
-$ sudo cp src/.env.example src/.env &&
+$ cp src/.env.example src/.env &&
   sudo docker-compose up -d mysql &&
   sudo docker-compose run --rm composer install --optimize-autoloader --no-dev &&
   sudo docker-compose run --rm artisan route:cache &&
