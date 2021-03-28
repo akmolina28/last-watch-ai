@@ -72,9 +72,27 @@ class MqttPublishConfig extends Model implements AutomationConfigInterface
         return $this->morphToMany('App\DetectionProfile', 'automation_config');
     }
 
+    public function getPayload(DetectionEvent $event, DetectionProfile $profile)
+    {
+        $payload = $this->payload_json;
+
+        if ($this->is_custom_payload) {
+            $payload = PayloadHelper::doReplacements($payload, $event, $profile);
+        }
+        if (! $this->is_custom_payload) {
+            $payload = PayloadHelper::getEventPayload($event, $profile);
+        }
+
+        return $payload;
+    }
+
     public function run(DetectionEvent $event, DetectionProfile $profile): bool
     {
         $payload = $this->payload_json;
+
+        if ($this->is_custom_payload) {
+            $payload = PayloadHelper::doReplacements($payload, $event, $profile);
+        }
         if (! $this->is_custom_payload) {
             $payload = PayloadHelper::getEventPayload($event, $profile);
         }
