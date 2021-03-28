@@ -55,14 +55,8 @@
                 <div class="px-5 py-5 mb-3 has-background-light">
                     <h5 class="title is-size-5">Substitution Variables</h5>
                     <ul>
-                        <li>
-                            <strong>%image_file_name%</strong> - the event image file
-                        </li>
-                        <li>
-                            <strong>%profile_name%</strong> - the triggered profile name
-                        </li>
-                        <li>
-                            <strong>%object_classes%</strong> - object(s) which triggered the profile
+                        <li v-for="(description, replacement) in replacements">
+                            <strong>{{ replacement }}</strong> - {{ description }}
                         </li>
                     </ul>
                 </div>
@@ -101,6 +95,7 @@
         data() {
             return {
                 webRequestConfigs: [],
+                replacements: [],
                 name: '',
                 url: '',
                 isPost: false,
@@ -131,6 +126,10 @@
                     let configs = response.data.data;
                     configs.forEach(c => c.isDeleting = false);
                     this.webRequestConfigs  = configs;
+                });
+
+                axios.get('/api/automations/replacements').then(response => {
+                    this.replacements = response.data.data;
                 });
             },
 
