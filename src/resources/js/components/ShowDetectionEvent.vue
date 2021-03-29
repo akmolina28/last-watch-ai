@@ -73,7 +73,12 @@
                     <span>{{ event.occurred_at | dateStrRelative }}</span>
                 </div>
 
-                <b-menu class="mb-4" :activable="false">
+                <div class="mb-4" v-if="event.pattern_matched_profiles.length === 0">
+                    <h5 class="heading is-size-6"><b-icon icon="times"></b-icon> Image Not Processed</h5>
+                    <p>No matching profile(s) found for this file name. Create a new profile to process this event.</p>
+                </div>
+
+                <b-menu class="mb-4" v-else :activable="false">
                     <b-menu-list label="Matched Profiles">
                         <b-menu-item
                             v-for="profile in event.pattern_matched_profiles"
