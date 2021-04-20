@@ -1857,7 +1857,6 @@ class ApiTest extends TestCase
     {
         $this->json('GET', '/api/automations/replacements')
             ->assertStatus(200)
-            ->assertJsonCount(5, 'data')
             ->assertJsonStructure([
                 'data' => [
                     '%image_file_name%',

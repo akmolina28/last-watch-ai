@@ -11,7 +11,8 @@ class PayloadHelper
         '%profile_name%' => 'The name of the profile which triggered this automation',
         '%object_classes%' => 'The objects which triggered this automation, e.g. car,person,dog',
         '%event_url%' => 'Link to the event details page',
-        '%image_url%' => 'Direct link to the event image',
+        '%image_url%' => 'Direct link to the event image on the web server',
+        '%image_download_link%' => 'Resource link for downloading the image file'
     ];
 
     public static function doReplacement(
@@ -42,6 +43,9 @@ class PayloadHelper
         }
         if ($replacementString == '%image_url%') {
             return str_replace('%image_url%', $event->imageUrl, $payload);
+        }
+        if ($replacementString == '%image_download_link%') {
+            return str_replace('%image_download_link%', $event->imageDownload, $payload);
         }
 
         throw new Exception('Unrecognized replacement string '.$replacementString);

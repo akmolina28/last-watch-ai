@@ -23,6 +23,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @property Carbon|null $occurred_at
  * @property string|null $eventUrl
  * @property string|null $imageUrl
+ * @property string|null $imageDownload
  * @property-read Collection|AiPrediction[] $aiPredictions
  * @property-read int|null $ai_predictions_count
  * @property-read Collection|DetectionProfile[] $patternMatchedProfiles
@@ -127,6 +128,15 @@ class DetectionEvent extends Model
     }
 
     public function getImageUrlAttribute()
+    {
+        if ($this->imageFile) {
+            return url($this->imageFile->getStoragePath());
+        }
+
+        return null;
+    }
+
+    public function getImageDownloadAttribute()
     {
         if ($this->id) {
             return url('/api/events/'.$this->id.'/img');

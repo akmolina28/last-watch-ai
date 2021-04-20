@@ -112,7 +112,9 @@ class PayloadTest extends TestCase
      */
     public function automation_payload_can_replace_image_url()
     {
-        $imageFile = factory(ImageFile::class)->create();
+        $imageFile = factory(ImageFile::class)->create([
+            'path' => 'events/g5Aqi4GzEXP7PYhh3Iy74vrGP3lhsnDum8UOGWS4.jpeg'
+        ]);
 
         $event = factory(DetectionEvent::class)->create([
             'image_file_id' => $imageFile,
@@ -122,6 +124,6 @@ class PayloadTest extends TestCase
 
         $replaced = PayloadHelper::doReplacements($payload, $event, $profile);
 
-        $this->assertEquals('{"link"="http://unit.test:9999/api/events/'.$event->id.'/img"}', $replaced);
+        $this->assertEquals('{"link"="http://unit.test:9999/storage/events/g5Aqi4GzEXP7PYhh3Iy74vrGP3lhsnDum8UOGWS4.jpeg"}', $replaced);
     }
 }
