@@ -12,6 +12,7 @@ class PayloadHelper
         '%object_classes%' => 'The objects which triggered this automation, e.g. car,person,dog',
         '%event_url%' => 'Link to the event details page',
         '%image_url%' => 'Direct link to the event image on the web server',
+        '%thumb_url%' => 'Direct link to the event image thumbnail on the web server',
         '%image_download_link%' => 'Resource link for downloading the image file'
     ];
 
@@ -43,6 +44,9 @@ class PayloadHelper
         }
         if ($replacementString == '%image_url%') {
             return str_replace('%image_url%', $event->imageUrl, $payload);
+        }
+        if ($replacementString == '%thumb_url%') {
+            return str_replace('%thumb_url%', $event->thumbUrl, $payload);
         }
         if ($replacementString == '%image_download_link%') {
             return str_replace('%image_download_link%', $event->imageDownload, $payload);
