@@ -13,7 +13,7 @@ class DeleteDetectionEventsTask
             $deleteEvents = DetectionEvent::
                 where('occurred_at', '<', Date::now()
                     ->addDays(-1 * $retentionDays)->format('Y-m-d H:i:s'))
-                    ->get();
+                    ->cursor();
 
             foreach ($deleteEvents as $event) {
                 $event->delete();
