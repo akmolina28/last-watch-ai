@@ -1864,7 +1864,7 @@ class ApiTest extends TestCase
                     '%object_classes%',
                     '%event_url%',
                     '%image_url%',
-                ]
+                ],
             ]);
     }
 

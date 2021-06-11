@@ -115,7 +115,7 @@ class PayloadTest extends TestCase
     public function automation_payload_can_replace_image_url()
     {
         $imageFile = factory(ImageFile::class)->create([
-            'path' => 'events/g5Aqi4GzEXP7PYhh3Iy74vrGP3lhsnDum8UOGWS4.jpeg'
+            'path' => 'events/g5Aqi4GzEXP7PYhh3Iy74vrGP3lhsnDum8UOGWS4.jpeg',
         ]);
 
         $event = factory(DetectionEvent::class)->create([
@@ -135,7 +135,7 @@ class PayloadTest extends TestCase
     public function automation_payload_can_replace_thumbnail_url()
     {
         $imageFile = factory(ImageFile::class)->create([
-            'path' => 'events/g5Aqi4GzEXP7PYhh3Iy74vrGP3lhsnDum8UOGWS4.jpeg'
+            'path' => 'events/g5Aqi4GzEXP7PYhh3Iy74vrGP3lhsnDum8UOGWS4.jpeg',
         ]);
 
         $event = factory(DetectionEvent::class)->create([
@@ -155,7 +155,7 @@ class PayloadTest extends TestCase
     public function automation_payload_can_replace_image_download_link()
     {
         $imageFile = factory(ImageFile::class)->create([
-            'path' => 'events/g5Aqi4GzEXP7PYhh3Iy74vrGP3lhsnDum8UOGWS4.jpeg'
+            'path' => 'events/g5Aqi4GzEXP7PYhh3Iy74vrGP3lhsnDum8UOGWS4.jpeg',
         ]);
 
         $event = factory(DetectionEvent::class)->create([

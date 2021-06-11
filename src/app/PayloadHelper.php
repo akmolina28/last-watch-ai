@@ -13,7 +13,7 @@ class PayloadHelper
         '%event_url%' => 'Link to the event details page',
         '%image_url%' => 'Direct link to the event image on the web server',
         '%thumb_url%' => 'Direct link to the event image thumbnail on the web server',
-        '%image_download_link%' => 'Resource link for downloading the image file'
+        '%image_download_link%' => 'Resource link for downloading the image file',
     ];
 
     public static function doReplacement(

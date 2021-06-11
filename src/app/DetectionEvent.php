@@ -136,6 +136,7 @@ class DetectionEvent extends Model
 
         return null;
     }
+
     public function getThumbUrlAttribute()
     {
         if ($this->imageFile) {
