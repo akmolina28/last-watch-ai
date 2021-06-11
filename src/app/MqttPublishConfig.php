@@ -90,14 +90,7 @@ class MqttPublishConfig extends Model implements AutomationConfigInterface
 
     public function run(DetectionEvent $event, DetectionProfile $profile): bool
     {
-        $payload = $this->payload_json;
-
-        if ($this->is_custom_payload) {
-            $payload = PayloadHelper::doReplacements($payload, $event, $profile);
-        }
-        if (! $this->is_custom_payload) {
-            $payload = PayloadHelper::getEventPayload($event, $profile);
-        }
+        $payload = $this->getPayload($event, $profile);
 
         $mqtt = new MqttClient($this->server, $this->port, $this->client_id);
 
