@@ -2,16 +2,12 @@
 
 namespace Tests\Feature;
 
-use App\AiPrediction;
 use App\DetectionEvent;
 use App\DetectionProfile;
-use App\Exceptions\AutomationException;
 use App\ImageFile;
 use App\MqttPublishConfig;
-use App\WebRequestConfig;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class MqttPublishAutomationTest extends TestCase
@@ -24,7 +20,6 @@ class MqttPublishAutomationTest extends TestCase
      */
     public function mqtt_automation_can_have_no_replacements()
     {
-
         $imageFile = factory(ImageFile::class)->create();
 
         $event = factory(DetectionEvent::class)->create([
@@ -52,7 +47,7 @@ class MqttPublishAutomationTest extends TestCase
         ]);
 
         $profile = factory(DetectionProfile::class)->create([
-            'name' => 'my awesome profile'
+            'name' => 'my awesome profile',
         ]);
 
         $config = factory(MqttPublishConfig::class)->create([
