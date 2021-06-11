@@ -1853,6 +1853,24 @@ class ApiTest extends TestCase
     /**
      * @test
      */
+    public function api_can_get_available_replacements()
+    {
+        $this->json('GET', '/api/automations/replacements')
+            ->assertStatus(200)
+            ->assertJsonStructure([
+                'data' => [
+                    '%image_file_name%',
+                    '%profile_name%',
+                    '%object_classes%',
+                    '%event_url%',
+                    '%image_url%',
+                ],
+            ]);
+    }
+
+    /**
+     * @test
+     */
     public function api_is_alive()
     {
         $this->json('GET', '/api/alive')

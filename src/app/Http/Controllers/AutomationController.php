@@ -6,6 +6,7 @@ use App\AutomationConfig;
 use App\AutomationConfigInterface;
 use App\FolderCopyConfig;
 use App\MqttPublishConfig;
+use App\PayloadHelper;
 use App\Resources\FolderCopyConfigResource;
 use App\Resources\MqttPublishConfigResource;
 use App\Resources\SmbCifsCopyConfigResource;
@@ -18,6 +19,13 @@ use Illuminate\Http\Request;
 
 class AutomationController extends Controller
 {
+    public function getReplacements()
+    {
+        return [
+            'data' => PayloadHelper::$availableReplacements,
+        ];
+    }
+
     public function telegramConfigIndex()
     {
         return TelegramConfigResource::collection(

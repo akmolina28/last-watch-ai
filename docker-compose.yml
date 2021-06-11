@@ -70,6 +70,7 @@ services:
   scheduler:
     image: mcuadros/ofelia:latest
     container_name: lw_scheduler
+    restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./scheduler/config.ini:/etc/ofelia/config.ini

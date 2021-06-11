@@ -47,6 +47,10 @@ Route::get('/events/{event}/next', 'DetectionEventController@findNext');
 
 Route::get('/events/{event}/img', 'DetectionEventController@showImage');
 
+Route::get('/events/{event}/alertImage', 'DetectionEventController@alertImage');
+
+Route::get('/automations/replacements', 'AutomationController@getReplacements');
+
 Route::get('/automations/telegram', 'AutomationController@telegramConfigIndex');
 
 Route::post('/automations/telegram', 'AutomationController@makeTelegramConfig');

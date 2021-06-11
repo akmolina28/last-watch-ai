@@ -46,7 +46,9 @@ class FolderCopyConfig extends Model implements AutomationConfigInterface
 
     public function detectionProfiles(): MorphToMany
     {
-        return $this->morphToMany('App\DetectionProfile', 'automation_config');
+        return $this->morphToMany('App\DetectionProfile', 'automation_config')
+            ->withPivot(['deleted_at'])
+            ->whereNull('automation_configs.deleted_at');
     }
 
     /**

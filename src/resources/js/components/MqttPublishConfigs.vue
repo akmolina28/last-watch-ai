@@ -94,6 +94,15 @@
                     <b-input v-model="password" name="password" :disabled="isAnonymous"></b-input>
                 </b-field>
 
+                <div class="px-5 py-5 mb-3 has-background-light">
+                    <h5 class="title is-size-5">Substitution Variables</h5>
+                    <ul>
+                        <li v-for="(description, replacement) in replacements">
+                            <strong>{{ replacement }}</strong> - {{ description }}
+                        </li>
+                    </ul>
+                </div>
+
                 <b-field label="Custom Payload">
                     <b-switch v-model="isCustomPayload" />
                 </b-field>
@@ -124,6 +133,7 @@
         data() {
             return {
                 mqttPublishConfigs: [],
+                replacements: [],
                 name: '',
                 server: '',
                 port: '',
@@ -160,6 +170,10 @@
                     let configs = response.data.data;
                     configs.forEach(c => c.isDeleting = false);
                     this.mqttPublishConfigs  = configs;
+                });
+
+                axios.get('/api/automations/replacements').then(response => {
+                    this.replacements = response.data.data;
                 });
             },
 
