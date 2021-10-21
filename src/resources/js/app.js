@@ -27,7 +27,12 @@ Vue.mixin({
     }
 })
 
+import Navigation from "./components/Navigation";
+
 new Vue({
     el: '#app',
-    router
+    router,
+    components: {
+        Navigation,
+    }
 });

@@ -27,7 +27,6 @@ class AddSoftDeletesToMqttPublishConfigsTable extends Migration
     {
         Schema::table('mqtt_publish_configs', function (Blueprint $table) {
             $table->dropSoftDeletes();
-            $table->dropUnique('mqtt_publish_configs_name_deleted_at_unique');
         });
     }
 }
