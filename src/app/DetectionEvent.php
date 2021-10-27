@@ -14,6 +14,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * DetectionEvent.
  *
  * @mixin Eloquent
+ *
  * @property int $id
  * @property string $image_file_name
  * @property string|null $deepstack_response
@@ -29,6 +30,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @property-read int|null $ai_predictions_count
  * @property-read Collection|DetectionProfile[] $patternMatchedProfiles
  * @property-read int|null $pattern_matched_profiles_count
+ *
  * @method static Builder|DetectionEvent newModelQuery()
  * @method static Builder|DetectionEvent newQuery()
  * @method static Builder|DetectionEvent query()
@@ -39,6 +41,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @method static Builder|DetectionEvent whereImageFileName($value)
  * @method static Builder|DetectionEvent whereOccurredAt($value)
  * @method static Builder|DetectionEvent whereUpdatedAt($value)
+ *
  * @property-read Collection|\App\DetectionEventAutomationResult[] $automations
  * @property-read int|null $automations_count
  * @property-read Collection|\App\DetectionEventAutomationResult[] $automationResults
@@ -48,6 +51,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @property-read mixed $event_url
  * @property-read mixed $image_url
  * @property-read ImageFile|null $imageFile
+ *
  * @method static Builder|DetectionEvent whereImageFileId($value)
  */
 class DetectionEvent extends Model

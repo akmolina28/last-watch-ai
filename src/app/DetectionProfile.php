@@ -16,6 +16,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * DetectionProfile.
  *
  * @mixin Eloquent
+ *
  * @property int $id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -39,6 +40,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @property-read mixed $status
  * @property-read Collection|DetectionEvent[] $patternMatchedEvents
  * @property-read int|null $pattern_matched_events_count
+ *
  * @method static Builder|DetectionProfile newModelQuery()
  * @method static Builder|DetectionProfile newQuery()
  * @method static Builder|DetectionProfile onlyTrashed()
@@ -62,8 +64,10 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @method static Builder|DetectionProfile whereUseSmartFilter($value)
  * @method static Builder|DetectionProfile withTrashed()
  * @method static Builder|DetectionProfile withoutTrashed()
+ *
  * @property-read Collection|AutomationConfig[] $automations
  * @property-read int|null $automations_count
+ *
  * @method static Builder|DetectionProfile whereIsNegative($value)
  */
 class DetectionProfile extends Model

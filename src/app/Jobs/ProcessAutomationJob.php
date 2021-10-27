@@ -24,9 +24,9 @@ class ProcessAutomationJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param DetectionProfile $profile
-     * @param DetectionEvent $event
-     * @param AutomationConfig $automation
+     * @param  DetectionProfile  $profile
+     * @param  DetectionEvent  $event
+     * @param  AutomationConfig  $automation
      */
     public function __construct(DetectionProfile $profile, DetectionEvent $event, AutomationConfig $automation)
     {

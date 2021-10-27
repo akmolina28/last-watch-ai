@@ -12,6 +12,7 @@ use Illuminate\Support\Carbon;
  * AiPrediction.
  *
  * @mixin Eloquent
+ *
  * @property int $id
  * @property int $detection_event_id
  * @property string $object_class
@@ -25,6 +26,7 @@ use Illuminate\Support\Carbon;
  * @property-read DetectionEvent $detectionEvent
  * @property-read Collection|DetectionProfile[] $detectionProfiles
  * @property-read int|null $detection_profiles_count
+ *
  * @method static Builder|AiPrediction newModelQuery()
  * @method static Builder|AiPrediction newQuery()
  * @method static Builder|AiPrediction query()
