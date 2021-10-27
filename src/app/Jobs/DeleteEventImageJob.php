@@ -21,7 +21,7 @@ class DeleteEventImageJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param ImageFile $imageFile
+     * @param  ImageFile  $imageFile
      */
     public function __construct(ImageFile $imageFile)
     {

@@ -11,8 +11,8 @@ use Illuminate\Support\Facades\Storage;
 class DetectionEventModelFactory
 {
     /**
-     * @param string $imageFileName
-     * @param Carbon|null $occurred_at
+     * @param  string  $imageFileName
+     * @param  Carbon|null  $occurred_at
      * @return DetectionEvent|Model
      */
     public static function createFromImageFile(string $imageFileName, Carbon $occurred_at = null)

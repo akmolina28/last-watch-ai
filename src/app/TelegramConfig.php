@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Storage;
  * DetectionProfile.
  *
  * @mixin Eloquent
+ *
  * @property int $id
  * @property string $name
  * @property string $token
@@ -25,6 +26,7 @@ use Illuminate\Support\Facades\Storage;
  * @property Carbon|null $updated_at
  * @property-read Collection|DetectionProfile[] $detectionProfiles
  * @property-read int|null $detection_profiles_count
+ *
  * @method static Builder|TelegramConfig newModelQuery()
  * @method static Builder|TelegramConfig newQuery()
  * @method static Builder|TelegramConfig query()
@@ -34,7 +36,9 @@ use Illuminate\Support\Facades\Storage;
  * @method static Builder|TelegramConfig whereName($value)
  * @method static Builder|TelegramConfig whereToken($value)
  * @method static Builder|TelegramConfig whereUpdatedAt($value)
+ *
  * @property Carbon|null $deleted_at
+ *
  * @method static Builder|TelegramConfig onlyTrashed()
  * @method static Builder|TelegramConfig whereDeletedAt($value)
  * @method static Builder|TelegramConfig withTrashed()
@@ -54,9 +58,10 @@ class TelegramConfig extends Model implements AutomationConfigInterface
     }
 
     /**
-     * @param DetectionEvent $event
-     * @param DetectionProfile $profile
+     * @param  DetectionEvent  $event
+     * @param  DetectionProfile  $profile
      * @return bool
+     *
      * @throws AutomationException
      * @throws FileNotFoundException
      */

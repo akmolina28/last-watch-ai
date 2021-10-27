@@ -23,8 +23,8 @@ class ProcessImageOptimizationJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param ImageFile $imageFile
-     * @param array $settings
+     * @param  ImageFile  $imageFile
+     * @param  array  $settings
      */
     public function __construct(ImageFile $imageFile, array $settings = [])
     {

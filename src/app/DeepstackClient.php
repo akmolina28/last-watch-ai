@@ -10,7 +10,8 @@ class DeepstackClient implements DeepstackClientInterface
 
     /**
      * DeepstackClient constructor.
-     * @param string $api_base_url
+     *
+     * @param  string  $api_base_url
      */
     public function __construct(string $api_base_url)
     {

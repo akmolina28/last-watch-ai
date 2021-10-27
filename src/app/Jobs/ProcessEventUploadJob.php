@@ -27,8 +27,8 @@ class ProcessEventUploadJob implements ShouldQueue
      *
      * @param $path
      * @param $fileName
-     * @param Carbon $occurredAt
-     * @param array $compressionSettings
+     * @param  Carbon  $occurredAt
+     * @param  array  $compressionSettings
      */
     public function __construct($path, $fileName, $occurredAt, array $compressionSettings = [])
     {

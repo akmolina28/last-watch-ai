@@ -131,10 +131,9 @@ class DetectionEventController extends Controller
 
         $profileId = $matchedProfile->id;
 
-        $next = DetectionEvent::
-            whereHas('patternMatchedProfiles', function ($q) use ($profileId) {
-                return $q->where('pattern_match.detection_profile_id', '=', $profileId);
-            })
+        $next = DetectionEvent::whereHas('patternMatchedProfiles', function ($q) use ($profileId) {
+            return $q->where('pattern_match.detection_profile_id', '=', $profileId);
+        })
             ->where('occurred_at', '>=', $event->occurred_at)
             ->where('id', '!=', $event->id)
             ->orderBy('occurred_at')->first();
@@ -156,10 +155,9 @@ class DetectionEventController extends Controller
 
         $profileId = $matchedProfile->id;
 
-        $prev = DetectionEvent::
-            whereHas('patternMatchedProfiles', function ($q) use ($profileId) {
-                return $q->where('pattern_match.detection_profile_id', '=', $profileId);
-            })
+        $prev = DetectionEvent::whereHas('patternMatchedProfiles', function ($q) use ($profileId) {
+            return $q->where('pattern_match.detection_profile_id', '=', $profileId);
+        })
             ->where('occurred_at', '<=', $event->occurred_at)
             ->where('id', '!=', $event->id)
             ->orderByDesc('occurred_at')->first();

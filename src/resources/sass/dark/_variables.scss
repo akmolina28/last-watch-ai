@@ -1,0 +1,196 @@
+@import "~bulma/sass/utilities/functions.sass";
+
+// Included below are all the defined variables from Bulma
+// Modify as needed, removing the !default attribute.
+
+// Colors
+
+$black:        hsl(0, 0%, 4%) !default;
+$black-bis:    hsl(0, 0%, 7%) !default;
+$black-ter:    hsl(0, 0%, 14%) !default;
+
+$grey-darker:  hsl(0, 0%, 21%) !default;
+$grey-dark:    hsl(0, 0%, 29%) !default;
+$grey:         hsl(0, 0%, 48%) !default;
+$grey-light:   hsl(0, 0%, 71%) !default;
+$grey-lighter: hsl(0, 0%, 86%) !default;
+
+$white-ter:    hsl(0, 0%, 96%) !default;
+$white-bis:    hsl(0, 0%, 98%) !default;
+$white:        hsl(0, 0%, 100%) !default;
+
+$orange:       rgb(218,71,18);
+$yellow:       rgb(242, 203, 29);
+$green:        rgb(84,163,98);
+$turquoise:    rgb(32,202,173);
+$cyan:         hsl(204, 86%,  53%) !default;
+$blue:         rgb(0, 156, 204);
+$purple:       rgb(145,94,202);
+$red:          rgb(205,74,69);
+
+$azure:                 rgb(0, 91, 161);
+$azure-light:           rgb(153, 199, 255);
+$azure-lighter:         rgb(172, 209, 255);
+
+$azure-bg-darkest:      rgb(32, 31, 30);
+$azure-bg-dark:         rgb(37, 36, 35);
+$azure-bg:              rgb(50, 49, 48);
+$azure-bg-light:        rgb(59, 58, 57);
+$azure-bg-lighter:      rgb(71,70,69);
+$azure-bg-lightest:     rgb(82,81,80);
+
+// Typography
+
+$family-sans-serif: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif !default;
+$family-monospace: monospace !default;
+$render-mode: optimizeLegibility !default;
+
+$size-1: 3rem !default;
+$size-2: 2.5rem !default;
+$size-3: 2rem !default;
+$size-4: 1.5rem !default;
+$size-5: 1.25rem !default;
+$size-6: 1rem !default;
+$size-7: 0.75rem !default;
+
+$weight-light: 300 !default;
+$weight-normal: 400 !default;
+$weight-medium: 500 !default;
+$weight-semibold: 600 !default;
+$weight-bold: 700 !default;
+
+// Responsiveness
+
+// The container horizontal gap, which acts as the offset for breakpoints
+$gap: 32px !default;
+// 960, 1152, and 1344 have been chosen because they are divisible by both 12 and 16
+$tablet: 769px !default;
+// 960px container + 4rem
+$desktop: 960px + (2 * $gap) !default;
+// 1152px container + 4rem
+$widescreen: 1152px + (2 * $gap) !default;
+// 1344px container + 4rem;
+$fullhd: 1344px + (2 * $gap) !default;
+
+// Miscellaneous
+
+$easing: ease-out !default;
+$radius-small: 2px !default;
+$radius: 3px !default;
+$radius-large: 5px !default;
+$radius-rounded: 290486px !default;
+$speed: 86ms !default;
+
+// Flags
+
+$variable-columns: true !default;
+
+
+// The default Bulma derived variables are declared below
+
+$primary: $azure; // $primary: $turquoise !default;
+
+$info: $cyan !default;
+$success: $green !default;
+$warning: $yellow !default;
+$danger: $red !default;
+
+$light: $white-ter !default;
+$dark: $grey-darker !default;
+
+// Invert colors
+
+$orange-invert: findColorInvert($orange) !default;
+$yellow-invert: findColorInvert($yellow) !default;
+$green-invert: findColorInvert($green) !default;
+$turquoise-invert: findColorInvert($turquoise) !default;
+$cyan-invert: findColorInvert($cyan) !default;
+$blue-invert: findColorInvert($blue) !default;
+$purple-invert: findColorInvert($purple) !default;
+$red-invert: findColorInvert($red) !default;
+
+$azure-invert: findColorInvert($azure);
+
+$primary-invert: $turquoise-invert !default;
+$info-invert: $cyan-invert !default;
+$success-invert: $green-invert !default;
+$warning-invert: $yellow-invert !default;
+$danger-invert: $red-invert !default;
+$light-invert: $dark !default;
+$dark-invert: $light !default;
+
+// General colors
+
+$background: $azure-bg-light !default;
+
+$border: $grey-lighter !default;
+$border-hover: $grey-light !default;
+
+// Text colors
+
+$text: rgba(255, 255, 255, 0.8); //$grey-dark !default;
+$text-invert: findColorInvert($text) !default;
+$text-light: $white;
+$text-strong: $white;
+
+// Code colors
+
+$code: $red !default;
+$code-background: $background !default;
+
+$pre: $text !default;
+$pre-background: $background !default;
+
+// Link colors
+
+$link: $azure-light !default;
+$link-invert: $azure-invert !default;
+$link-visited: $azure-light !default;
+
+$link-hover: $azure-lighter !default;
+$link-hover-border: $azure-lighter !default;
+
+$link-focus: $azure-light !default;
+$link-focus-border: $azure-light !default;
+
+$link-active: $azure-light !default;
+$link-active-border: $azure-light !default;
+
+// Typography
+
+$family-primary: $family-sans-serif !default;
+$family-code: $family-monospace !default;
+
+$size-small: $size-7 !default;
+$size-normal: $size-6 !default;
+$size-medium: $size-5 !default;
+$size-large: $size-4 !default;
+
+// Scheme
+
+$scheme-main: $azure-bg;
+$scheme-main-bis: $azure-bg-dark;
+$scheme-main-ter: $azure-bg-darkest;
+$scheme-invert: findColorInvert($scheme-main);
+$scheme-invert-bis: findColorInvert($scheme-main-bis);
+$scheme-invert-ter: findColorInvert($scheme-main-ter);
+
+// Shadows
+
+$shadow: rgba(0, 0, 0, 0.4) 0px 3.2px 7.2px 0px, rgba(0, 0, 0, 0.32) 0px 0.6px 1.8px 0px;
+
+// File upload
+
+$file-cta-background-color: $azure-bg;
+
+// Navbar
+
+//$navbar-item-active-color: $text;
+
+// Buefy Switch
+
+$switch-active-background-color: $azure-light;
+
+// Custom Variables
+
+$body-background-color: $azure-bg-dark;
