@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $automation_config_id
  * @property int $is_error
  * @property string|null $response_text
+ *
  * @method static Builder|DetectionEventAutomationResult newModelQuery()
  * @method static Builder|DetectionEventAutomationResult newQuery()
  * @method static Builder|DetectionEventAutomationResult query()
@@ -28,6 +29,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static Builder|DetectionEventAutomationResult whereResponseText($value)
  * @method static Builder|DetectionEventAutomationResult whereUpdatedAt($value)
  * @mixin Eloquent
+ *
  * @property-read \App\AutomationConfig $automationConfig
  * @property-read \App\DetectionEvent $detectionEvent
  */

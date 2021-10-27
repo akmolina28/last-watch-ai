@@ -13,8 +13,7 @@ class StatisticsController extends Controller
 {
     public function index()
     {
-        $relevantEvents = DetectionEvent::
-            whereHas('detectionProfiles', function ($q) {
+        $relevantEvents = DetectionEvent::whereHas('detectionProfiles', function ($q) {
                 return $q->where('ai_prediction_detection_profile.is_masked', '=', false)
                     ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false);
             })

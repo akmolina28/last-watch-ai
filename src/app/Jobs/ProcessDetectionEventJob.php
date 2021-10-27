@@ -27,8 +27,8 @@ class ProcessDetectionEventJob implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param DetectionEvent $event
-     * @param array $settings
+     * @param  DetectionEvent  $event
+     * @param  array  $settings
      */
     public function __construct(DetectionEvent $event, array $compressionSettings = [])
     {
@@ -39,8 +39,9 @@ class ProcessDetectionEventJob implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @param DeepstackClientInterface $client
+     * @param  DeepstackClientInterface  $client
      * @return void
+     *
      * @throws FileNotFoundException
      */
     public function handle(DeepstackClientInterface $client)
@@ -74,8 +75,7 @@ class ProcessDetectionEventJob implements ShouldQueue
                 'detection_event_id' => $this->event->id,
             ]);
 
-            $matchedProfiles = DetectionProfile::
-                whereHas('patternMatchedEvents', function ($query) {
+            $matchedProfiles = DetectionProfile::whereHas('patternMatchedEvents', function ($query) {
                     $query->where('detection_event_id', '=', $this->event->id)
                         ->where('is_profile_active', '=', 1);
                 })
@@ -117,8 +117,7 @@ class ProcessDetectionEventJob implements ShouldQueue
         }
 
         // profiles with negative flag set which didn't have any relevant objects
-        $negativeProfiles = DetectionProfile
-            ::where('is_negative', '=', 1)
+        $negativeProfiles = DetectionProfile::where('is_negative', '=', 1)
             ->whereHas('patternMatchedEvents', function ($query) {
                 $query
                     ->where('detection_event_id', '=', $this->event->id)

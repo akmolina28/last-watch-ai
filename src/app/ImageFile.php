@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
  * AiPrediction.
  *
  * @mixin Eloquent
+ *
  * @property int $id
  * @property string $file_name
  * @property string $path
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Storage;
  * @property int $height
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ *
  * @method static Builder|ImageFile newModelQuery()
  * @method static Builder|ImageFile newQuery()
  * @method static Builder|ImageFile query()

@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Storage;
  * DetectionProfile.
  *
  * @mixin Eloquent
+ *
  * @property int $id
  * @property string $name
  * @property string $servicename
@@ -27,6 +28,7 @@ use Illuminate\Support\Facades\Storage;
  * @property Carbon|null $updated_at
  * @property-read Collection|DetectionProfile[] $detectionProfiles
  * @property-read int|null $detection_profiles_count
+ *
  * @method static Builder|SmbCifsCopyConfig newModelQuery()
  * @method static Builder|SmbCifsCopyConfig newQuery()
  * @method static Builder|SmbCifsCopyConfig query()
@@ -39,7 +41,9 @@ use Illuminate\Support\Facades\Storage;
  * @method static Builder|SmbCifsCopyConfig whereServicename($value)
  * @method static Builder|SmbCifsCopyConfig whereUpdatedAt($value)
  * @method static Builder|SmbCifsCopyConfig whereUser($value)
+ *
  * @property Carbon|null $deleted_at
+ *
  * @method static Builder|SmbCifsCopyConfig onlyTrashed()
  * @method static Builder|SmbCifsCopyConfig whereDeletedAt($value)
  * @method static Builder|SmbCifsCopyConfig withTrashed()
