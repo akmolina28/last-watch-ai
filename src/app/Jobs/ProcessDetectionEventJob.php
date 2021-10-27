@@ -76,9 +76,9 @@ class ProcessDetectionEventJob implements ShouldQueue
             ]);
 
             $matchedProfiles = DetectionProfile::whereHas('patternMatchedEvents', function ($query) {
-                    $query->where('detection_event_id', '=', $this->event->id)
+                $query->where('detection_event_id', '=', $this->event->id)
                         ->where('is_profile_active', '=', 1);
-                })
+            })
                 ->whereJsonContains('object_classes', $prediction->label)
                 ->where('min_confidence', '<=', $prediction->confidence)
                 ->get();
