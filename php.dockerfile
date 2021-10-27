@@ -1,4 +1,4 @@
-FROM php:7.4-fpm
+FROM php:7.4-fpm-buster
 
 ARG USER_ID
 ARG GROUP_ID

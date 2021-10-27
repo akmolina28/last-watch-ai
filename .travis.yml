@@ -1,6 +1,9 @@
 language: generic
 sudo: required
 
+env:
+  - DOCKER_COMPOSE_VERSION=1.29.2
+
 branches:
   only:
     - master
