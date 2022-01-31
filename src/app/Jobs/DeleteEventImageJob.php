@@ -16,6 +16,13 @@ class DeleteEventImageJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    /**
+     * Delete the job if its models no longer exist.
+     *
+     * @var bool
+     */
+    public $deleteWhenMissingModels = true;
+
     public ImageFile $imageFile;
 
     /**
@@ -35,8 +42,6 @@ class DeleteEventImageJob implements ShouldQueue
      */
     public function handle()
     {
-        Log::debug('Handling DeleteEventImageJob for ImageFile #'.($this->imageFile->id ?? -1));
-
         // delete image and thumbnail
         $this->deleteFile($this->imageFile->getPath(false));
         $this->deleteFile($this->imageFile->getPath(true));
@@ -47,27 +52,11 @@ class DeleteEventImageJob implements ShouldQueue
 
     private function deleteRecordIfExists()
     {
-        $id = $this->imageFile->id ?? -1;
-        Log::debug('Deleting ImageFile #'.$id);
-
-        try {
-            $this->imageFile->delete();
-            Log::debug('Successfully deleted ImageFile #'.$id);
-        } catch (ModelNotFoundException $ex) {
-            Log::debug('Unable to delete, model does not exist for ImageFile #'.$id);
-        }
+        return $this->imageFile->delete();
     }
 
     private function deleteFile($storagePath)
     {
-        Log::debug('Deleting '.$storagePath.'...');
-
-        $success = Storage::delete($storagePath);
-
-        if ($success) {
-            Log::debug('Successfully deleted '.$storagePath);
-        } else {
-            Log::debug('Unable to delete file '.$storagePath);
-        }
+        return Storage::delete($storagePath);
     }
 }
