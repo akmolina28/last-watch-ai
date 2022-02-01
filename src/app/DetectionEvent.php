@@ -2,7 +2,6 @@
 
 namespace App;
 
-use App\Jobs\DeleteEventImageJob;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
