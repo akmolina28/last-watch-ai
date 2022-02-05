@@ -2,7 +2,6 @@
 
 namespace App;
 
-use App\Jobs\DeleteEventImageJob;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -167,14 +166,5 @@ class DetectionEvent extends Model
         $attributes['image_url'] = $this->imageUrl;
 
         return $attributes;
-    }
-
-    protected static function booted()
-    {
-        static::deleted(function ($event) {
-            if ($event->imageFile) {
-                DeleteEventImageJob::dispatch($event->imageFile)->onQueue('low');
-            }
-        });
     }
 }
