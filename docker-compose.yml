@@ -141,6 +141,8 @@ services:
       - ./src:/var/www/app
     working_dir: /var/www/app
     entrypoint: ['npm']
+    ports:
+      - "8081:8081"
 
   artisan:
     build:
