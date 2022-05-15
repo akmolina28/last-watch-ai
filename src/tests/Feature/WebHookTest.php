@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\DetectionEvent;
 use App\DetectionProfile;
+use App\User;
 use App\Jobs\ProcessDetectionEventJob;
 use App\Jobs\ProcessEventUploadJob;
 use App\Jobs\ProcessWebhookJob;
@@ -15,11 +16,13 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Spatie\WebhookClient\Models\WebhookCall;
 use Tests\TestCase;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 
 class WebHookTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
+    // use WithoutMiddleware;
 
     protected function setUp(): void
     {
@@ -30,6 +33,9 @@ class WebHookTest extends TestCase
         Queue::fake();
 
         $this->setUpTestImage();
+
+        $user = new User(['name' => 'Administrator']);
+        $this->be($user);
     }
 
     protected function setUpTestImage()

@@ -14,6 +14,7 @@ use App\MqttPublishConfig;
 use App\SmbCifsCopyConfig;
 use App\TelegramConfig;
 use App\WebRequestConfig;
+use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
@@ -34,6 +35,9 @@ class ApiTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
+
+        $user = new User(['name' => 'Administrator']);
+        $this->be($user);
     }
 
     /**

@@ -17,11 +17,14 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
+
 
 class DetectionTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
+    // use WithoutMiddleware;
 
     protected function setUp(): void
     {

@@ -13,80 +13,80 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/profiles', 'DetectionProfileController@index');
+Route::get('/profiles', 'DetectionProfileController@index')->middleware('auth.basic');
 
-Route::post('/profiles', 'DetectionProfileController@make');
+Route::post('/profiles', 'DetectionProfileController@make')->middleware('auth.basic');
 
-Route::get('/profiles/{param}', 'DetectionProfileController@show');
+Route::get('/profiles/{param}', 'DetectionProfileController@show')->middleware('auth.basic');
 
-Route::get('/profiles/{param}/edit', 'DetectionProfileController@edit');
+Route::get('/profiles/{param}/edit', 'DetectionProfileController@edit')->middleware('auth.basic');
 
-Route::patch('/profiles/{param}', 'DetectionProfileController@update');
+Route::patch('/profiles/{param}', 'DetectionProfileController@update')->middleware('auth.basic');
 
-Route::delete('/profiles/{param}', 'DetectionProfileController@destroy');
+Route::delete('/profiles/{param}', 'DetectionProfileController@destroy')->middleware('auth.basic');
 
-Route::put('/profiles/{param}/status', 'DetectionProfileController@updateStatus');
+Route::put('/profiles/{param}/status', 'DetectionProfileController@updateStatus')->middleware('auth.basic');
 
-Route::get('/profiles/{param}/automations', 'DetectionProfileController@showAutomations');
+Route::get('/profiles/{param}/automations', 'DetectionProfileController@showAutomations')->middleware('auth.basic');
 
-Route::put('/profiles/{param}/automations', 'DetectionProfileController@updateAutomations');
+Route::put('/profiles/{param}/automations', 'DetectionProfileController@updateAutomations')->middleware('auth.basic');
 
-Route::get('/objectClasses', 'DeepstackController@showObjectClasses');
+Route::get('/objectClasses', 'DeepstackController@showObjectClasses')->middleware('auth.basic');
 
-Route::get('/events', 'DetectionEventController@index');
+Route::get('/events', 'DetectionEventController@index')->middleware('auth.basic');
 
-Route::post('/events', 'DetectionEventController@make');
+Route::post('/events', 'DetectionEventController@make')->middleware('auth.basic');
 
-Route::get('/events/latest', 'DetectionEventController@showLatest');
+Route::get('/events/latest', 'DetectionEventController@showLatest')->middleware('auth.basic');
 
-Route::get('/events/{event}', 'DetectionEventController@show');
+Route::get('/events/{event}', 'DetectionEventController@show')->middleware('auth.basic');
 
-Route::get('/events/{event}/prev', 'DetectionEventController@findPrev');
+Route::get('/events/{event}/prev', 'DetectionEventController@findPrev')->middleware('auth.basic');
 
-Route::get('/events/{event}/next', 'DetectionEventController@findNext');
+Route::get('/events/{event}/next', 'DetectionEventController@findNext')->middleware('auth.basic');
 
-Route::get('/events/{event}/img', 'DetectionEventController@showImage');
+Route::get('/events/{event}/img', 'DetectionEventController@showImage')->middleware('auth.basic');
 
-Route::get('/events/{event}/alertImage', 'DetectionEventController@alertImage');
+Route::get('/events/{event}/alertImage', 'DetectionEventController@alertImage')->middleware('auth.basic');
 
-Route::get('/automations/replacements', 'AutomationController@getReplacements');
+Route::get('/automations/replacements', 'AutomationController@getReplacements')->middleware('auth.basic');
 
-Route::get('/automations/telegram', 'AutomationController@telegramConfigIndex');
+Route::get('/automations/telegram', 'AutomationController@telegramConfigIndex')->middleware('auth.basic');
 
-Route::post('/automations/telegram', 'AutomationController@makeTelegramConfig');
+Route::post('/automations/telegram', 'AutomationController@makeTelegramConfig')->middleware('auth.basic');
 
-Route::delete('/automations/telegram/{config}', 'AutomationController@deleteTelegramConfig');
+Route::delete('/automations/telegram/{config}', 'AutomationController@deleteTelegramConfig')->middleware('auth.basic');
 
-Route::get('/automations/webRequest', 'AutomationController@webRequestConfigIndex');
+Route::get('/automations/webRequest', 'AutomationController@webRequestConfigIndex')->middleware('auth.basic');
 
-Route::post('/automations/webRequest', 'AutomationController@makeWebRequestConfig');
+Route::post('/automations/webRequest', 'AutomationController@makeWebRequestConfig')->middleware('auth.basic');
 
-Route::delete('/automations/webRequest/{config}', 'AutomationController@deleteWebRequestConfig');
+Route::delete('/automations/webRequest/{config}', 'AutomationController@deleteWebRequestConfig')->middleware('auth.basic');
 
-Route::get('/automations/folderCopy', 'AutomationController@folderCopyConfigIndex');
+Route::get('/automations/folderCopy', 'AutomationController@folderCopyConfigIndex')->middleware('auth.basic');
 
-Route::post('/automations/folderCopy', 'AutomationController@makeFolderCopyConfig');
+Route::post('/automations/folderCopy', 'AutomationController@makeFolderCopyConfig')->middleware('auth.basic');
 
-Route::delete('/automations/folderCopy/{config}', 'AutomationController@deleteFolderCopyConfig');
+Route::delete('/automations/folderCopy/{config}', 'AutomationController@deleteFolderCopyConfig')->middleware('auth.basic');
 
-Route::get('/automations/smbCifsCopy', 'AutomationController@smbCifsCopyConfigIndex');
+Route::get('/automations/smbCifsCopy', 'AutomationController@smbCifsCopyConfigIndex')->middleware('auth.basic');
 
-Route::post('/automations/smbCifsCopy', 'AutomationController@makeSmbCifsCopyConfig');
+Route::post('/automations/smbCifsCopy', 'AutomationController@makeSmbCifsCopyConfig')->middleware('auth.basic');
 
-Route::delete('/automations/smbCifsCopy/{config}', 'AutomationController@deleteSmbCifsCopyConfig');
+Route::delete('/automations/smbCifsCopy/{config}', 'AutomationController@deleteSmbCifsCopyConfig')->middleware('auth.basic');
 
-Route::get('/automations/mqttPublish', 'AutomationController@mqttPublishConfigIndex');
+Route::get('/automations/mqttPublish', 'AutomationController@mqttPublishConfigIndex')->middleware('auth.basic');
 
-Route::post('/automations/mqttPublish', 'AutomationController@makeMqttPublishConfig');
+Route::post('/automations/mqttPublish', 'AutomationController@makeMqttPublishConfig')->middleware('auth.basic');
 
-Route::delete('/automations/mqttPublish/{config}', 'AutomationController@deleteMqttPublishConfig');
+Route::delete('/automations/mqttPublish/{config}', 'AutomationController@deleteMqttPublishConfig')->middleware('auth.basic');
 
-Route::get('/statistics', 'StatisticsController@index');
+Route::get('/statistics', 'StatisticsController@index')->middleware('auth.basic');
 
-Route::get('/alive', 'StatisticsController@isAlive');
+Route::get('/alive', 'StatisticsController@isAlive')->middleware('auth.basic');
 
-Route::get('/errors', 'StatisticsController@errors');
+Route::get('/errors', 'StatisticsController@errors')->middleware('auth.basic');
 
-Route::get('/deepstackLogs', 'StatisticsController@deepstackLogs');
+Route::get('/deepstackLogs', 'StatisticsController@deepstackLogs')->middleware('auth.basic');
 
-Route::any('/{any}', 'ErrorController@catchAll')->where('any', '.*');
+Route::any('/{any}', 'ErrorController@catchAll')->where('any', '.*')->middleware('auth.basic');

@@ -9,6 +9,7 @@ use App\DetectionEvent;
 use App\DetectionEventAutomationResult;
 use App\DetectionProfile;
 use App\ImageFile;
+use App\User;
 use App\Jobs\DeleteEventImageJob;
 use App\Tasks\DeleteDetectionEventsTask;
 use App\WebRequestConfig;
@@ -21,16 +22,21 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 
 class DeleteDetectionEventTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
+    // use WithoutMiddleware;
 
     protected function setUp(): void
     {
         parent::setUp();
         Storage::fake();
+
+        $user = new User(['name' => 'Administrator']);
+        $this->be($user);
     }
 
     protected function createImageFile($fileName = 'testimage.jpg', $thumbFileName = 'testimage-thumb.jpg'): ImageFile
