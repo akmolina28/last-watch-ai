@@ -28,7 +28,8 @@ let routes = [
     {
         path: '/events/',
         component: require('./components/DetectionEvents').default,
-        props: true
+        props: true,
+        name: "DetectionEvents"
     },
     {
         path: '/events/:id',

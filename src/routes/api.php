@@ -35,7 +35,7 @@ Route::get('/objectClasses', 'DeepstackController@showObjectClasses')->middlewar
 
 Route::get('/events', 'DetectionEventController@index')->middleware('auth.basic');
 
-Route::post('/events', 'DetectionEventController@make')->middleware('auth.basic');
+Route::post('/events', 'DetectionEventController@make');
 
 Route::get('/events/latest', 'DetectionEventController@showLatest')->middleware('auth.basic');
 

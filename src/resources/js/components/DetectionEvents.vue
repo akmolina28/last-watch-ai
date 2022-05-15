@@ -1,5 +1,5 @@
 <template>
-    <div class="component-container">
+    <div class="container">
         <nav class="breadcrumb" aria-label="breadcrumbs">
             <ul>
                 <li><a href="/">Home</a></li>
@@ -15,50 +15,43 @@
             </template>
         </title-header>
 
-        <div class="level">
-            <div class="level-left">
-                <div class="level-item">
-                    <div class="field">
-                        <b-switch v-model="relevant" @input="getData()">
-                            Relevant Only
-                        </b-switch>
-                    </div>
-                </div>
-
-                <div class="level-item">
-                    <b-select
-                        v-model="filterProfileId"
-                        @input="getData()"
-                        class="is-primary is-outlined"
-                        icon="eye">
-                        <option :value="null" :key="-1">Any Profile</option>
-                        <option
-                            v-for="profile in allProfiles"
-                            :value="profile.id"
-                            :key="profile.id">
-                            {{ profile.name }}
-                        </option>
-                    </b-select>
-                </div>
-
-                <div class="level-item">
-                    <button class="button" :disabled="eventsLoading" @click="getData()">
-                        <span>
-                            Refresh
-                        </span>
-                        <b-icon icon="sync"></b-icon>
-                    </button>
-                </div>
+        <div class="is-flex-tablet">
+            <div class="mt-2 mr-2 mb-2">
+                <b-switch v-model="relevant" @input="getEvents()">
+                    Relevant Only
+                </b-switch>
+            </div>
+            <div class="mr-2 mb-2">
+                <b-select
+                    v-model="filterProfileId"
+                    @input="getEvents()"
+                    class="is-primary is-outlined"
+                    icon="eye">
+                    <option :value="null" :key="-1">Any Profile</option>
+                    <option
+                        v-for="profile in allProfiles"
+                        :value="profile.id"
+                        :key="profile.id">
+                        {{ profile.name }}
+                    </option>
+                </b-select>
+            </div>
+            <div class="mr-2 mb-2">
+                <b-button type="is-primary" :loading="eventsLoading" @click="getEvents()">
+                    <span>
+                        Refresh
+                    </span>
+                    <b-icon icon="sync"></b-icon>
+                </b-button>
             </div>
         </div>
 
         <b-table
+            v-if="events"
             hoverable
-            :selected.sync="selected"
             mobile-cards
-            :data="isEmpty ? [] : events"
+            :data="events"
             :loading="eventsLoading"
-            @click="rowClick"
             class="mb-3">
 
             <b-table-column field="thumbnail" v-slot="props">
@@ -66,7 +59,12 @@
             </b-table-column>
 
             <b-table-column field="image_file_name" label="Image File" v-slot="props">
-                {{ props.row.image_file_name }}
+                <span class="is-hidden-tablet" style="max-width:210px;overflow-x:hidden;text-overflow:ellipsis;">
+                    {{ props.row.image_file_name }}
+                </span>
+                <span class="is-hidden-mobile">
+                    {{ props.row.image_file_name }}
+                </span>
             </b-table-column>
 
             <b-table-column field="occurred_at" label="Occurred" v-slot="props">
@@ -79,9 +77,12 @@
                 <b-icon v-if="props.row.detection_profiles_count > 0" icon="check"></b-icon>
             </b-table-column>
 
+            <b-table-column v-slot="props">
+                <router-link :to="`/events/${props.row.id}`">Details</router-link>
+            </b-table-column>
         </b-table>
 
-        <pagination :data="meta" @pagination-change-page="getData" :limit="5">
+        <pagination :data="meta" @pagination-change-page="getEvents" :limit="5">
         </pagination>
     </div>
 
@@ -93,25 +94,29 @@
 
         data() {
             return {
-                events: [],
+                events: null,
                 eventsLoading: false,
                 meta: {},
                 relevant: true,
                 filterProfileId: null,
                 allProfiles: [],
-                isEmpty: true,
-                selected: {}
             }
         },
 
         mounted () {
-            this.getProfiles();
             this.getData();
         },
 
+        activated () {
+            if (!this.events) {
+                this.getData();
+            }
+        },
+
         methods: {
-            rowClick(event) {
-                window.open(`/events/${event.id}`, '_blank');
+            getData() {
+                this.getEvents();
+                this.getProfiles();
             },
 
             getProfiles() {
@@ -121,7 +126,7 @@
                     });
             },
 
-            getData(page = 1) {
+            getEvents(page = 1) {
                 this.eventsLoading = true;
                 let url = '/api/events?page=' + page;
                 if (this.relevant) {
@@ -134,7 +139,6 @@
                     .then(response => {
                         this.events = response.data.data;
                         this.meta = response.data.meta;
-                        this.isEmpty = false;
                     })
                     .finally(() => {
                         this.eventsLoading = false;
