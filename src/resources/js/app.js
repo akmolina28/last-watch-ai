@@ -27,12 +27,12 @@ Vue.mixin({
     }
 })
 
-import Navigation from "./components/Navigation";
+import App from "./components/Shared/App.vue";
 
 new Vue({
     el: '#app',
     router,
     components: {
-        Navigation,
+        App,
     }
 });
