@@ -88,14 +88,9 @@ class ProcessDetectionEventJob implements ShouldQueue
                 $maskPath = Storage::path('masks/'.$maskName);
                 $isMasked = $profile->use_mask && $aiPrediction->isMasked($maskPath);
 
-                \Illuminate\Support\Facades\Log::error('min_object_size '.$profile->min_object_size);
-                \Illuminate\Support\Facades\Log::error('area '.$aiPrediction->area());
-
                 $isTooSmall = $profile->min_object_size > 0 && $aiPrediction->area() <= $profile->min_object_size;
 
-                \Illuminate\Support\Facades\Log::error('isTooSmall '.$isTooSmall);
-
-                $objectFiltered = false;
+                $isSmartFiltered = false;
 
                 if (! $isMasked && ! $isTooSmall && $profile->use_smart_filter) {
                     $profileId = $profile->id;
@@ -106,17 +101,20 @@ class ProcessDetectionEventJob implements ShouldQueue
                         })->latest()->first();
 
                     if ($lastDetectionEvent) {
-                        $objectFiltered = $profile->isPredictionSmartFiltered($aiPrediction, $lastDetectionEvent);
+                        $isSmartFiltered = $profile->isPredictionSmartFiltered($aiPrediction, $lastDetectionEvent);
                     }
                 }
 
+                $isRelevant = ! ($isMasked || $isTooSmall || $isSmartFiltered);
+
                 $profile->aiPredictions()->attach($aiPrediction->id, [
+                    'is_relevant' => $isRelevant,
                     'is_masked' => $isMasked,
-                    'is_smart_filtered' => $objectFiltered,
+                    'is_smart_filtered' => $isSmartFiltered,
                     'is_size_filtered' => $isTooSmall,
                 ]);
 
-                if (! $isMasked && ! $isTooSmall && ! $objectFiltered && ! $profile->is_negative) {
+                if (! $isMasked && ! $isTooSmall && ! $isSmartFiltered && ! $profile->is_negative) {
                     if (! in_array($profile, $relevantProfiles)) {
                         array_push($relevantProfiles, $profile);
                     }
@@ -134,8 +132,7 @@ class ProcessDetectionEventJob implements ShouldQueue
             ->whereDoesntHave('detectionEvents', function ($query) {
                 $query
                     ->where('detection_events.id', '=', $this->event->id)
-                    ->where('ai_prediction_detection_profile.is_masked', '=', 0)
-                    ->where('ai_prediction_detection_profile.is_smart_filtered', '=', 0);
+                    ->where('ai_prediction_detection_profile.is_relevant', '=', 1);
             })
             ->get();
 

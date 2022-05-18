@@ -30,6 +30,9 @@ class DetectionProfileResource extends JsonResource
             'status' => $this->status,
             'start_time' => $this->start_time,
             'end_time' => $this->end_time,
+            'is_relevant' => $this->whenPivotLoaded('ai_prediction_detection_profile', function () {
+                return $this->pivot->is_relevant;
+            }),
             'is_masked' => $this->whenPivotLoaded('ai_prediction_detection_profile', function () {
                 return $this->pivot->is_masked;
             }),

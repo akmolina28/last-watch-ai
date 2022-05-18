@@ -73,7 +73,7 @@ class DetectionEvent extends Model
     public function detectionProfiles()
     {
         return $this->hasManyDeep('App\DetectionProfile', ['App\AiPrediction', 'ai_prediction_detection_profile'])
-            ->withPivot('ai_prediction_detection_profile', ['is_masked', 'is_smart_filtered', 'is_size_filtered']);
+            ->withPivot('ai_prediction_detection_profile', ['is_relevant', 'is_masked', 'is_smart_filtered', 'is_size_filtered']);
     }
 
     public function patternMatchedProfiles()

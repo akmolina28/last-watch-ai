@@ -18,9 +18,7 @@ class DetectionEventController extends Controller
         $query = DetectionEvent::query()
             ->withCount([
                 'detectionProfiles' => function ($q) {
-                    $q->where('ai_prediction_detection_profile.is_masked', '=', false)
-                        ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false)
-                        ->where('ai_prediction_detection_profile.is_size_filtered', '=', false);
+                    $q->where('ai_prediction_detection_profile.is_relevant', '=', true);
                 },
                 'patternMatchedProfiles',
             ])
@@ -33,9 +31,7 @@ class DetectionEventController extends Controller
                 $query->whereHas('detectionProfiles', function ($q) use ($profileId) {
                     return $q
                         ->where('detection_profile_id', $profileId)
-                        ->where('ai_prediction_detection_profile.is_masked', '=', false)
-                        ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false)
-                        ->where('ai_prediction_detection_profile.is_size_filtered', '=', false);
+                        ->where('ai_prediction_detection_profile.is_relevant', '=', true);
                 });
             } else {
                 $query->whereHas('patternMatchedProfiles', function ($q) use ($profileId) {
@@ -113,9 +109,7 @@ class DetectionEventController extends Controller
     {
         try {
             $event = DetectionEvent::whereHas('detectionProfiles', function ($q) {
-                return $q->where('ai_prediction_detection_profile.is_masked', '=', false)
-                    ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false)
-                    ->where('ai_prediction_detection_profile.is_size_filtered', '=', false);
+                return $q->where('ai_prediction_detection_profile.is_relevant', '=', true);
             })->orderByDesc('occurred_at')->firstOrFail();
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Model not found.'], 204);

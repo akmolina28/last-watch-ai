@@ -90,6 +90,8 @@ class DetectionTest extends TestCase
         $this->assertNotNull($event->deepstackCall);
         $this->assertCount(3, $event->aiPredictions);
         $this->assertCount(3, $event->detectionProfiles);
+
+        $this->assertCount(3, $event->detectionProfiles->where('ai_prediction_detection_profile.is_relevant', '=', true));
     }
 
     /**
@@ -167,6 +169,7 @@ class DetectionTest extends TestCase
 
         foreach ($event->detectionProfiles as $profile) {
             $this->assertEquals(1, $profile->ai_prediction_detection_profile->is_smart_filtered);
+            $this->assertEquals(0, $profile->ai_prediction_detection_profile->is_relevant);
         }
     }
 
@@ -205,7 +208,17 @@ class DetectionTest extends TestCase
 
         // only 2 unmasked predictions
         $this->assertCount(2, $event->detectionProfiles()
-            ->where('ai_prediction_detection_profile.is_masked', '=', false)->get());
+            ->where('ai_prediction_detection_profile.is_masked', '=', false)
+            ->where('ai_prediction_detection_profile.is_relevant', '=', true)
+            ->get()
+        );
+
+        // only 1 masked prediction
+        $this->assertCount(1, $event->detectionProfiles()
+            ->where('ai_prediction_detection_profile.is_masked', '=', true)
+            ->where('ai_prediction_detection_profile.is_relevant', '=', false)
+            ->get()
+        );
     }
 
     /**
@@ -238,11 +251,17 @@ class DetectionTest extends TestCase
 
         // only 2 unfiltered predictions
         $this->assertCount(2, $event->detectionProfiles()
-            ->where('ai_prediction_detection_profile.is_size_filtered', '=', false)->get());
+            ->where('ai_prediction_detection_profile.is_size_filtered', '=', false)
+            ->where('ai_prediction_detection_profile.is_relevant', '=', true)
+            ->get()
+        );
         
         // 1 filtered prediction (dog)
         $this->assertCount(1, $event->detectionProfiles()
-            ->where('ai_prediction_detection_profile.is_size_filtered', '=', true)->get());
+            ->where('ai_prediction_detection_profile.is_size_filtered', '=', true)
+            ->where('ai_prediction_detection_profile.is_relevant', '=', false)
+            ->get()
+        );
 
         $this->assertEquals('dog', $profile->aiPredictions()->where('is_size_filtered', '=', true)->first()->object_class);
     }

@@ -259,9 +259,7 @@ class ApiTest extends TestCase
 
         foreach ($events as $event) {
             $prediction = $event->aiPredictions()->first();
-            $prediction->detectionProfiles()->attach($profile->id, [
-                'is_masked' => false,
-            ]);
+            $prediction->detectionProfiles()->attach($profile->id);
         }
 
         // make 1 event relevant but masked
@@ -278,6 +276,7 @@ class ApiTest extends TestCase
             $prediction = $event->aiPredictions()->first();
             $prediction->detectionProfiles()->attach($profile->id, [
                 'is_masked' => true,
+                'is_relevant' => false,
             ]);
         }
 
@@ -295,6 +294,7 @@ class ApiTest extends TestCase
             $prediction = $event->aiPredictions()->first();
             $prediction->detectionProfiles()->attach($profile->id, [
                 'is_smart_filtered' => true,
+                'is_relevant' => false,
             ]);
         }
 
@@ -322,9 +322,7 @@ class ApiTest extends TestCase
 
         foreach ($events as $event) {
             $prediction = $event->aiPredictions()->first();
-            $prediction->detectionProfiles()->attach($differentProfile->id, [
-                'is_masked' => false,
-            ]);
+            $prediction->detectionProfiles()->attach($differentProfile->id);
         }
     }
 
@@ -390,7 +388,7 @@ class ApiTest extends TestCase
 
         $prediction = $event->aiPredictions()->first();
         $prediction->detectionProfiles()->attach($profile->id, [
-            'is_masked' => false,
+            'is_relevant' => true,
         ]);
 
         $response = $this->get('/api/events/latest');

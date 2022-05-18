@@ -121,13 +121,13 @@ class DetectionProfile extends Model
             [null, null, 'id'],
             [null, 'ai_prediction_id', 'detection_event_id']
         )
-            ->withPivot('ai_prediction_detection_profile', ['is_masked', 'is_smart_filtered', 'is_size_filtered']);
+            ->withPivot('ai_prediction_detection_profile', ['is_relevant', 'is_masked', 'is_smart_filtered', 'is_size_filtered']);
     }
 
     public function aiPredictions()
     {
         return $this->belongsToMany('App\AiPrediction')
-            ->withPivot(['is_masked', 'is_smart_filtered', 'is_size_filtered']);
+            ->withPivot(['is_relevant', 'is_masked', 'is_smart_filtered', 'is_size_filtered']);
     }
 
     public function automations()
