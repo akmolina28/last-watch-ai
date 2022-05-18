@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Support\Facades\Log;
+
 use App\DeepstackClient;
 use App\DetectionEvent;
 use App\DetectionProfile;
@@ -179,7 +181,45 @@ class DetectionTest extends TestCase
         $profile = factory(DetectionProfile::class)->create([
             'object_classes' => ['person', 'dog'],
             'use_mask' => true,
-            'name' => 'test-mask3',
+            'name' => 'test-mask3', // pulls mask file from storage/app/public_testing/masks
+        ]);
+
+        $imageFile = $this->createImageFile();
+
+        // process an event
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile->id,
+        ]);
+        $event->patternMatchedProfiles()->attach($profile->id);
+        $this->handleDetectionJob($event);
+
+        $event = DetectionEvent::find($event->id);
+
+        Log::error($event->aiPredictions[0]->area());
+        Log::error($event->aiPredictions[1]->area());
+        Log::error($event->aiPredictions[2]->area());
+
+        // 3 total predictions
+        $this->assertCount(3, $event->aiPredictions);
+        $this->assertCount(3, $event->detectionProfiles);
+
+        // only 2 unmasked predictions
+        $this->assertCount(2, $event->detectionProfiles()
+            ->where('ai_prediction_detection_profile.is_masked', '=', false)->get());
+    }
+
+    /**
+     * @test
+     */
+    public function detection_job_can_filter_by_min_object_size()
+    {
+        factory(DetectionProfile::class, 5)->create();
+
+        // // active match
+        $profile = factory(DetectionProfile::class)->create([
+            'object_classes' => ['person', 'dog'],
+            'use_mask' => false,
+            'min_object_size' => 30000 // should filter out the smallest prediction, the dog
         ]);
 
         $imageFile = $this->createImageFile();
@@ -195,11 +235,16 @@ class DetectionTest extends TestCase
 
         // 3 total predictions
         $this->assertCount(3, $event->aiPredictions);
-        $this->assertCount(3, $event->detectionProfiles);
 
-        // only 2 unmasked predictions
+        // only 2 unfiltered predictions
         $this->assertCount(2, $event->detectionProfiles()
-            ->where('ai_prediction_detection_profile.is_masked', '=', false)->get());
+            ->where('ai_prediction_detection_profile.is_size_filtered', '=', false)->get());
+        
+        // 1 filtered prediction (dog)
+        $this->assertCount(1, $event->detectionProfiles()
+            ->where('ai_prediction_detection_profile.is_size_filtered', '=', true)->get());
+
+        $this->assertEquals('dog', $profile->aiPredictions()->where('is_size_filtered', '=', true)->first()->object_class);
     }
 
     /**

@@ -19,7 +19,8 @@ class DetectionEventController extends Controller
             ->withCount([
                 'detectionProfiles' => function ($q) {
                     $q->where('ai_prediction_detection_profile.is_masked', '=', false)
-                        ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false);
+                        ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false)
+                        ->where('ai_prediction_detection_profile.is_size_filtered', '=', false);
                 },
                 'patternMatchedProfiles',
             ])
@@ -33,7 +34,8 @@ class DetectionEventController extends Controller
                     return $q
                         ->where('detection_profile_id', $profileId)
                         ->where('ai_prediction_detection_profile.is_masked', '=', false)
-                        ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false);
+                        ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false)
+                        ->where('ai_prediction_detection_profile.is_size_filtered', '=', false);
                 });
             } else {
                 $query->whereHas('patternMatchedProfiles', function ($q) use ($profileId) {
@@ -112,7 +114,8 @@ class DetectionEventController extends Controller
         try {
             $event = DetectionEvent::whereHas('detectionProfiles', function ($q) {
                 return $q->where('ai_prediction_detection_profile.is_masked', '=', false)
-                    ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false);
+                    ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false)
+                    ->where('ai_prediction_detection_profile.is_size_filtered', '=', false);
             })->orderByDesc('occurred_at')->firstOrFail();
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Model not found.'], 204);

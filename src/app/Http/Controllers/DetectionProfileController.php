@@ -39,6 +39,7 @@ class DetectionProfileController extends Controller
             'min_confidence' => 'required|numeric|between:0,1',
             'object_classes' => 'required',
             'smart_filter_precision' => 'numeric|between:0,1',
+            'min_object_size' => 'numeric',
         ]);
     }
 
@@ -69,6 +70,7 @@ class DetectionProfileController extends Controller
             'use_smart_filter' => $request->get('use_smart_filter', 'false') === 'true',
             'smart_filter_precision' => $request->get('use_smart_filter', 'false') === 'true' ?
                 $request->get('smart_filter_precision') : 0,
+            'min_object_size' => $request->get('min_object_size'),
         ]);
 
         $profile->use_mask = $this->saveMask($profile->slug);
@@ -94,6 +96,7 @@ class DetectionProfileController extends Controller
             request()->get('smart_filter_precision') : 0;
         $profile->is_negative = request()->get('is_negative', 'false') === 'true';
         $profile->use_mask = request()->get('use_mask', 'false') === 'true';
+        $profile->min_object_size = request()->get('min_object_size');
 
         if ($profile->use_mask) {
             $this->saveMask($profile->slug);

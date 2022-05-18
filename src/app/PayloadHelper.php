@@ -33,6 +33,7 @@ class PayloadHelper
                 ->where('detection_event_id', '=', $event->id)
                 ->where('ai_prediction_detection_profile.is_masked', '=', 0)
                 ->where('ai_prediction_detection_profile.is_smart_filtered', '=', 0)
+                ->where('ai_prediction_detection_profile.is_size_filtered', '=', 0)
                 ->pluck('object_class')
                 ->sort()
                 ->implode(',');

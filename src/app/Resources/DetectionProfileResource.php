@@ -26,6 +26,7 @@ class DetectionProfileResource extends JsonResource
             'is_negative' => $this->is_negative,
             'use_smart_filter' => $this->use_smart_filter,
             'smart_filter_precision' => $this->smart_filter_precision,
+            'min_object_size' => $this->min_object_size,
             'status' => $this->status,
             'start_time' => $this->start_time,
             'end_time' => $this->end_time,
@@ -34,6 +35,9 @@ class DetectionProfileResource extends JsonResource
             }),
             'is_smart_filtered' => $this->whenPivotLoaded('ai_prediction_detection_profile', function () {
                 return $this->pivot->is_smart_filtered;
+            }),
+            'is_size_filtered' => $this->whenPivotLoaded('ai_prediction_detection_profile', function () {
+                return $this->pivot->is_size_filtered;
             }),
             'is_profile_active' => $this->whenPivotLoaded('pattern_match', function () {
                 return $this->pivot->is_profile_active;

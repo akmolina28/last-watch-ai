@@ -56,6 +56,10 @@
                 {{ props.row.min_confidence }}
             </b-table-column>
 
+            <b-table-column field="min_object_size" label="Min Size" v-slot="props">
+                {{ props.row.min_object_size }}
+            </b-table-column>
+
             <b-table-column field="status" label="Status" v-slot="props">
                 <b-dropdown aria-role="list">
                     <button :class="'button is-primary' + (props.row.status === 'disabled' ? ' is-light': '') + (props.row.isStatusUpdating ? ' is-loading' : '')"

@@ -110,6 +110,12 @@
                         </b-slider>
                     </b-field>
 
+                    <b-field label="Minimum Object Size">
+                        <b-input v-model="min_object_size"
+                                 type="number"
+                                 ></b-input>
+                    </b-field>
+
                     <b-field position="is-right">
                         <a class="button is-primary is-outlined mr-2" type="submit" href="/profiles">Go back</a>
 
@@ -138,6 +144,7 @@
                 use_regex: false,
                 use_smart_filter: false,
                 smart_filter_precision: 0.65,
+                min_object_size: null,
                 mask: null,
                 object_classes: [],
                 allObjectClasses: [],
@@ -159,6 +166,7 @@
                     this.name = profile.name;
                     this.file_pattern = profile.file_pattern;
                     this.min_confidence = parseFloat(profile.min_confidence);
+                    this.min_object_size = parseFloat(profile.min_object_size);
                     this.use_regex = profile.use_regex;
                     this.object_classes = profile.object_classes;
                     this.use_smart_filter = profile.use_smart_filter;
@@ -225,6 +233,7 @@
                 formData.append('use_regex', this.use_regex);
                 formData.append('use_smart_filter', this.use_smart_filter);
                 formData.append('smart_filter_precision', this.smart_filter_precision);
+                formData.append('min_object_size', this.min_object_size);
                 formData.append('mask', this.mask);
                 formData.append('object_classes', JSON.stringify(this.object_classes));
                 formData.append('is_negative', this.is_negative);

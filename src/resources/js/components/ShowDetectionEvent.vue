@@ -194,7 +194,8 @@
                         let prediction = this.event.ai_predictions[i];
                         for (let j = 0; j < prediction.detection_profiles.length; j++) {
                             if (!prediction.detection_profiles[j].is_masked &&
-                                !prediction.detection_profiles[j].is_smart_filtered) {
+                                !prediction.detection_profiles[j].is_smart_filtered &&
+                                !prediction.detection_profiles[j].is_size_filtered) {
                                 return true;
                             }
                         }
@@ -229,6 +230,12 @@
                     if (!a.is_smart_filtered && b.is_smart_filtered) {
                         return -1;
                     }
+                    if (a.is_size_filtered && !b.is_size_filtered) {
+                        return 1;
+                    }
+                    if (!a.is_size_filtered && b.is_size_filtered) {
+                        return -1;
+                    }
                     return 0;
                 }
 
@@ -242,6 +249,9 @@
                         c = "is-danger";
                     }
                     else if (prediction.is_smart_filtered) {
+                        c = "is-warning";
+                    }
+                    else if (prediction.is_size_filtered) {
                         c = "is-warning";
                     }
                     else {
@@ -337,7 +347,7 @@
                 let predictions = this.getPredictionsForProfile(profile);
 
                 for (let i = 0; i < predictions.length; i++) {
-                    if (!predictions[i].is_masked && !predictions[i].is_smart_filtered) {
+                    if (!predictions[i].is_masked && !predictions[i].is_smart_filtered && !predictions[i].is_size_filtered) {
                         return true;
                     }
                 }
@@ -354,6 +364,7 @@
                         if (prediction.detection_profiles[j].id === profile.id) {
                             prediction.is_masked = prediction.detection_profiles[j].is_masked;
                             prediction.is_smart_filtered = prediction.detection_profiles[j].is_smart_filtered;
+                            prediction.is_size_filtered = prediction.detection_profiles[j].is_size_filtered;
                             predictions.push(prediction);
                             break;
                         }
@@ -390,6 +401,7 @@
                     for (let i = 0; i < predictions.length; i++) {
                         predictions[i].is_masked = 0;
                         predictions[i].is_smart_filtered = 0;
+                        predictions[i].is_size_filtered = 0;
                     }
                 }
 
@@ -464,6 +476,7 @@
                     text += ` | ${this.$options.filters.percentage(this.soloPrediction.confidence)} confidence`;
                     if (this.soloPrediction.is_masked) text += ' | masked';
                     if (this.soloPrediction.is_smart_filtered) text += ' | smart filtered';
+                    if (this.soloPrediction.is_size_filtered) text += ' | size filtered';
                     tipText = new Facade.Text(text, {
                         x: 10,
                         y: this.imageHeight - 10,
@@ -490,7 +503,7 @@
                             width: prediction.x_max - prediction.x_min,
                             height: prediction.y_max - prediction.y_min,
                             lineWidth: 0.00625 * this.imageWidth,
-                            strokeStyle: prediction.is_masked || prediction.is_smart_filtered ? 'gray' : color,
+                            strokeStyle: prediction.is_masked || prediction.is_smart_filtered || prediction.is_size_filtered ? 'gray' : color,
                             fillStyle: 'rgba(0, 0, 0, 0)'
                         }));
                     });

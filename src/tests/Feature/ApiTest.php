@@ -79,6 +79,7 @@ class ApiTest extends TestCase
                     'is_negative',
                     'use_smart_filter',
                     'smart_filter_precision',
+                    'min_object_size',
                     'start_time',
                     'end_time',
                     'status',
@@ -1792,6 +1793,7 @@ class ApiTest extends TestCase
             'object_classes' => ['person', 'car'],
             'use_smart_filter' => false,
             'smart_filter_precision' => 0.42,
+            'min_object_size' => null,
         ]);
 
         $this->json('PATCH', '/api/profiles/'.$profile->id, [
@@ -1803,6 +1805,7 @@ class ApiTest extends TestCase
             'min_confidence' => 0.69,
             'use_smart_filter' => 'true',
             'smart_filter_precision' => 0.77,
+            'min_object_size' => 1234,
         ])
             ->assertJson([
                 'data' => [
@@ -1822,6 +1825,7 @@ class ApiTest extends TestCase
         $this->assertTrue($profile->use_smart_filter);
         $this->assertEquals(0.69, $profile->min_confidence);
         $this->assertEquals(0.77, $profile->smart_filter_precision);
+        $this->assertEquals(1234, $profile->min_object_size);
     }
 
     protected function createImageFile($fileName = 'testimage.jpg'): ImageFile

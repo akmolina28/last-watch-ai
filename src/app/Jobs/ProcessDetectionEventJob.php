@@ -88,9 +88,16 @@ class ProcessDetectionEventJob implements ShouldQueue
                 $maskPath = Storage::path('masks/'.$maskName);
                 $isMasked = $profile->use_mask && $aiPrediction->isMasked($maskPath);
 
+                \Illuminate\Support\Facades\Log::error('min_object_size '.$profile->min_object_size);
+                \Illuminate\Support\Facades\Log::error('area '.$aiPrediction->area());
+
+                $isTooSmall = $profile->min_object_size > 0 && $aiPrediction->area() <= $profile->min_object_size;
+
+                \Illuminate\Support\Facades\Log::error('isTooSmall '.$isTooSmall);
+
                 $objectFiltered = false;
 
-                if (! $isMasked && $profile->use_smart_filter) {
+                if (! $isMasked && ! $isTooSmall && $profile->use_smart_filter) {
                     $profileId = $profile->id;
                     $lastDetectionEvent = DetectionEvent::where('id', '!=', $this->event->id)
                         ->whereHas('detectionProfiles', function ($q) use ($profileId) {
@@ -106,9 +113,10 @@ class ProcessDetectionEventJob implements ShouldQueue
                 $profile->aiPredictions()->attach($aiPrediction->id, [
                     'is_masked' => $isMasked,
                     'is_smart_filtered' => $objectFiltered,
+                    'is_size_filtered' => $isTooSmall,
                 ]);
 
-                if (! $isMasked && ! $objectFiltered && ! $profile->is_negative) {
+                if (! $isMasked && ! $isTooSmall && ! $objectFiltered && ! $profile->is_negative) {
                     if (! in_array($profile, $relevantProfiles)) {
                         array_push($relevantProfiles, $profile);
                     }

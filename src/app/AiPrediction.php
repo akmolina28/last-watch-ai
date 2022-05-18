@@ -53,7 +53,7 @@ class AiPrediction extends Model
     public function detectionProfiles()
     {
         return $this->belongsToMany('App\DetectionProfile')
-            ->withPivot(['is_masked', 'is_smart_filtered']);
+            ->withPivot(['is_masked', 'is_smart_filtered', 'is_size_filtered']);
     }
 
     public function area()
@@ -147,6 +147,7 @@ class AiPrediction extends Model
             $attributes['detection_profile_id'] = $attributes['pivot']['detection_profile_id'];
             $attributes['is_masked'] = $attributes['pivot']['is_masked'];
             $attributes['is_smart_filtered'] = $attributes['pivot']['is_smart_filtered'];
+            $attributes['is_size_filtered'] = $attributes['pivot']['is_size_filtered'];
             unset($attributes['pivot']);
         }
 
