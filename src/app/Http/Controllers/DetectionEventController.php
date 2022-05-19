@@ -97,7 +97,9 @@ class DetectionEventController extends Controller
             'automationResults',
         ]);
 
-        return DetectionEventResource::make($event);
+        $profileId = request()->get('profileId');
+
+        return DetectionEventResource::make($event)->withNextEvents($event, $profileId);
     }
 
     public function showImage(DetectionEvent $event)

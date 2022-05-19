@@ -6,6 +6,15 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class DetectionEventResource extends JsonResource
 {
+    public $nextEventId;
+    public $prevEventId;
+
+    public function withNextEvents($request, $profileId){
+        $this->nextEventId = $request->getNextEventId($profileId);
+        $this->prevEventId = $request->getNextEventId($profileId, false);
+        return $this;
+    }
+
     /**
      * Transform the resource into an array.
      *
@@ -33,6 +42,8 @@ class DetectionEventResource extends JsonResource
             'automationResults' => DetectionEventAutomationResultResource::collection(
                 $this->whenLoaded('automationResults')
             ),
+            'next_event_id' => $this->nextEventId,
+            'prev_event_id' => $this->prevEventId,
         ];
     }
 }

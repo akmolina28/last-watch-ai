@@ -158,6 +158,31 @@ class DetectionEvent extends Model
         return null;
     }
 
+    public function getNextEventId($relevantProfileId, $ascending = true)
+    {
+      $query = DetectionEvent::where('occurred_at', $ascending ? '>=' : '<=', $this->occurred_at)
+        ->where('id', '!=', $this->id);
+      
+      if ($ascending) {
+        $query = $query->orderBy('occurred_at');
+      } else {
+        $query = $query->orderBy('occurred_at', 'desc');
+      }
+        
+      
+      if ($relevantProfileId) {
+        $query = $query->whereHas('detectionProfiles', function ($q) use ($relevantProfileId) {
+          return 
+          $q->where('detection_profile_id', $relevantProfileId)
+            ->where('ai_prediction_detection_profile.is_relevant', '=', true);
+        });
+      }
+      
+      $next = $query->first();
+
+      return $next ? $next->id : null;
+    }
+
     public function toArray()
     {
         $attributes = $this->attributesToArray();

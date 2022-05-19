@@ -1,3 +1,4 @@
+/* eslint-disable */
 const mix = require('laravel-mix');
 
 /*
@@ -11,27 +12,30 @@ const mix = require('laravel-mix');
  |
  */
 
-mix
-    .js('resources/js/app.js', 'public/js')
-    .sass('resources/sass/app.scss', 'public/css');
+require('laravel-mix-eslint');
 
+mix
+  .eslint({
+    extensions: ['js', 'vue'],
+  })
+  .js('resources/js/app.js', 'public/js')
+  .sass('resources/sass/app.scss', 'public/css');
 
 mix.options({
-    hmrOptions: {
-        host: 'localhost',
-        port: '8081'
-    },
+  hmrOptions: {
+    host: 'localhost',
+    port: '8081',
+  },
 });
 
 mix.webpackConfig({
-    devServer: {
-        port: '8081'
-    },
+  devServer: {
+    port: '8081',
+  },
 });
 
 if (mix.inProduction()) {
-    mix.version();
-}
-else {
-    mix.sourceMaps();
+  mix.version();
+} else {
+  mix.sourceMaps();
 }

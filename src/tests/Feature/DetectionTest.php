@@ -2,8 +2,6 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Support\Facades\Log;
-
 use App\DeepstackClient;
 use App\DetectionEvent;
 use App\DetectionProfile;
@@ -197,10 +195,6 @@ class DetectionTest extends TestCase
         $this->handleDetectionJob($event);
 
         $event = DetectionEvent::find($event->id);
-
-        Log::error($event->aiPredictions[0]->area());
-        Log::error($event->aiPredictions[1]->area());
-        Log::error($event->aiPredictions[2]->area());
 
         // 3 total predictions
         $this->assertCount(3, $event->aiPredictions);

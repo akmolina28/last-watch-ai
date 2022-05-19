@@ -1,38 +1,42 @@
-require('./bootstrap');
+import axios from 'axios';
+import Buefy from 'buefy';
+import moment from 'moment';
+import Vue from 'vue';
+import VueClipboard from 'vue-clipboard2';
+import VueRouter from 'vue-router';
 
-import router from './routes.js';
+import App from './components/Shared/App.vue';
+import mixins from './mixins';
+import router from './routes';
+import TitleHeader from './components/TitleHeader.vue';
 
-Vue.component('pagination', require('laravel-vue-bulma-paginator'));
+window._ = require('lodash');
+require('typeface-nunito');
+const VuePaginator = require('laravel-vue-bulma-paginator');
+require('./filters');
 
-import TitleHeader from './components/TitleHeader';
+window.axios = axios;
+window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+window.moment = moment;
+
+window.Vue = Vue;
+Vue.use(VueRouter);
+Vue.use(Buefy, {
+  defaultIconPack: 'fas',
+});
+Vue.use(VueClipboard);
+
+Vue.component('pagination', VuePaginator);
 Vue.component('title-header', TitleHeader);
 
-Vue.filter('dateStr', function(value) {
-    return moment.utc(value).local();
-});
+Vue.mixin(mixins);
 
-Vue.filter('percentage', function (value) {
-    return Math.round(value * 100) + "%";
-});
-
-Vue.filter('dateStrRelative', function(value) {
-    return moment.utc(value).local().fromNow();
-});
-
-Vue.mixin({
-    methods: {
-        deepCloneArray: function(arr) {
-            return JSON.parse(JSON.stringify(arr));
-        }
-    }
-})
-
-import App from "./components/Shared/App.vue";
-
+// eslint-disable-next-line no-new
 new Vue({
-    el: '#app',
-    router,
-    components: {
-        App,
-    }
+  el: '#app',
+  router,
+  components: {
+    App,
+  },
 });
