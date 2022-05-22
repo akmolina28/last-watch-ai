@@ -89,7 +89,7 @@
         <template #label>
           <span>&nbsp;</span>
         </template>
-        <b-tag v-if="event" type="is-light" size="is-large">{{ event.occurred_at }}</b-tag>
+        <b-tag v-if="occurredAt" type="is-light" size="is-large">{{ occurredAt }}</b-tag>
       </b-field>
     </div>
 
@@ -137,6 +137,7 @@
 
 <script>
 import axios from 'axios';
+import moment from 'moment';
 
 const Facade = require('facade.js');
 
@@ -252,6 +253,12 @@ export default {
         query = { ...query, profileId: this.filterProfileId };
       }
       return query;
+    },
+    occurredAt() {
+      if (this.event && this.event.occurred_at) {
+        return moment(moment.utc(this.event.occurred_at)).local();
+      }
+      return null;
     },
   },
 
