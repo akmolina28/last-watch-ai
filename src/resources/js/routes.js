@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 
 const routes = [
   {
+    name: 'Home',
     path: '/',
     component: require('./components/Home.vue').default,
     meta: () => ({
@@ -15,6 +16,7 @@ const routes = [
     }),
   },
   {
+    name: 'DetectionProfiles',
     path: '/profiles',
     component: require('./components/DetectionProfiles.vue').default,
     props: true,
@@ -32,6 +34,7 @@ const routes = [
     }),
   },
   {
+    name: 'CreateDetectionProfile',
     path: '/profiles/create',
     component: require('./components/CreateDetectionProfile.vue').default,
     props: true,
@@ -53,6 +56,7 @@ const routes = [
     }),
   },
   {
+    name: 'EditDetectionProfile',
     path: '/profiles/:id/edit',
     component: require('./components/CreateDetectionProfile.vue').default,
     props: true,
@@ -74,6 +78,7 @@ const routes = [
     }),
   },
   {
+    name: 'EditProfileAutomations',
     path: '/profiles/:id/automations',
     component: require('./components/EditProfileAutomations.vue').default,
     props: true,
@@ -95,10 +100,10 @@ const routes = [
     }),
   },
   {
+    name: 'DetectionEvents',
     path: '/events',
     component: require('./components/DetectionEvents.vue').default,
     props: (route) => ({ ...route.query, ...route.params }),
-    name: 'DetectionEvents',
     meta: () => ({
       breadcrumbs: [
         {
@@ -113,6 +118,7 @@ const routes = [
     }),
   },
   {
+    name: 'ShowDetectionEvent',
     path: '/events/:id',
     component: require('./components/ShowDetectionEvent.vue').default,
     props: (route) => ({ ...route.query, ...route.params }),
@@ -134,6 +140,7 @@ const routes = [
     }),
   },
   {
+    name: 'FolderCopyConfigs',
     path: '/automations/folderCopy',
     component: require('./components/FolderCopyConfigs.vue').default,
     props: true,
@@ -151,6 +158,7 @@ const routes = [
     }),
   },
   {
+    name: 'SmbCifsCopyConfigs',
     path: '/automations/smbCifsCopy',
     component: require('./components/SmbCifsCopyConfigs.vue').default,
     props: true,
@@ -168,6 +176,7 @@ const routes = [
     }),
   },
   {
+    name: 'TelegramConfigs',
     path: '/automations/telegram',
     component: require('./components/TelegramConfigs.vue').default,
     props: true,
@@ -185,6 +194,7 @@ const routes = [
     }),
   },
   {
+    name: 'WebRequestConfigs',
     path: '/automations/webRequest',
     component: require('./components/WebRequestConfigs.vue').default,
     props: true,
@@ -202,6 +212,7 @@ const routes = [
     }),
   },
   {
+    name: 'MqttPublishConfigs',
     path: '/automations/mqttPublish',
     component: require('./components/MqttPublishConfigs.vue').default,
     props: true,
@@ -219,10 +230,12 @@ const routes = [
     }),
   },
   {
+    name: 'Errors',
     path: '/errors/',
     component: require('./components/Errors.vue').default,
   },
   {
+    name: 'DeepstackLogs',
     path: '/deepstackLogs/',
     component: require('./components/DeepstackLogs.vue').default,
   },
@@ -232,4 +245,14 @@ export default new VueRouter({
   mode: 'history',
   linkExactActiveClass: 'is-active',
   routes,
+  scrollBehavior: (to, from, savedPosition) => {
+    if (to && to.name === 'DetectionEvents' && savedPosition) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(savedPosition);
+        }, 250);
+      });
+    }
+    return { x: 0, y: 0 };
+  },
 });
