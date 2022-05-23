@@ -53,14 +53,14 @@ class DetectionTest extends TestCase
         ]);
     }
 
-    protected function handleDetectionJob(DetectionEvent $event, $compressImage = true, $imageQuality = 75)
+    protected function handleDetectionJob(DetectionEvent $event, $compressImage = true, $imageQuality = 75, $privacy_mode = false)
     {
         $compressionSettings = [
             'compress_images' => $compressImage,
             'image_quality' => $imageQuality,
         ];
 
-        $job = new ProcessDetectionEventJob($event, $compressionSettings);
+        $job = new ProcessDetectionEventJob($event, $compressionSettings, $privacy_mode);
         $job->handle(new FakeDeepstackClient());
     }
 
@@ -384,6 +384,26 @@ class DetectionTest extends TestCase
 
         $this->handleDetectionJob($event, true);
 
-        Queue::assertPushedOn('low', ProcessImageOptimizationJob::class);
+        Queue::assertPushedOn('low', ProcessImageOptimizationJob::class, function ($job) {
+          return $job->privacy_mode === false;
+        });
+    }
+
+    /**
+     * @test
+     */
+    public function detection_job_creates_private_image_compression_job()
+    {
+        $imageFile = $this->createImageFile();
+
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile->id,
+        ]);
+
+        $this->handleDetectionJob($event, true, 75, true);
+
+        Queue::assertPushedOn('low', ProcessImageOptimizationJob::class, function ($job) {
+          return $job->privacy_mode === true;
+        });
     }
 }

@@ -19,6 +19,7 @@ class ProcessImageOptimizationJob implements ShouldQueue
     public ImageFile $imageFile;
     public bool $compressImage;
     public int $imageQuality;
+    public bool $privacy_mode;
 
     /**
      * Create a new job instance.
@@ -26,11 +27,12 @@ class ProcessImageOptimizationJob implements ShouldQueue
      * @param  ImageFile  $imageFile
      * @param  array  $settings
      */
-    public function __construct(ImageFile $imageFile, array $settings = [])
+    public function __construct(ImageFile $imageFile, array $settings = [], $privacy_mode = false)
     {
         $this->imageFile = $imageFile;
         $this->compressImage = $settings['compress_images'] ?? true;
         $this->imageQuality = $settings['image_quality'] ?? 75;
+        $this->privacy_mode = $privacy_mode;
     }
 
     /**
@@ -43,9 +45,21 @@ class ProcessImageOptimizationJob implements ShouldQueue
         $path = $this->imageFile->getAbsolutePath();
         $image = Image::make($path);
 
-        // compress original
-        if ($this->compressImage) {
-            $image->interlace(true)->save($path, $this->imageQuality);
+        if ($this->privacy_mode)
+        {
+            $image = Image::canvas($this->imageFile->width, $this->imageFile->height, '#333333')
+                ->save($path);
+            
+            $this->imageFile->privacy_mode = true;
+            $this->imageFile->save();
+        }
+
+        else
+        {
+            // compress original
+            if ($this->compressImage) {
+                $image->interlace(true)->save($path, $this->imageQuality);
+            }
         }
 
         // generate thumbnail

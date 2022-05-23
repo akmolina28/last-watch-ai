@@ -27,6 +27,7 @@ class DetectionProfileResource extends JsonResource
             'use_smart_filter' => $this->use_smart_filter,
             'smart_filter_precision' => $this->smart_filter_precision,
             'min_object_size' => $this->min_object_size,
+            'privacy_mode' => $this->privacy_mode,
             'status' => $this->status,
             'start_time' => $this->start_time,
             'end_time' => $this->end_time,

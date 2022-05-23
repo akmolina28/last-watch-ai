@@ -86,6 +86,7 @@ class DetectionProfile extends Model
         'smart_filter_precision',
         'is_negative',
         'min_object_size',
+        'privacy_mode',
     ];
 
     protected $casts = [
@@ -93,6 +94,7 @@ class DetectionProfile extends Model
         'use_regex' => 'boolean',
         'use_smart_filter' => 'boolean',
         'is_negative' => 'boolean',
+        'privacy_mode' => 'boolean',
     ];
 
     public function getStatusAttribute()

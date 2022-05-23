@@ -23,6 +23,7 @@ class ProcessDetectionEventJob implements ShouldQueue
 
     public DetectionEvent $event;
     public array $compressionSettings;
+    public bool $privacy_mode;
 
     /**
      * Create a new job instance.
@@ -30,10 +31,11 @@ class ProcessDetectionEventJob implements ShouldQueue
      * @param  DetectionEvent  $event
      * @param  array  $settings
      */
-    public function __construct(DetectionEvent $event, array $compressionSettings = [])
+    public function __construct(DetectionEvent $event, array $compressionSettings = [], $privacy_mode = false)
     {
         $this->event = $event;
         $this->compressionSettings = $compressionSettings;
+        $this->privacy_mode = $privacy_mode;
     }
 
     /**
@@ -59,7 +61,7 @@ class ProcessDetectionEventJob implements ShouldQueue
         $deepstackCall->returned_at = Carbon::now();
         $deepstackCall->save();
 
-        ProcessImageOptimizationJob::dispatch($this->event->imageFile, $this->compressionSettings)
+        ProcessImageOptimizationJob::dispatch($this->event->imageFile, $this->compressionSettings, $this->privacy_mode)
             ->onQueue('low');
 
         $relevantProfiles = [];

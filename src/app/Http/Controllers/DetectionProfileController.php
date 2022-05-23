@@ -71,6 +71,7 @@ class DetectionProfileController extends Controller
             'smart_filter_precision' => $request->get('use_smart_filter', 'false') === 'true' ?
                 $request->get('smart_filter_precision') : 0,
             'min_object_size' => $request->get('min_object_size'),
+            'privacy_mode' => $request->get('privacy_mode', 'false') === 'true',
         ]);
 
         $profile->use_mask = $this->saveMask($profile->slug);
@@ -97,6 +98,7 @@ class DetectionProfileController extends Controller
         $profile->is_negative = request()->get('is_negative', 'false') === 'true';
         $profile->use_mask = request()->get('use_mask', 'false') === 'true';
         $profile->min_object_size = request()->get('min_object_size');
+        $profile->privacy_mode = request()->get('privacy_mode', 'false') === 'true';
 
         if ($profile->use_mask) {
             $this->saveMask($profile->slug);

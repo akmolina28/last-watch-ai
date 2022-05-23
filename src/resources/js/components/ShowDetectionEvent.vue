@@ -15,6 +15,11 @@
             <span v-else class="tag is-success is-light">No</span>
           </div>
         </div>
+        <div class="control" v-if="privacyMode">
+          <div class="tags has-addons">
+            <span class="tag is-danger">Privacy Mode</span>
+          </div>
+        </div>
         <div class="control">
           <div class="tags has-addons" @click="highlightAllPredictions">
             <div class="tag">AI Predictions</div>
@@ -124,7 +129,7 @@
       </div>
 
       <div class="content">
-        <a :href="`/api/events/${event.id}/img`" download>
+        <a v-if="!privacyMode" :href="`/api/events/${event.id}/img`" download>
           <span class="icon">
             <b-icon icon="image"></b-icon>
           </span>
@@ -163,6 +168,12 @@ export default {
   },
 
   computed: {
+    privacyMode() {
+      if (this.event && this.event.privacy_mode) {
+        return true;
+      }
+      return false;
+    },
     selectedProfile() {
       if (this.event && this.event.pattern_matched_profiles) {
         const profiles = this.event.pattern_matched_profiles.filter(

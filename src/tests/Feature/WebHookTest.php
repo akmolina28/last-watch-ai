@@ -105,6 +105,9 @@ class WebHookTest extends TestCase
         Queue::assertPushedOn('medium', ProcessDetectionEventJob::class, function ($job) {
             return $job->event->imageFile->file_name === 'testimage.jpg';
         });
+        Queue::assertPushedOn('medium', ProcessDetectionEventJob::class, function ($job) {
+          return $job->privacy_mode === false;
+        });
     }
 
     /**
@@ -163,6 +166,9 @@ class WebHookTest extends TestCase
         Queue::assertPushedOn('medium', ProcessDetectionEventJob::class, function ($job) {
             return $job->event->imageFile->file_name === 'testimage.jpg';
         });
+        Queue::assertPushedOn('medium', ProcessDetectionEventJob::class, function ($job) {
+          return $job->privacy_mode === false;
+        });
     }
 
     /**
@@ -194,6 +200,9 @@ class WebHookTest extends TestCase
 
         Queue::assertPushedOn('medium', ProcessDetectionEventJob::class, function ($job) {
             return $job->event->imageFile->file_name === 'testimage.jpg';
+        });
+        Queue::assertPushedOn('medium', ProcessDetectionEventJob::class, function ($job) {
+          return $job->privacy_mode === false;
         });
     }
 
@@ -279,5 +288,47 @@ class WebHookTest extends TestCase
         $event = DetectionEvent::first();
         $this->assertCount(1, $event->patternMatchedProfiles);
         $this->assertEquals(0, $event->patternMatchedProfiles()->first()->pivot->is_profile_active);
+    }
+
+    /**
+     * @test
+     */
+    public function webhook_can_create_a_detection_event_with_privacy_mode()
+    {
+        // create some dummy profiles
+        factory(DetectionProfile::class, 5)->create([
+            'file_pattern' => 'fakepattern123',
+        ]);
+
+        // create some profile to match the event
+        factory(DetectionProfile::class, 2)->create([
+            'file_pattern' => 'testimage',
+            'use_regex' => false,
+        ]);
+
+        // create one matching profile with privacy mode enabled
+        factory(DetectionProfile::class, 1)->create([
+          'file_pattern' => 'testimage',
+          'use_regex' => false,
+          'privacy_mode' => true,
+      ]);
+
+        // hit the webhook
+        $this->triggerWebhook();
+
+        // see that detection event was generated
+        $this->assertDatabaseCount('detection_events', 1);
+        $event = DetectionEvent::first();
+        $this->assertEquals('testimage.jpg', $event->imageFile->file_name);
+        $this->assertEquals(640, $event->imageFile->width);
+        $this->assertEquals(480, $event->imageFile->height);
+        $this->assertCount(3, $event->patternMatchedProfiles);
+
+        Queue::assertPushedOn('medium', ProcessDetectionEventJob::class, function ($job) {
+            return $job->event->imageFile->file_name === 'testimage.jpg';
+        });
+        Queue::assertPushedOn('medium', ProcessDetectionEventJob::class, function ($job) {
+          return $job->privacy_mode === true;
+        });
     }
 }

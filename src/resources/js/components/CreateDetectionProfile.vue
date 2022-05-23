@@ -22,7 +22,7 @@
             ></b-input>
           </b-field>
 
-          <b-field label="File Pattern" class="mb-6" grouped>
+          <b-field label="File Pattern" class="" grouped>
             <b-input
               v-model="file_pattern"
               placeholder="Pattern match string"
@@ -31,6 +31,10 @@
               required
             ></b-input>
             <b-switch v-model="use_regex">Use Regex</b-switch>
+          </b-field>
+
+          <b-field class="mb-6">
+            <b-switch v-model="privacy_mode">Privacy Mode</b-switch>
           </b-field>
 
           <p class="heading is-size-4">AI Settings</p>
@@ -140,6 +144,7 @@ export default {
       file_pattern: '',
       min_confidence: 0.45,
       use_regex: false,
+      privacy_mode: false,
       use_smart_filter: false,
       smart_filter_precision: 0.65,
       min_object_size: null,
@@ -168,6 +173,7 @@ export default {
         this.min_confidence = parseFloat(profile.min_confidence);
         this.min_object_size = parseFloat(profile.min_object_size);
         this.use_regex = profile.use_regex;
+        this.privacy_mode = profile.privacy_mode;
         this.object_classes = profile.object_classes;
         this.use_smart_filter = profile.use_smart_filter;
         this.smart_filter_precision = parseFloat(profile.smart_filter_precision);
@@ -230,6 +236,7 @@ export default {
       formData.append('file_pattern', this.file_pattern);
       formData.append('min_confidence', this.min_confidence);
       formData.append('use_regex', this.use_regex);
+      formData.append('privacy_mode', this.privacy_mode);
       formData.append('use_smart_filter', this.use_smart_filter);
       formData.append('smart_filter_precision', this.smart_filter_precision);
       formData.append('min_object_size', this.min_object_size);

@@ -104,7 +104,7 @@ class DetectionEvent extends Model
 
     public function matchEventToProfiles(Collection $profiles)
     {
-        $activeMatchedProfiles = 0;
+        $activeMatchedProfiles = array();
 
         foreach ($profiles as $profile) {
             $profile_active = $profile->isActive($this->occurred_at);
@@ -112,14 +112,14 @@ class DetectionEvent extends Model
 
             if ($pattern_match) {
                 if ($profile_active) {
-                    $activeMatchedProfiles++;
+                    array_push($activeMatchedProfiles, $profile);
                 }
 
                 $this->patternMatchedProfiles()->attach($profile->id, ['is_profile_active' => $profile_active]);
             }
         }
 
-        return $activeMatchedProfiles;
+        return collect($activeMatchedProfiles);
     }
 
     public function getEventUrlAttribute()
