@@ -33,14 +33,21 @@ class DetectionProfileController extends Controller
             $id = request()->get('id');
         }
 
-        request()->validate([
+        $rules = [
             'name' => "required|unique:detection_profiles,name,{$id},id,deleted_at,NULL",
             'file_pattern' => 'required',
             'min_confidence' => 'required|numeric|between:0,1',
             'object_classes' => 'required',
             'smart_filter_precision' => 'numeric|between:0,1',
-            'min_object_size' => 'numeric',
-        ]);
+        ];
+
+
+        if (request()->has('min_object_size')) {
+            \Illuminate\Support\Facades\Log::error('has');
+            $rules['min_object_size'] = 'numeric|nullable';
+        }
+
+        request()->validate($rules);
     }
 
     protected function saveMask($makeName)

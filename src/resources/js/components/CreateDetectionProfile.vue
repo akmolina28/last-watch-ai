@@ -239,7 +239,9 @@ export default {
       formData.append('privacy_mode', this.privacy_mode);
       formData.append('use_smart_filter', this.use_smart_filter);
       formData.append('smart_filter_precision', this.smart_filter_precision);
-      formData.append('min_object_size', this.min_object_size);
+      if (this.min_object_size) {
+        formData.append('min_object_size', this.min_object_size);
+      }
       formData.append('mask', this.mask);
       formData.append('object_classes', JSON.stringify(this.object_classes));
       formData.append('is_negative', this.is_negative);
