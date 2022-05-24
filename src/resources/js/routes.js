@@ -246,12 +246,15 @@ export default new VueRouter({
   linkExactActiveClass: 'is-active',
   routes,
   scrollBehavior: (to, from, savedPosition) => {
-    if (to && to.name === 'DetectionEvents' && savedPosition) {
+    if (to.name === 'DetectionEvents' && savedPosition) {
       return new Promise((resolve) => {
         setTimeout(() => {
           resolve(savedPosition);
         }, 250);
       });
+    }
+    if (to.name === from.name) {
+      return {};
     }
     return { x: 0, y: 0 };
   },
