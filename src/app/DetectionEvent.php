@@ -45,7 +45,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @property-read int|null $automations_count
  * @property-read Collection|\App\DetectionEventAutomationResult[] $automationResults
  * @property-read int|null $automation_results_count
- * @property-read DeepstackCall|null $deepstackCall
+ * @property-read Collection|\App\DeepstackCall[] $deepstackCalls
  * @property int|null $image_file_id
  * @property-read mixed $event_url
  * @property-read mixed $image_url
@@ -92,9 +92,9 @@ class DetectionEvent extends Model
         return $this->hasMany('App\DetectionEventAutomationResult');
     }
 
-    public function deepstackCall()
+    public function deepstackCalls()
     {
-        return $this->hasOne('App\DeepstackCall');
+        return $this->hasMany('App\DeepstackCall');
     }
 
     public function imageFile()

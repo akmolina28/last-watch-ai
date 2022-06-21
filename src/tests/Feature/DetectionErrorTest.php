@@ -95,11 +95,11 @@ class DetectionErrorTest extends TestCase
         }
         finally {
           Queue::assertNotPushed(ProcessImageOptimizationJob::class);
-          $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCall']);
+          $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCalls']);
           $this->assertFalse($event->is_processed);
-          $this->assertNotNull($event->deepstackCall);
-          $this->assertTrue($event->deepstackCall->is_error);
-          $this->assertFalse($event->deepstackCall->success);
+          $this->assertCount(1, $event->deepstackCalls);
+          $this->assertTrue($event->deepstackCalls()->first()->is_error);
+          $this->assertFalse($event->deepstackCalls()->first()->success);
           $this->assertCount(0, $event->aiPredictions);
           $this->assertCount(0, $event->detectionProfiles);
         }
@@ -135,14 +135,14 @@ class DetectionErrorTest extends TestCase
         }
         finally {
           Queue::assertNotPushed(ProcessImageOptimizationJob::class);
-          $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCall']);
+          $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCalls']);
           $this->assertFalse($event->is_processed);
-          $this->assertNotNull($event->deepstackCall);
-          $this->assertTrue($event->deepstackCall->is_error);
+          $this->assertCount(1, $event->deepstackCalls);
+          $this->assertTrue($event->deepstackCalls()->first()->is_error);
 
           // retry
           $this->handleDetectionJob($event);
-          $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCall']);
+          $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCalls']);
           $this->assertCount(3, $event->aiPredictions);
           $this->assertCount(3, $event->detectionProfiles);
         }

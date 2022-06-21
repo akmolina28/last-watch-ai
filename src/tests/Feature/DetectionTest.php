@@ -83,9 +83,9 @@ class DetectionTest extends TestCase
 
         $this->handleDetectionJob($event);
 
-        $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCall']);
+        $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCalls']);
 
-        $this->assertNotNull($event->deepstackCall);
+        $this->assertCount(1, $event->deepstackCalls);
         $this->assertCount(3, $event->aiPredictions);
         $this->assertCount(3, $event->detectionProfiles);
 
@@ -123,9 +123,9 @@ class DetectionTest extends TestCase
 
         $this->handleDetectionJob($event);
 
-        $event->refresh()->load(['aiPredictions.detectionProfiles', 'deepstackCall']);
+        $event->refresh()->load(['aiPredictions.detectionProfiles', 'deepstackCalls']);
 
-        $this->assertNotNull($event->deepstackCall);
+        $this->assertCount(1, $event->deepstackCalls);
         $this->assertCount(3, $event->aiPredictions);
         $this->assertCount(3, $event->detectionProfiles);
     }
@@ -330,9 +330,9 @@ class DetectionTest extends TestCase
 
         $this->handleDetectionJob($event);
 
-        $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCall']);
+        $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCalls']);
 
-        $this->assertNotNull($event->deepstackCall);
+        $this->assertCount(1, $event->deepstackCalls);
         $this->assertCount(3, $event->aiPredictions);
         $this->assertCount(3, $event->detectionProfiles);
 
@@ -362,9 +362,9 @@ class DetectionTest extends TestCase
 
         $this->handleDetectionJob($event);
 
-        $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCall']);
+        $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCalls']);
 
-        $this->assertNotNull($event->deepstackCall);
+        $this->assertCount(1, $event->deepstackCalls);
         $this->assertCount(3, $event->aiPredictions);
         $this->assertCount(3, $event->detectionProfiles);
 
