@@ -245,6 +245,13 @@ export default {
       }
       return null;
     },
+    drawMask() {
+      if (this.selectedProfile) {
+        return this.selectedProfile.use_mask;
+      }
+
+      return false;
+    },
     patternMatchedProfiles() {
       if (this.event && this.event.pattern_matched_profiles) {
         return this.event.pattern_matched_profiles;
@@ -517,7 +524,7 @@ export default {
       });
 
       let mask = null;
-      if (this.selectedProfile.use_mask) {
+      if (this.drawMask) {
         mask = new Facade.Image(`/storage/masks/${this.selectedProfile.mask_file_name}`, {
           x: this.imageWidth / 2,
           y: this.imageHeight / 2,
