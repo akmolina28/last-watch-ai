@@ -56,19 +56,15 @@ class DetectionErrorTest extends TestCase
         ]);
     }
 
-    protected function handleDetectionJob(DetectionEvent $event, $compressImage = true, $imageQuality = 75, $privacy_mode = false)
+    protected function handleDetectionJob(DetectionEvent $event, $json_response = null)
     {
         $compressionSettings = [
-            'compress_images' => $compressImage,
-            'image_quality' => $imageQuality,
+            'compress_images' => true,
+            'image_quality' => 75,
         ];
 
-        $job = new ProcessDetectionEventJob($event, $compressionSettings, $privacy_mode);
-        $job->handle(new FakeDeepstackClient('{
-              "success": false,
-              "error": "failed to process request before timeout",
-              "duration": 0
-            }'));
+        $job = new ProcessDetectionEventJob($event, $compressionSettings, false);
+        $job->handle(new FakeDeepstackClient($json_response));
     }
 
     /**
@@ -91,7 +87,11 @@ class DetectionErrorTest extends TestCase
 
         $this->expectException(DeepstackException::class);
         try {
-          $this->handleDetectionJob($event);
+          $this->handleDetectionJob($event, '{
+            "success": false,
+            "error": "failed to process request before timeout",
+            "duration": 0
+          }');
         }
         finally {
           Queue::assertNotPushed(ProcessImageOptimizationJob::class);
@@ -102,6 +102,49 @@ class DetectionErrorTest extends TestCase
           $this->assertFalse($event->deepstackCall->success);
           $this->assertCount(0, $event->aiPredictions);
           $this->assertCount(0, $event->detectionProfiles);
+        }
+    }
+
+    
+
+    /**
+     * @test
+     */
+    public function detection_job_can_retry_after_timeout_exception()
+    {
+        $profile = factory(DetectionProfile::class)->create([
+            'object_classes' => ['person', 'dog'],
+            'use_mask' => false,
+        ]);
+
+        $imageFile = $this->createImageFile();
+
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile->id,
+            'is_processed' => false
+        ]);
+        $event->patternMatchedProfiles()->attach($profile->id);
+
+        $this->expectException(DeepstackException::class);
+        try {
+          $this->handleDetectionJob($event, '{
+            "success": false,
+            "error": "failed to process request before timeout",
+            "duration": 0
+          }');
+        }
+        finally {
+          Queue::assertNotPushed(ProcessImageOptimizationJob::class);
+          $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCall']);
+          $this->assertFalse($event->is_processed);
+          $this->assertNotNull($event->deepstackCall);
+          $this->assertTrue($event->deepstackCall->is_error);
+
+          // retry
+          $this->handleDetectionJob($event);
+          $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCall']);
+          $this->assertCount(3, $event->aiPredictions);
+          $this->assertCount(3, $event->detectionProfiles);
         }
     }
 }

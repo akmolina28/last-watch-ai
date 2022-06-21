@@ -10,6 +10,10 @@
     </title-header>
 
     <b-table hoverable mobile-cards :data="logs" :loading="loading" class="mb-3">
+      <b-table-column field="is_error" v-slot="props">
+        <b-icon v-if="props.row.is_error" type="is-danger" icon="exclamation-triangle"></b-icon>
+        <b-icon v-else type="is-success" icon="check"></b-icon>
+      </b-table-column>
       <b-table-column field="called_at" label="Started At" v-slot="props">
         {{ props.row.called_at | dateStrRelative }}
       </b-table-column>
