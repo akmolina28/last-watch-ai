@@ -233,11 +233,35 @@ const routes = [
     name: 'Errors',
     path: '/errors/',
     component: require('./components/Errors.vue').default,
+    meta: () => ({
+      breadcrumbs: [
+        {
+          name: 'Home',
+          link: '/',
+        },
+        {
+          name: 'AutomationErrors',
+          link: '/errors',
+        },
+      ],
+    }),
   },
   {
     name: 'DeepstackLogs',
     path: '/deepstackLogs/',
     component: require('./components/DeepstackLogs.vue').default,
+    meta: () => ({
+      breadcrumbs: [
+        {
+          name: 'Home',
+          link: '/',
+        },
+        {
+          name: 'Deepstack Logs',
+          link: '/deepstackLogs',
+        },
+      ],
+    }),
   },
 ];
 
