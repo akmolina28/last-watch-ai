@@ -97,7 +97,7 @@ services:
       - laravel
 
   deepstack:
-    image: deepquestai/deepstack
+    image: deepquestai/deepstack:cpu-2021.09.1
     container_name: lw_deepstack
     restart: unless-stopped
     environment:
