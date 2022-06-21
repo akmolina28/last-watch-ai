@@ -8,6 +8,7 @@ use App\DeepstackCall;
 use App\DeepstackClientInterface;
 use App\DetectionEvent;
 use App\DetectionProfile;
+use App\Exceptions\DeepstackException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -59,7 +60,12 @@ class ProcessDetectionEventJob implements ShouldQueue
 
         $deepstackCall->response_json = $client->detection($imageFileContents);
         $deepstackCall->returned_at = Carbon::now();
+        $deepstackCall->is_error = !!!$deepstackCall->success;
         $deepstackCall->save();
+
+        if (!$deepstackCall->success) {
+            throw DeepstackException::deepstackError($this->event, $deepstackCall->error);
+        }
 
         ProcessImageOptimizationJob::dispatch($this->event->imageFile, $this->compressionSettings, $this->privacy_mode)
             ->onQueue('low');

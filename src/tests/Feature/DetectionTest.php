@@ -383,7 +383,6 @@ class DetectionTest extends TestCase
         ]);
 
         $this->handleDetectionJob($event, true);
-
         Queue::assertPushedOn('low', ProcessImageOptimizationJob::class, function ($job) {
           return $job->privacy_mode === false;
         });
