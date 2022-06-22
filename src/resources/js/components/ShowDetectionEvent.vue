@@ -1,11 +1,12 @@
 <template>
   <div class="component-container">
+    <b-loading v-model="loading" :is-full-page="false"></b-loading>
     <title-header>
       <template v-slot:title>
         Detection Event
       </template>
       <template v-slot:subtitle>
-        {{ event.image_file_name }}
+        {{ imageFileName }}
       </template>
       <template v-slot:meta>
         <div class="control">
@@ -20,113 +21,94 @@
             <span class="tag is-danger">Privacy Mode</span>
           </div>
         </div>
-        <div v-if="event" class="control">
-          <div class="tags has-addons">
-            <b-tag icon="clock">
-              <b-tooltip :label="occurredAt">
-                {{ event.occurred_at | dateStrRelative }}
-              </b-tooltip>
-            </b-tag>
-          </div>
-        </div>
-        <div v-if="automationErrors > 0" class="control">
-          <div class="tags has-addons">
-            <span class="tag">Automation Errors</span>
-            <a href="/errors" class="tag is-danger">{{ automationErrors }}</a>
-          </div>
-        </div>
       </template>
     </title-header>
-
-    <div class="is-flex-tablet is-justify-content-space-between mb-5">
-      <div class="is-flex-tablet">
-        <b-field :label="`Matched Profiles (${patternMatchedProfiles.length})`" class="mr-2">
-          <b-select v-model="filterProfileId" class="is-primary is-outlined" icon="eye">
-            <option :value="null" :key="-1">Show all predictions</option>
-            <option
-              v-for="profile in event.pattern_matched_profiles"
-              :value="profile.id"
-              :key="profile.id"
-            >
-              {{ profile.name }}
-            </option>
-          </b-select>
-        </b-field>
-        <div class="is-hidden-mobile">
-          <b-field>
-            <template #label>
-              <span>&nbsp;</span>
-            </template>
-            <b-button
-              v-if="event && event.prev_event_id"
-              tag="a"
-              :href="
-                `${event.prev_event_id}${filterProfileId ? '?profileId=' + filterProfileId : ''}`
-              "
-              icon-left="chevron-left"
-              type="is-light"
-              >Previous</b-button
-            >
-            <b-button
-              v-if="event && event.next_event_id"
-              tag="a"
-              :href="
-                `${event.next_event_id}${filterProfileId ? '?profileId=' + filterProfileId : ''}`
-              "
-              icon-right="chevron-right"
-              type="is-light"
-              >Next</b-button
-            >
+    <b-tabs
+      v-if="predictions.length > 0"
+      v-model="activeTab"
+      type="is-boxed"
+      :animated="false"
+      class="mb-0"
+    >
+      <b-tab-item value="all">
+        <template #header>
+          <span class="has-text-weight-bold">All</span>
+        </template>
+        <div v-if="event">
+          <b-field grouped group-multiline>
+            <div class="control">
+              <b-taglist size="is-small" attached>
+                <b-tag>Total Predictions</b-tag>
+                <b-tag type="is-primary">{{ predictions.length }}</b-tag>
+              </b-taglist>
+            </div>
+            <div class="control">
+              <b-taglist attached>
+                <b-tag>Relevant Profiles</b-tag>
+                <b-tag type="is-primary">{{ relevantProfileIds.length }}</b-tag>
+              </b-taglist>
+            </div>
           </b-field>
         </div>
-      </div>
-    </div>
-
-    <div>
-      <div
-        class="mb-4"
-        v-if="
-          event && event.pattern_matched_profiles && event.pattern_matched_profiles.length === 0
-        "
+      </b-tab-item>
+      <b-tab-item
+        v-for="prediction in predictions"
+        :key="prediction.id"
+        :value="`${prediction.id}`"
       >
-        <h5 class="heading is-size-6"><b-icon icon="times"></b-icon> Image Not Processed</h5>
-        <p>
-          No matching profile(s) found for this file name. Create a new profile to process this
-          event.
-        </p>
-      </div>
-      <div v-else>
-        <b-tabs
-          v-if="filteredPredictions.length > 0"
-          type="is-boxed"
-          v-model="activeTab"
-          :animated="false"
-        >
-          <b-tab-item
-            v-for="prediction in filteredPredictions"
-            :key="prediction.id"
-            :value="`${prediction.id}`"
+        <template #header>
+          <span
+            :class="
+              prediction.detection_profiles.length
+                ? 'has-text-weight-bold'
+                : 'has-text-grey is-italic'
+            "
+            >{{ prediction.object_class }}</span
           >
-            <template #header>
-              <b-icon :icon="getIconForPrediction(prediction)"></b-icon>
-              <span>
-                {{ prediction.confidence | percentage }}
-              </span>
-            </template>
+        </template>
+        <div v-if="selectedPrediction">
+          <b-field grouped group-multiline>
+            <div class="control">
+              <b-taglist size="is-small" attached>
+                <b-tag>Object Class</b-tag>
+                <b-tag type="is-primary">{{ prediction.object_class }}</b-tag>
+              </b-taglist>
+            </div>
+            <div class="control">
+              <b-taglist attached>
+                <b-tag>AI Confidence</b-tag>
+                <b-tag type="is-primary">{{ prediction.confidence | percentage }}</b-tag>
+              </b-taglist>
+            </div>
+            <div class="control is-hidden-mobile">
+              <b-taglist attached>
+                <b-tag>Size</b-tag>
+                <b-tag type="is-primary">{{ prediction.area | numberStr }} px²</b-tag>
+              </b-taglist>
+            </div>
+          </b-field>
+        </div>
+      </b-tab-item>
+    </b-tabs>
+    <div class="columns">
+      <div class="column is-half">
+        <canvas id="event-snapshot" ref="event-snapshot" style="width:100%;"></canvas>
+      </div>
+      <div class="column is-half">
+        <b-table
+          v-if="detectionProfiles"
+          :data="detectionProfiles"
+          :selected.sync="selectedProfile"
+          focusable
+          sort-icon="menu-up"
+          :default-sort="['is_relevant', 'desc']"
+        >
+          <b-table-column label="Profile" field="name" v-slot="props">
+            {{ props.row.name }}
+          </b-table-column>
+          <b-table-column label="Relevance" field="is_relevant" v-slot="props">
             <b-field grouped group-multiline>
-              <div class="control">
-                <b-taglist size="is-small" attached>
-                  <b-tag>Object Class</b-tag>
-                  <b-tag type="is-primary">{{ prediction.object_class }}</b-tag>
-                </b-taglist>
-              </div>
-              <div class="is-hidden-mobile control">
-                <b-taglist attached>
-                  <b-tag>Size</b-tag>
-                  <b-tag type="is-primary">{{ prediction.area | numberStr }} px²</b-tag>
-                </b-taglist>
-              </div>
-              <div v-if="prediction.is_relevant" class="control">
+              <div v-if="props.row.is_relevant" class="control">
                 <b-taglist>
                   <b-tag type="is-success" icon="check">
                     <b-tooltip
@@ -138,7 +120,7 @@
                   </b-tag>
                 </b-taglist>
               </div>
-              <div v-else-if="prediction.is_masked" class="control">
+              <div v-if="props.row.is_masked" class="control">
                 <b-taglist>
                   <b-tag type="is-warning" icon="ban"
                     ><b-tooltip
@@ -150,21 +132,21 @@
                   >
                 </b-taglist>
               </div>
-              <div v-else-if="prediction.is_smart_filtered" class="control">
+              <div v-if="props.row.is_smart_filtered" class="control">
                 <b-taglist>
-                  <b-tag type="is-warning" icon="ban"
-                    ><b-tooltip
+                  <b-tag type="is-warning" icon="ban">
+                    <b-tooltip
                       multiline
                       type="is-warning"
                       label="
                         Object not relevant because it appeared in the same location previously.
                       "
-                      >Smart Filtered</b-tooltip
+                      >Smart Filter</b-tooltip
                     ></b-tag
                   >
                 </b-taglist>
               </div>
-              <div v-else-if="prediction.is_size_filtered" class="control">
+              <div v-if="props.row.is_size_filtered" class="control">
                 <b-taglist>
                   <b-tag type="is-warning" icon="ban">
                     <b-tooltip
@@ -172,30 +154,19 @@
                       multilined
                       :label="
                         // eslint-disable-next-line max-len
-                        `Object size is below the minimum configured threshold of ${selectedProfile.min_object_size}.`
+                        `Object size is below the minimum configured threshold of ${props.row.min_object_size}.`
                       "
-                      >Size Filtered</b-tooltip
+                      >Too Small</b-tooltip
                     ></b-tag
                   >
                 </b-taglist>
               </div>
             </b-field>
-          </b-tab-item>
-        </b-tabs>
-      </div>
-      <div class="columns">
-        <div class="column is-half">
-          <canvas id="event-snapshot" ref="event-snapshot" style="width:100%;"></canvas>
-        </div>
-      </div>
-
-      <div class="content">
-        <a v-if="!privacyMode" :href="`/api/events/${event.id}/img`" download>
-          <span class="icon">
-            <b-icon icon="image"></b-icon>
-          </span>
-          <span>Download Image File</span>
-        </a>
+          </b-table-column>
+          <template #empty>
+            <span><i>No matched profiles for this prediction.</i></span>
+          </template>
+        </b-table>
       </div>
     </div>
   </div>
@@ -203,78 +174,88 @@
 
 <script>
 import axios from 'axios';
-import moment from 'moment';
 
 const Facade = require('facade.js');
 
 export default {
   name: 'ShowDetectionEvent',
-
-  props: ['id', 'profileId'],
-
+  props: ['id'],
   data() {
     return {
-      event: {},
-      highlight: false,
+      event: null,
       loading: true,
-      highlightMask: null,
-      filterProfileId: parseInt(this.profileId, 10) || null,
-      activeTab: null,
+      activeTab: 'all',
+      selectedProfile: null,
     };
   },
-
   mounted() {
     this.getData();
   },
-
   computed: {
-    privacyMode() {
-      if (this.event && this.event.privacy_mode) {
-        return true;
+    relevant() {
+      if (this.predictions) {
+        return this.predictions.some((p) => p.detection_profiles.some((d) => d.is_relevant));
       }
       return false;
     },
-    selectedProfile() {
-      if (this.event && this.event.pattern_matched_profiles) {
-        const profiles = this.event.pattern_matched_profiles.filter(
-          (p) => p.id === this.filterProfileId,
-        );
-        if (profiles.length > 0) {
-          return profiles[0];
-        }
+    privacyMode() {
+      if (this.event) {
+        return this.event.privacy_mode;
+      }
+      return false;
+    },
+    imageFileName() {
+      if (this.event) {
+        return this.event.image_file_name;
       }
       return null;
     },
-    drawMask() {
-      if (this.selectedProfile) {
-        return this.selectedProfile.use_mask;
-      }
-
-      return false;
-    },
-    patternMatchedProfiles() {
-      if (this.event && this.event.pattern_matched_profiles) {
-        return this.event.pattern_matched_profiles;
-      }
-      return [];
-    },
     predictions() {
-      if (this.event && this.event.ai_predictions) {
-        return this.event.ai_predictions;
+      if (this.event) {
+        return this.event.ai_predictions.sort((a, b) => {
+          const aRelevant = a.detection_profiles.some((p) => p.is_relevant);
+          const bRelevant = b.detection_profiles.some((p) => p.is_relevant);
+          if (aRelevant && !bRelevant) {
+            return -1;
+          }
+          if (!aRelevant && bRelevant) {
+            return 1;
+          }
+          return b.confidence - a.confidence;
+        });
       }
       return [];
     },
-    automations() {
-      if (this.event && this.event.automationResults) {
-        return this.event.automationResults.filter((a) => !a.is_error).length;
+    relevantProfileIds() {
+      const ids = [];
+      if (this.predictions) {
+        this.predictions.forEach((p) => {
+          p.detection_profiles.forEach((d) => {
+            if (d.is_relevant && ids.indexOf(d.id) < 0) {
+              ids.push(d.id);
+            }
+          });
+        });
       }
-      return 0;
+      return ids;
     },
-    automationErrors() {
-      if (this.event && this.event.automationResults) {
-        return this.event.automationResults.filter((a) => a.is_error).length;
+    selectedPredictionId() {
+      if (this.activeTab) {
+        return parseInt(this.activeTab, 10) || null;
       }
-      return 0;
+      return null;
+    },
+    selectedPrediction() {
+      if (this.event && this.selectedPredictionId) {
+        return this.predictions.find((p) => p.id === this.selectedPredictionId);
+      }
+      return null;
+    },
+    detectionProfiles() {
+      if (this.selectedPrediction) {
+        return this.selectedPrediction.detection_profiles;
+      }
+      return null;
     },
     imageWidth() {
       if (this.event) {
@@ -291,168 +272,37 @@ export default {
     imageFile() {
       return this.event ? this.event.image_file_path : '';
     },
-    relevant() {
-      if (this.event && this.event.ai_predictions) {
-        for (let i = 0; i < this.event.ai_predictions.length; i += 1) {
-          const prediction = this.event.ai_predictions[i];
-          for (let j = 0; j < prediction.detection_profiles.length; j += 1) {
-            if (
-              !prediction.detection_profiles[j].is_masked &&
-              !prediction.detection_profiles[j].is_smart_filtered &&
-              !prediction.detection_profiles[j].is_size_filtered
-            ) {
-              return true;
-            }
-          }
-        }
+    drawMask() {
+      if (this.selectedProfile) {
+        return this.selectedProfile.use_mask;
       }
       return false;
     },
-    filteredPredictions() {
-      if (this.predictions) {
-        let predictions = [];
-
-        if (this.selectedProfile) {
-          predictions = this.getPredictionsForProfile(this.selectedProfile);
-        } else {
-          predictions = this.deepCloneArray(this.predictions);
-
-          for (let i = 0; i < predictions.length; i += 1) {
-            predictions[i].is_masked = 0;
-            predictions[i].is_smart_filtered = 0;
-            predictions[i].is_size_filtered = 0;
-            predictions[i].is_relevant = 0;
-          }
-        }
-
-        return predictions.sort((a, b) => (a.confidence < b.confidence ? 1 : -1));
-      }
-      return [];
-    },
-    routeQuery() {
-      let query = {};
-      if (this.filterProfileId) {
-        query = { ...query, profileId: this.filterProfileId };
-      }
-      return query;
-    },
-    occurredAt() {
-      if (this.event && this.event.occurred_at) {
-        return `${moment(moment.utc(this.event.occurred_at)).local()}`;
-      }
-      return null;
-    },
-    selectedPrediction() {
-      if (this.filteredPredictions && this.activeTab) {
-        const predictionId = parseInt(this.activeTab, 10) || null;
-        const predictions = this.filteredPredictions.filter((p) => p.id === predictionId);
-        return predictions.length > 0 ? predictions[0] : null;
+    maskFileName() {
+      if (this.selectedProfile) {
+        return this.selectedProfile.mask_file_name;
       }
       return null;
     },
   },
-
   watch: {
-    filteredPredictions(newVal) {
-      if (newVal.length > 0) {
-        this.activeTab = `${newVal[0].id}`;
-      }
-    },
     selectedPrediction() {
+      this.selectedProfile = null;
       this.draw();
     },
-    filterProfileId() {
-      this.updateRoute();
-      this.event.prev_event_id = null;
-      this.event.next_event_id = null;
-      this.getEventAjax().then((response) => {
-        const event = response.data.data;
-
-        this.event.prev_event_id = event.prev_event_id;
-        this.event.next_event_id = event.next_event_id;
-      });
+    selectedProfile() {
+      this.draw();
     },
   },
-
   methods: {
-    updateRoute() {
-      this.$router.replace({ query: this.routeQuery }).catch(() => {});
-    },
-
-    sortPredictions(predictions) {
-      function compare(a, b) {
-        if (a.is_masked && !b.is_masked) {
-          return 1;
-        }
-        if (!a.is_masked && b.is_masked) {
-          return -1;
-        }
-        if (a.is_smart_filtered && !b.is_smart_filtered) {
-          return 1;
-        }
-        if (!a.is_smart_filtered && b.is_smart_filtered) {
-          return -1;
-        }
-        if (a.is_size_filtered && !b.is_size_filtered) {
-          return 1;
-        }
-        if (!a.is_size_filtered && b.is_size_filtered) {
-          return -1;
-        }
-        return 0;
-      }
-
-      return predictions.sort(compare);
-    },
-    getIconForPrediction(prediction) {
-      if (prediction) {
-        if (prediction.object_class === 'person') {
-          return 'user';
-        }
-        if (prediction.object_class === 'car') {
-          return 'car';
-        }
-        if (prediction.object_class === 'truck') {
-          return 'truck';
-        }
-        if (prediction.object_class === 'bus') {
-          return 'bus';
-        }
-        if (prediction.object_class === 'bicycle') {
-          return 'bicycle';
-        }
-        if (prediction.object_class === 'motorcycle') {
-          return 'motorcycle';
-        }
-        if (prediction.object_class === 'plane') {
-          return 'plane';
-        }
-        if (prediction.object_class === 'train') {
-          return 'train';
-        }
-        if (prediction.object_class === 'bird') {
-          return 'crow';
-        }
-        if (prediction.object_class === 'cat') {
-          return 'cat';
-        }
-        if (prediction.object_class === 'dog') {
-          return 'dog';
-        }
-        if (prediction.object_class === 'horse') {
-          return 'horse';
-        }
-        return 'circle';
-      }
-      return '';
-    },
     getData() {
+      this.loading = true;
       this.getEventAjax().then((response) => {
         this.event = response.data.data;
+        this.draw();
         this.loading = false;
       });
     },
-
     getEventAjax() {
       return axios.get(`/api/events/${this.id}`, {
         params: {
@@ -460,55 +310,6 @@ export default {
         },
       });
     },
-
-    hasUnmaskedUnfilteredPredictions(profile) {
-      const predictions = this.getPredictionsForProfile(profile);
-
-      for (let i = 0; i < predictions.length; i += 1) {
-        if (
-          !predictions[i].is_masked &&
-          !predictions[i].is_smart_filtered &&
-          !predictions[i].is_size_filtered
-        ) {
-          return true;
-        }
-      }
-
-      return false;
-    },
-
-    getPredictionsForProfile(profile) {
-      const predictions = [];
-
-      for (let i = 0; i < this.event.ai_predictions.length; i += 1) {
-        const prediction = this.deepCloneArray(this.event.ai_predictions[i]);
-        for (let j = 0; j < prediction.detection_profiles.length; j += 1) {
-          if (prediction.detection_profiles[j].id === profile.id) {
-            prediction.is_masked = prediction.detection_profiles[j].is_masked;
-            prediction.is_smart_filtered = prediction.detection_profiles[j].is_smart_filtered;
-            prediction.is_size_filtered = prediction.detection_profiles[j].is_size_filtered;
-            prediction.is_relevant = prediction.detection_profiles[j].is_relevant;
-            predictions.push(prediction);
-            break;
-          }
-        }
-      }
-
-      return predictions;
-    },
-
-    getIcon(profile) {
-      if (!profile.is_profile_active) {
-        return 'ban';
-      }
-
-      if (this.hasUnmaskedUnfilteredPredictions(profile)) {
-        return 'check';
-      }
-
-      return 'times';
-    },
-
     draw() {
       const canvas = document.getElementById('event-snapshot');
       canvas.width = this.imageWidth;
@@ -525,7 +326,7 @@ export default {
 
       let mask = null;
       if (this.drawMask) {
-        mask = new Facade.Image(`/storage/masks/${this.selectedProfile.mask_file_name}`, {
+        mask = new Facade.Image(`/storage/masks/${this.maskFileName}`, {
           x: this.imageWidth / 2,
           y: this.imageHeight / 2,
           height: this.imageHeight,
@@ -540,7 +341,7 @@ export default {
       if (this.selectedPrediction) {
         predictions.push(this.selectedPrediction);
       } else {
-        predictions = this.filteredPredictions;
+        predictions = this.predictions;
       }
 
       if (predictions.length > 0) {
@@ -580,5 +381,3 @@ export default {
   },
 };
 </script>
-
-<style scoped></style>
