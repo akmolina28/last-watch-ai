@@ -32,7 +32,7 @@
     >
       <b-tab-item value="all">
         <template #header>
-          <span class="has-text-weight-bold">All</span>
+          <span class="has-text-weight-bold">All ({{ predictions.length }})</span>
         </template>
         <div v-if="event">
           <b-field grouped group-multiline>
@@ -58,11 +58,7 @@
       >
         <template #header>
           <span
-            :class="
-              prediction.detection_profiles.length
-                ? 'has-text-weight-bold'
-                : 'has-text-grey is-italic'
-            "
+            :class="prediction.isRelevant ? 'has-text-weight-bold' : 'has-text-grey is-italic'"
             >{{ prediction.object_class }}</span
           >
         </template>
@@ -103,7 +99,7 @@
           sort-icon="menu-up"
           :default-sort="['is_relevant', 'desc']"
         >
-          <b-table-column label="Profile" field="name" v-slot="props">
+          <b-table-column label="Matched Profile" field="name" v-slot="props">
             {{ props.row.name }}
           </b-table-column>
           <b-table-column label="Relevance" field="is_relevant" v-slot="props">
@@ -212,17 +208,20 @@ export default {
     },
     predictions() {
       if (this.event) {
-        return this.event.ai_predictions.sort((a, b) => {
-          const aRelevant = a.detection_profiles.some((p) => p.is_relevant);
-          const bRelevant = b.detection_profiles.some((p) => p.is_relevant);
-          if (aRelevant && !bRelevant) {
-            return -1;
-          }
-          if (!aRelevant && bRelevant) {
-            return 1;
-          }
-          return b.confidence - a.confidence;
-        });
+        return this.event.ai_predictions
+          .map((p) => ({
+            ...p,
+            isRelevant: p.detection_profiles.some((d) => d.is_relevant),
+          }))
+          .sort((a, b) => {
+            if (a.isRelevant && !b.isRelevant) {
+              return -1;
+            }
+            if (!a.isRelevant && b.isRelevant) {
+              return 1;
+            }
+            return b.confidence - a.confidence;
+          });
       }
       return [];
     },
@@ -347,7 +346,8 @@ export default {
       if (predictions.length > 0) {
         predictions.forEach((prediction) => {
           const relevantColor = localStorage.darkMode === 'true' ? 'rgb(0, 91, 161)' : '#7957d5';
-          const filteredColor = localStorage.darkMode === 'true' ? '#f2cb1d' : '#ffe08a';
+          // const filteredColor = localStorage.darkMode === 'true' ? '#f2cb1d' : '#ffe08a';
+          const filteredColor = 'grey';
           rects.push(
             new Facade.Rect({
               x: prediction.x_min,
@@ -355,10 +355,7 @@ export default {
               width: prediction.x_max - prediction.x_min,
               height: prediction.y_max - prediction.y_min,
               lineWidth: 0.00625 * this.imageWidth,
-              strokeStyle:
-                prediction.is_masked || prediction.is_smart_filtered || prediction.is_size_filtered
-                  ? filteredColor
-                  : relevantColor,
+              strokeStyle: prediction.isRelevant ? relevantColor : filteredColor,
               fillStyle: 'rgba(0, 0, 0, 0)',
             }),
           );
