@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DetectionEvent;
+use App\DetectionProfile;
 use App\Jobs\ProcessEventUploadJob;
 use App\Resources\DetectionEventResource;
 use Exception;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class DetectionEventController extends Controller
 {
@@ -100,6 +102,39 @@ class DetectionEventController extends Controller
         $profileId = request()->get('profileId');
 
         return DetectionEventResource::make($event)->withNextEvents($event, $profileId);
+    }
+
+    public function viewer(Request $request)
+    {
+        $profile_id = null;
+        if ($request->has('profile')) {
+            $profile_slug = $request->get('profile');
+            $profile = DetectionProfile::where('slug', $profile_slug)
+                ->firstOrFail();
+            $profile_id = $profile->id;
+        }
+
+        if ($request->has('event')) {
+            $event_id = $request->get('event');
+            $event = DetectionEvent::find($event_id);
+        }
+        else {
+            $event = DetectionEvent::whereHas('detectionProfiles', function ($q) use ($profile_id) {
+                $q->where('ai_prediction_detection_profile.is_relevant', '=', true);
+                if ($profile_id) {
+                    $q->where('detection_profile_id', '=', $profile_id);
+                }
+                return $q;
+            })->orderByDesc('occurred_at')->firstOrFail();
+        }
+
+        $event->load([
+            'aiPredictions.detectionProfiles' => function ($query) {
+                return $query->withTrashed();
+            },
+        ]);
+
+        return DetectionEventResource::make($event)->withNextEvents($event, $profile_id);
     }
 
     public function showImage(DetectionEvent $event)

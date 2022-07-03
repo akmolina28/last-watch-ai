@@ -1,10 +1,10 @@
 <template>
   <div class="layout">
-    <navigation></navigation>
+    <navigation v-if="!hideNavbar"></navigation>
     <main>
       <div class="container main-container">
         <div class="lead">
-          <b-breadcrumb align="is-left">
+          <b-breadcrumb v-if="breadcrumbs" align="is-left">
             <b-breadcrumb-item
               v-for="(breadcrumb, index) in breadcrumbs"
               :key="index"
@@ -36,12 +36,14 @@ export default {
   },
   data() {
     return {
-      breadcrumbs: this.$route.meta(this.$route).breadcrumbs,
+      breadcrumbs: this.$route.meta(this.$route).breadcrumbs || null,
+      hideNavbar: !!this.$route.meta(this.$route).hideNavbar,
     };
   },
   watch: {
     $route() {
       this.breadcrumbs = this.$route.meta(this.$route).breadcrumbs;
+      this.hideNavbar = this.$route.meta(this.$route).hideNavbar;
     },
   },
 };

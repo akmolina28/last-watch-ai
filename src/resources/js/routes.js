@@ -118,6 +118,15 @@ const routes = [
     }),
   },
   {
+    name: 'EventViewer',
+    path: '/events/viewer',
+    component: require('./components/EventViewer.vue').default,
+    props: (route) => ({ ...route.query, ...route.params }),
+    meta: () => ({
+      hideNavbar: true,
+    }),
+  },
+  {
     name: 'ShowDetectionEvent',
     path: '/events/:id',
     component: require('./components/ShowDetectionEvent.vue').default,
