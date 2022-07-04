@@ -6,14 +6,24 @@
       style="position:absolute;top:0;left:0;width:20%;height:100%;"
       @click="goToPrev()"
     >
-      <b-icon size="is-large" icon="chevron-left" style="position:absolute;left:0;top:45%"></b-icon>
+      <b-icon
+        v-if="!hideUI"
+        size="is-large"
+        icon="chevron-left"
+        style="position:absolute;left:0;top:45%"
+      ></b-icon>
     </a>
+    <a
+      @click="hideUI = !hideUI"
+      style="position:absolute;left:20%;top:0;height:100%;width:60%;"
+    ></a>
     <a
       v-if="nextEventId"
       :style="`position:absolute;top:0;right:0;width:20%;height:100%;`"
       @click="goToNext()"
     >
       <b-icon
+        v-if="!hideUI"
         size="is-large"
         icon="chevron-right"
         style="position:absolute;right:0;top:45%"
@@ -35,6 +45,7 @@ export default {
     return {
       loading: true,
       detectionEvent: null,
+      hideUI: false,
     };
   },
   mounted() {
@@ -86,11 +97,17 @@ export default {
       return null;
     },
   },
+  watch: {
+    hideUI() {
+      this.draw();
+    },
+  },
   methods: {
     load(event, profile) {
       this.loading = true;
       this.getDataAjax(event, profile).then((response) => {
         this.detectionEvent = response.data.data;
+        this.hideUI = false;
         this.loading = false;
         this.pushRoute(this.detectionEvent.id, this.profile);
         this.draw();
@@ -140,15 +157,8 @@ export default {
       });
 
       const rects = [];
-      let predictions = [];
 
-      if (this.selectedPrediction) {
-        predictions.push(this.selectedPrediction);
-      } else {
-        predictions = this.predictions;
-      }
-
-      if (this.highlightPredictions.length > 0) {
+      if (!this.hideUI && this.highlightPredictions.length > 0) {
         this.highlightPredictions.forEach((prediction) => {
           const relevantColor = localStorage.darkMode === 'true' ? 'rgb(0, 91, 161)' : '#7957d5';
           // const filteredColor = localStorage.darkMode === 'true' ? '#f2cb1d' : '#ffe08a';
