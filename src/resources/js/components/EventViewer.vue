@@ -1,6 +1,6 @@
 <template>
   <div style="position:absolute;left:0;right:0;top:0;min-height:100%;">
-    <img :src="imageFile" style="width:100%" />
+    <canvas id="canvas" style="width:100%" />
     <a
       v-if="prevEventId"
       style="position:absolute;top:0;left:0;width:20%;height:100%;"
@@ -25,6 +25,8 @@
 
 <script>
 import axios from 'axios';
+
+const Facade = require('facade.js');
 
 export default {
   name: 'EventViewer',
@@ -72,6 +74,17 @@ export default {
       }
       return null;
     },
+    highlightPredictions() {
+      if (this.detectionEvent) {
+        // eslint-disable-next-line arrow-body-style
+        return this.detectionEvent.ai_predictions.filter((pred) => {
+          return pred.detection_profiles.some(
+            (prof) => prof.is_relevant && (!this.profile || prof.slug === this.profile),
+          );
+        });
+      }
+      return null;
+    },
   },
   methods: {
     load(event, profile) {
@@ -80,6 +93,7 @@ export default {
         this.detectionEvent = response.data.data;
         this.loading = false;
         this.pushRoute(this.detectionEvent.id, this.profile);
+        this.draw();
       });
     },
     getDataAjax(event, profile) {
@@ -110,6 +124,58 @@ export default {
           },
         })
         .catch(() => {});
+    },
+    draw() {
+      const canvas = document.getElementById('canvas');
+      canvas.width = this.imageWidth;
+      canvas.height = this.imageHeight;
+
+      const stage = new Facade(document.querySelector('#canvas'));
+      const image = new Facade.Image(this.imageFile, {
+        x: this.imageWidth / 2,
+        y: this.imageHeight / 2,
+        height: this.imageHeight,
+        width: this.imageWidth,
+        anchor: 'center',
+      });
+
+      const rects = [];
+      let predictions = [];
+
+      if (this.selectedPrediction) {
+        predictions.push(this.selectedPrediction);
+      } else {
+        predictions = this.predictions;
+      }
+
+      if (this.highlightPredictions.length > 0) {
+        this.highlightPredictions.forEach((prediction) => {
+          const relevantColor = localStorage.darkMode === 'true' ? 'rgb(0, 91, 161)' : '#7957d5';
+          // const filteredColor = localStorage.darkMode === 'true' ? '#f2cb1d' : '#ffe08a';
+          rects.push(
+            new Facade.Rect({
+              x: prediction.x_min,
+              y: prediction.y_min,
+              width: prediction.x_max - prediction.x_min,
+              height: prediction.y_max - prediction.y_min,
+              lineWidth: 0.00625 * this.imageWidth,
+              strokeStyle: relevantColor,
+              fillStyle: 'rgba(0, 0, 0, 0)',
+            }),
+          );
+        });
+      }
+
+      // eslint-disable-next-line func-names, space-before-function-paren
+      stage.draw(function() {
+        this.clear();
+
+        this.addToStage(image);
+
+        for (let i = 0; i < rects.length; i += 1) {
+          this.addToStage(rects[i]);
+        }
+      });
     },
   },
 };
