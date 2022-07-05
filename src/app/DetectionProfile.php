@@ -137,6 +137,11 @@ class DetectionProfile extends Model
         return $this->hasMany('App\AutomationConfig');
     }
 
+    public function profileGroups()
+    {
+        return $this->belongsToMany('App\ProfileGroup');
+    }
+
     public function setNameAttribute($value)
     {
         $this->attributes['name'] = $value;
