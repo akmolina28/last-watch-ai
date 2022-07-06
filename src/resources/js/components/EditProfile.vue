@@ -1,5 +1,6 @@
 <template>
-  <div class="form-wrapper">
+  <div class="form-wrapper" style="position:relative">
+    <b-loading :is-full-page="false" v-model="profileLoading"></b-loading>
     <form @submit.prevent="processForm">
       <b-field label="Name">
         <b-input
@@ -135,6 +136,7 @@ export default {
       use_mask: false,
       display_mask: false,
       slug: '',
+      profileLoading: false,
     };
   },
 
@@ -144,26 +146,38 @@ export default {
     });
 
     if (this.isEditing) {
-      axios.get(`/api/profiles/${this.id}/edit`).then(({ data }) => {
-        const profile = data.data;
+      this.profileLoading = true;
+      axios
+        .get(`/api/profiles/${this.id}/edit`)
+        .then(({ data }) => {
+          const profile = data.data;
 
-        this.name = profile.name;
-        this.file_pattern = profile.file_pattern;
-        this.min_confidence = parseFloat(profile.min_confidence);
-        this.min_object_size = parseFloat(profile.min_object_size);
-        this.use_regex = profile.use_regex;
-        this.privacy_mode = profile.privacy_mode;
-        this.object_classes = profile.object_classes;
-        this.use_smart_filter = profile.use_smart_filter;
-        this.smart_filter_precision = parseFloat(profile.smart_filter_precision);
-        this.is_negative = profile.is_negative;
-        this.slug = profile.slug;
+          this.name = profile.name;
+          this.file_pattern = profile.file_pattern;
+          this.min_confidence = parseFloat(profile.min_confidence);
+          this.min_object_size = parseFloat(profile.min_object_size);
+          this.use_regex = profile.use_regex;
+          this.privacy_mode = profile.privacy_mode;
+          this.object_classes = profile.object_classes;
+          this.use_smart_filter = profile.use_smart_filter;
+          this.smart_filter_precision = parseFloat(profile.smart_filter_precision);
+          this.is_negative = profile.is_negative;
+          this.slug = profile.slug;
 
-        if (profile.use_mask) {
-          this.use_mask = true;
-          this.display_mask = true;
-        }
-      });
+          if (profile.use_mask) {
+            this.use_mask = true;
+            this.display_mask = true;
+          }
+        })
+        .catch(() => {
+          this.$buefy.toast.open({
+            message: 'Something went wrong. Please try again.',
+            type: 'is-danger',
+          });
+        })
+        .finally(() => {
+          this.profileLoading = false;
+        });
     }
   },
 

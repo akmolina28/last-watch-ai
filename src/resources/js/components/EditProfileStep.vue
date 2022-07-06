@@ -8,7 +8,7 @@
         Configure the file watcher and AI triggers
       </template>
     </title-header>
-    <b-steps v-model="activeStep" :has-navigation="false">
+    <b-steps v-model="activeStep" :has-navigation="false" mobile-mode="compact">
       <b-step-item
         :label="edit ? 'Edit Profile' : 'Add Profile'"
         icon="plus"
@@ -37,7 +37,7 @@
         </div>
       </b-step-item>
       <b-step-item
-        :label="edit ? 'Edit Automations' : 'Attach Automations'"
+        :label="edit ? 'Automations' : 'Attach Automations'"
         icon="robot"
         :clickable="allowSkipAhead"
       >

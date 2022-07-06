@@ -37,7 +37,9 @@
       </section>
     </section>
     <div class="is-flex is-flex-direction-row-reverse">
-      <b-button icon-left="save" type="is-primary" @click="saveGroups"> Save and Continue</b-button>
+      <b-button :loading="groupsSaving" icon-left="save" type="is-primary" @click="saveGroups">
+        Save and Continue</b-button
+      >
     </div>
   </div>
 </template>
@@ -55,6 +57,7 @@ export default {
       newGroupEditing: false,
       newGroupName: '',
       newGroupSaving: false,
+      groupsSaving: false,
     };
   },
   mounted() {
@@ -86,13 +89,24 @@ export default {
       return axios.get('/api/profileGroups');
     },
     saveGroups() {
-      this.saveGroupsAjax(this.profileId).then(() => {
-        this.$emit('groups-saved');
-        this.$buefy.toast.open({
-          message: 'Groups saved.',
-          type: 'is-primary',
+      this.groupsSaving = true;
+      this.saveGroupsAjax(this.profileId)
+        .then(() => {
+          this.$emit('groups-saved');
+          this.$buefy.toast.open({
+            message: 'Groups saved.',
+            type: 'is-primary',
+          });
+        })
+        .catch(() => {
+          this.$buefy.toast.open({
+            message: 'Something went wrong. Please try again.',
+            type: 'is-danger',
+          });
+        })
+        .finally(() => {
+          this.groupsSaving = false;
         });
-      });
     },
     saveGroupsAjax(profileId) {
       return axios.put(`/api/profiles/${profileId}/groups`, {
@@ -100,18 +114,38 @@ export default {
       });
     },
     saveNewGroup() {
-      this.newGroupSaving = true;
-      this.createGroupAjax(this.newGroupName)
-        .then(({ data }) => {
-          const newGroup = data.data;
-          newGroup.checked = true;
-          this.profileGroups.push(data.data);
-          this.newGroupEditing = false;
-          this.newGroupName = '';
-        })
-        .finally(() => {
-          this.newGroupSaving = false;
+      if (!this.newGroupName) {
+        this.$buefy.toast.open({
+          message: 'Group name is required.',
+          type: 'is-danger',
         });
+      } else {
+        this.newGroupSaving = true;
+        this.createGroupAjax(this.newGroupName)
+          .then(({ data }) => {
+            const newGroup = data.data;
+            newGroup.checked = true;
+            this.profileGroups.push(data.data);
+            this.newGroupEditing = false;
+            this.newGroupName = '';
+          })
+          // eslint-disable-next-line no-unused-vars
+          .catch((jqXHR) => {
+            const { status } = jqXHR.response;
+            let e = jqXHR.message;
+            if (status === 422 && jqXHR.response.data.errors) {
+              const keys = Object.keys(jqXHR.response.data.errors);
+              e = jqXHR.response.data.errors[keys[0]];
+            }
+            this.$buefy.toast.open({
+              message: e,
+              type: 'is-danger',
+            });
+          })
+          .finally(() => {
+            this.newGroupSaving = false;
+          });
+      }
     },
     createGroupAjax(name) {
       return axios.post('/api/profileGroups', {

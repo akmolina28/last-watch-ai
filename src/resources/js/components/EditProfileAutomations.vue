@@ -33,7 +33,9 @@
       </table>
     </div>
     <div class="is-flex is-flex-direction-row-reverse">
-      <b-button type="is-primary" icon-left="save" @click="saveAutomationConfigs">Save</b-button>
+      <b-button type="is-primary" :loading="saving" icon-left="save" @click="saveAutomationConfigs"
+        >Save</b-button
+      >
     </div>
   </div>
 </template>
@@ -49,6 +51,7 @@ export default {
   data() {
     return {
       automationConfigs: [],
+      saving: false,
     };
   },
 
@@ -119,6 +122,7 @@ export default {
     },
 
     saveAutomationConfigs(config) {
+      this.saving = true;
       axios
         .put(`/api/profiles/${this.profileId}/automations`, {
           automations: this.automationConfigs,
@@ -137,6 +141,9 @@ export default {
           });
           config.isSubscribed = false;
           config.isHighPriority = false;
+        })
+        .finally(() => {
+          this.saving = false;
         });
     },
   },
