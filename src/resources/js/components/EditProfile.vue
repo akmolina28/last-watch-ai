@@ -151,6 +151,7 @@ export default {
         .get(`/api/profiles/${this.id}/edit`)
         .then(({ data }) => {
           const profile = data.data;
+          this.$emit('profile-loaded', profile);
 
           this.name = profile.name;
           this.file_pattern = profile.file_pattern;

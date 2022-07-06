@@ -1,11 +1,9 @@
 <template>
   <div class="component-wrapper">
     <title-header>
-      <template v-slot:title>
-        Create Profile
-      </template>
+      <template v-slot:title>{{ edit ? 'Edit' : 'Create' }} Profile</template>
       <template v-slot:subtitle>
-        Configure the file watcher and AI triggers
+        {{ edit ? profileName : 'Configure the file watcher and AI triggers' }}
       </template>
     </title-header>
     <b-steps v-model="activeStep" :has-navigation="false" mobile-mode="compact">
@@ -17,7 +15,11 @@
         <div class="columns">
           <div class="column is-one-third"></div>
           <div class="column is-one-third">
-            <edit-profile @profile-saved="profileSaved" :id="profileId"></edit-profile>
+            <edit-profile
+              @profile-saved="profileSaved"
+              :id="profileId"
+              @profile-loaded="(p) => (profileName = p.name)"
+            ></edit-profile>
           </div>
         </div>
       </b-step-item>
@@ -70,6 +72,7 @@ export default {
       activeStep: 0,
       profileId: parseInt(this.id, 10) || null,
       edit: this.id !== null,
+      profileName: ' ',
     };
   },
   computed: {
