@@ -4,14 +4,12 @@ networks:
   laravel:
 
 services:
-
-
   site:
     image: nginx:stable
     container_name: lw_nginx
     restart: unless-stopped
     ports:
-      - "${WEB_INTERFACE_PORT:-8080}:80"
+      - '${WEB_INTERFACE_PORT:-8080}:80'
     volumes:
       - ./src:/var/www/app
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
@@ -31,7 +29,7 @@ services:
     restart: unless-stopped
     tty: true
     ports:
-      - "3306:3306"
+      - '3306:3306'
     environment:
       MYSQL_DATABASE: homestead
       MYSQL_USER: homestead
@@ -49,12 +47,12 @@ services:
       context: .
       dockerfile: php.dockerfile
       args:
-      - USER_ID=${UID:-1000}
-      - GROUP_ID=${GID:-1000}
+        - USER_ID=${UID:-1000}
+        - GROUP_ID=${GID:-1000}
     container_name: lw_php
     restart: unless-stopped
     ports:
-      - "9000:9000"
+      - '9000:9000'
     volumes:
       - ./src:/var/www/app
     networks:
@@ -66,6 +64,7 @@ services:
       DEEPSTACK_BASE_URL: ${DEEPSTACK_BASE_URL:-http://deepstack:5000/}
       COMPRESS_IMAGES: ${COMPRESS_IMAGES:-true}
       IMAGE_QUALITY: ${IMAGE_QUALITY:-75}
+      PASSWORD: ${PASSWORD:-password}
 
   scheduler:
     image: mcuadros/ofelia:latest
@@ -105,7 +104,7 @@ services:
     networks:
       - laravel
     ports:
-      - "5001:5000"
+      - '5001:5000'
 
   watcher:
     image: akmolina28/webhook-folder-watcher:0.2.0
@@ -142,7 +141,7 @@ services:
     working_dir: /var/www/app
     entrypoint: ['npm']
     ports:
-      - "8081:8081"
+      - '8081:8081'
 
   artisan:
     build:
@@ -160,3 +159,5 @@ services:
     networks:
       - laravel
     entrypoint: ['php', '/var/www/app/artisan']
+    environment:
+      PASSWORD: ${PASSWORD:-password}
