@@ -60,4 +60,13 @@ class ProfileGroupTest extends TestCase
         $this->assertEquals(1, $profile->profileGroups()->where('name', '=', 'Test Group 1')->count());
         $this->assertEquals(1, $profile->profileGroups()->where('name', '=', 'Test Group 2')->count());
     }
+
+    /**
+     * @test
+     */
+    public function a_profile_can_generate_a_slug()
+    {
+        $group = ProfileGroup::make(['name' => 'My Profile Group']);
+        $this->assertEquals('my-profile-group', $group->slug);
+    }
 }

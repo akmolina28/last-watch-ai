@@ -14,6 +14,7 @@ use App\MqttPublishConfig;
 use App\SmbCifsCopyConfig;
 use App\TelegramConfig;
 use App\WebRequestConfig;
+use App\ProfileGroup;
 use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -1205,9 +1206,14 @@ class ApiTest extends TestCase
         $config = factory(TelegramConfig::class)->create();
 
         $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'telegram_configs',
-            'id' => $config->id,
-            'value' => true,
+            'automations' => [
+                [
+                    'type' => 'telegram_configs',
+                    'id' => $config->id,
+                    'value' => true,
+                    'is_high_priority' => false,
+                ]
+            ]
         ])
             ->assertStatus(200);
 
@@ -1225,40 +1231,16 @@ class ApiTest extends TestCase
         $config = factory(MqttPublishConfig::class)->create();
 
         $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'mqtt_publish_configs',
-            'id' => $config->id,
-            'value' => true,
+            'automations' => [
+                [
+                    'type' => 'mqtt_publish_configs',
+                    'id' => $config->id,
+                    'value' => true,
+                    'is_high_priority' => false,
+                ]
+            ]
         ])
             ->assertStatus(200);
-
-        $this->assertCount(1, AutomationConfig::all());
-        $this->assertEquals($config->id, AutomationConfig::first()->automation_config_id);
-    }
-
-    /**
-     * @test
-     */
-    public function api_can_attach_a_web_request_automation_multiple_times()
-    {
-        $profile = factory(DetectionProfile::class)->create();
-
-        $config = factory(WebRequestConfig::class)->create();
-
-        $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'web_request_configs',
-            'id' => $config->id,
-            'value' => true,
-        ])
-            ->assertStatus(200);
-
-        $this->assertCount(1, AutomationConfig::all());
-        $this->assertEquals($config->id, AutomationConfig::first()->automation_config_id);
-
-        $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'web_request_configs',
-            'id' => $config->id,
-            'value' => true,
-        ]);
 
         $this->assertCount(1, AutomationConfig::all());
         $this->assertEquals($config->id, AutomationConfig::first()->automation_config_id);
@@ -1274,10 +1256,14 @@ class ApiTest extends TestCase
         $config = factory(WebRequestConfig::class)->create();
 
         $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'web_request_configs',
-            'id' => $config->id,
-            'value' => true,
-            'is_high_priority' => true,
+            'automations' => [
+                [
+                    'type' => 'web_request_configs',
+                    'id' => $config->id,
+                    'value' => true,
+                    'is_high_priority' => true,
+                ]
+            ]
         ])
             ->assertStatus(200);
 
@@ -1298,10 +1284,14 @@ class ApiTest extends TestCase
         $config = factory(WebRequestConfig::class)->create();
 
         $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'web_request_configs',
-            'id' => $config->id,
-            'value' => true,
-            'is_high_priority' => false,
+            'automations' => [
+                [
+                    'type' => 'web_request_configs',
+                    'id' => $config->id,
+                    'value' => true,
+                    'is_high_priority' => false,
+                ]
+            ]
         ])
             ->assertStatus(200);
 
@@ -1312,10 +1302,14 @@ class ApiTest extends TestCase
         $this->assertFalse($automationConfig->is_high_priority);
 
         $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'web_request_configs',
-            'id' => $config->id,
-            'value' => true,
-            'is_high_priority' => true,
+            'automations' => [
+                [
+                    'type' => 'web_request_configs',
+                    'id' => $config->id,
+                    'value' => true,
+                    'is_high_priority' => true,
+                ]
+            ]
         ])
             ->assertStatus(200);
 
@@ -1338,9 +1332,14 @@ class ApiTest extends TestCase
         $profile->subscribeAutomation(WebRequestConfig::class, $config->id);
 
         $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'web_request_configs',
-            'id' => $config->id,
-            'value' => false,
+            'automations' => [
+                [
+                    'type' => 'web_request_configs',
+                    'id' => $config->id,
+                    'value' => false,
+                    'is_high_priority' => false,
+                ]
+            ]
         ])
             ->assertStatus(200);
 
@@ -1358,23 +1357,38 @@ class ApiTest extends TestCase
         $config = factory(WebRequestConfig::class)->create();
 
         $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'web_request_configs',
-            'id' => $config->id,
-            'value' => true,
+            'automations' => [
+                [
+                    'type' => 'web_request_configs',
+                    'id' => $config->id,
+                    'value' => true,
+                    'is_high_priority' => false,
+                ]
+            ]
         ])
             ->assertStatus(200);
 
         $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'web_request_configs',
-            'id' => $config->id,
-            'value' => false,
+            'automations' => [
+                [
+                    'type' => 'web_request_configs',
+                    'id' => $config->id,
+                    'value' => false,
+                    'is_high_priority' => false,
+                ]
+            ]
         ])
             ->assertStatus(200);
 
         $this->json('PUT', '/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'web_request_configs',
-            'id' => $config->id,
-            'value' => true,
+            'automations' => [
+                [
+                    'type' => 'web_request_configs',
+                    'id' => $config->id,
+                    'value' => true,
+                    'is_high_priority' => false,
+                ]
+            ]
         ])
             ->assertStatus(200);
 
@@ -1872,6 +1886,132 @@ class ApiTest extends TestCase
                     '%image_url%',
                 ],
             ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_profile_groups()
+    {
+        factory(ProfileGroup::class, 3)->create();
+        $this->json('GET', '/api/profileGroups')
+            ->assertStatus(200)
+            ->assertJsonCount(3, 'data')
+            ->assertJsonStructure([
+                'data' => [0 => [
+                    'id',
+                    'name',
+                    'slug',
+                    'detection_profiles',
+                ]],
+            ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_profile_groups_with_profiles()
+    {
+        $group = factory(ProfileGroup::class)->create();
+        $profiles = factory(DetectionProfile::class, 5)->create();
+        $group->detectionProfiles()->saveMany($profiles);
+
+        $this->json('GET', '/api/profileGroups')
+            ->assertStatus(200)
+            ->assertJsonCount(5, 'data.0.detection_profiles')
+            ->assertJsonStructure([
+                'data' => [0 => [
+                    'detection_profiles' => [0 => [
+                        'id',
+                        'name',
+                        'slug',
+                        'file_pattern'
+                    ]]
+                ]],
+            ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_create_a_profile_group()
+    {
+        $this->json('POST', '/api/profileGroups', [
+            'name' => 'My Profile Group',
+        ])
+            ->assertStatus(201)
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'name',
+                    'slug',
+                ]]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_attach_groups_to_a_profile()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+        $groups = factory(ProfileGroup::class, 3)->create();
+        $otherGroups = factory(ProfileGroup::class, 5)->create();
+
+        $this->json('PUT', '/api/profiles/'.$profile->id.'/groups', [
+            'group_ids' => [
+                $groups[0]->id,
+                $groups[1]->id,
+                $groups[2]->id,
+            ],
+        ])->assertStatus(200);
+
+        $profile->refresh();
+        $this->assertEquals(3, $profile->profileGroups()->count());
+        $this->assertEquals(1, $profile->profileGroups()->where('profile_groups.id', '=', $groups[0]->id)->count());
+        $this->assertEquals(1, $profile->profileGroups()->where('profile_groups.id', '=', $groups[1]->id)->count());
+        $this->assertEquals(1, $profile->profileGroups()->where('profile_groups.id', '=', $groups[2]->id)->count());
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_deattach_groups_from_a_profile()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+        $groups = factory(ProfileGroup::class, 3)->create();
+        $otherGroups = factory(ProfileGroup::class, 5)->create();
+        $profile->profileGroups()->saveMany($groups);
+
+        $this->json('PUT', '/api/profiles/'.$profile->id.'/groups', [
+            'group_ids' => [
+                $groups[0]->id,
+                $groups[2]->id,
+            ],
+        ])->assertStatus(200);
+
+        $profile->refresh();
+        $this->assertEquals(2, $profile->profileGroups()->count());
+        $this->assertEquals(1, $profile->profileGroups()->where('profile_groups.id', '=', $groups[0]->id)->count());
+        $this->assertEquals(0, $profile->profileGroups()->where('profile_groups.id', '=', $groups[1]->id)->count());
+        $this->assertEquals(1, $profile->profileGroups()->where('profile_groups.id', '=', $groups[2]->id)->count());
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_deattach_all_groups_from_a_profile()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+        $groups = factory(ProfileGroup::class, 3)->create();
+        $otherGroups = factory(ProfileGroup::class, 5)->create();
+        $profile->profileGroups()->saveMany($groups);
+
+        $this->json('PUT', '/api/profiles/'.$profile->id.'/groups', [
+            'group_ids' => [],
+        ])->assertStatus(200);
+
+        $profile->refresh();
+        $this->assertEquals(0, $profile->profileGroups()->count());
     }
 
     /**

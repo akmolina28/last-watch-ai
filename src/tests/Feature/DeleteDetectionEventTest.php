@@ -132,9 +132,14 @@ class DeleteDetectionEventTest extends TestCase
         $profile = factory(DetectionProfile::class)->create();
 
         $this->put('/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'web_request_configs',
-            'value' => 'true',
-            'id' => $config->id,
+            'automations' => [
+                [
+                    'type' => 'web_request_configs',
+                    'value' => 'true',
+                    'id' => $config->id,
+                    'is_high_priority' => true,
+                ]
+            ]
         ])->assertStatus(200);
 
         // create an event and attach an automation result

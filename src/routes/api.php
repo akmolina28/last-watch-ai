@@ -25,6 +25,8 @@ Route::patch('/profiles/{param}', 'DetectionProfileController@update')->middlewa
 
 Route::delete('/profiles/{param}', 'DetectionProfileController@destroy')->middleware('auth.basic');
 
+Route::put('/profiles/{profile}/groups', 'DetectionProfileController@updateProfiles');
+
 Route::put('/profiles/{param}/status', 'DetectionProfileController@updateStatus')->middleware('auth.basic');
 
 Route::get('/profiles/{param}/automations', 'DetectionProfileController@showAutomations')->middleware('auth.basic');
@@ -90,5 +92,9 @@ Route::get('/alive', 'StatisticsController@isAlive')->middleware('auth.basic');
 Route::get('/errors', 'StatisticsController@errors')->middleware('auth.basic');
 
 Route::get('/deepstackLogs', 'StatisticsController@deepstackLogs')->middleware('auth.basic');
+
+Route::get('/profileGroups', 'ProfileGroupController@index')->middleware('auth.basic');
+
+Route::post('/profileGroups', 'ProfileGroupController@make')->middleware('auth.basic');
 
 Route::any('/{any}', 'ErrorController@catchAll')->where('any', '.*')->middleware('auth.basic');

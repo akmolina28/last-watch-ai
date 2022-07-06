@@ -36,7 +36,7 @@ const routes = [
   {
     name: 'CreateDetectionProfile',
     path: '/profiles/create',
-    component: require('./components/CreateDetectionProfile.vue').default,
+    component: require('./components/EditProfileStep.vue').default,
     props: true,
     meta: () => ({
       breadcrumbs: [
@@ -58,7 +58,7 @@ const routes = [
   {
     name: 'EditDetectionProfile',
     path: '/profiles/:id/edit',
-    component: require('./components/CreateDetectionProfile.vue').default,
+    component: require('./components/EditProfileStep.vue').default,
     props: true,
     meta: (route) => ({
       breadcrumbs: [

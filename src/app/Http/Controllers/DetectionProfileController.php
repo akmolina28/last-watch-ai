@@ -43,7 +43,6 @@ class DetectionProfileController extends Controller
 
 
         if (request()->has('min_object_size')) {
-            \Illuminate\Support\Facades\Log::error('has');
             $rules['min_object_size'] = 'numeric|nullable';
         }
 
@@ -226,18 +225,42 @@ class DetectionProfileController extends Controller
     {
         $profile = $this->lookUpProfile($param);
 
-        $type = request()->get('type');
-        $id = request()->get('id');
-        $value = request()->get('value');
-        $isHighPriority = request()->get('is_high_priority', false);
+        request()->validate([
+            'automations' => 'array|required',
+            'automations.*.id' => 'integer',
+            'automations.*.is_high_priority' => 'boolean'
+        ]);
 
-        $automationType = Relation::morphMap()[$type];
+        \Illuminate\Support\Facades\Log::error(request()->get('automations'));
 
-        if ($value == 'true') {
-            $profile->subscribeAutomation($automationType, $id, $isHighPriority);
-        } else {
-            $profile->unsubscribeAutomation($automationType, $id);
+        foreach (request()->get('automations') as $automation)
+        {
+            $type = $automation['type'];
+            $id = $automation['id'];
+            $value = $automation['value'];
+            $isHighPriority = $automation['is_high_priority'];
+
+            $automationType = Relation::morphMap()[$type];
+    
+            if ($value) {
+                $profile->subscribeAutomation($automationType, $id, $isHighPriority);
+            } else {
+                $profile->unsubscribeAutomation($automationType, $id);
+            }
         }
+
+        return true;
+    }
+
+    public function updateProfiles(DetectionProfile $profile)
+    {
+        request()->validate([
+            'group_ids' => 'array',
+            'group_ids.*' => 'integer'
+        ]);
+
+        $group_ids = request()->get('group_ids');
+        $profile->profileGroups()->sync($group_ids);
 
         return true;
     }

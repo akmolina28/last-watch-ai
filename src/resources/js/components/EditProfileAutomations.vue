@@ -1,55 +1,39 @@
 <template>
-  <div class="component-container">
-    <title-header>
-      <template v-slot:title>
-        Profile Automations
-      </template>
-      <template v-slot:subtitle>
-        Do something when <strong>{{ profile.name }}</strong> is triggered
-      </template>
-    </title-header>
+  <div>
+    <p v-if="configTypes.length === 0">
+      No automations have been set up yet.
+    </p>
 
-    <div class="columns">
-      <div class="column is-one-third">
-        <p v-if="configTypes.length === 0">
-          No automations have been set up yet.
-        </p>
+    <div v-for="type in configTypes" class="box mb-5" style="overflow-x:auto;">
+      <h4 class="heading is-size-4">{{ type | headerize }}</h4>
 
-        <div v-for="type in configTypes" class="box mb-5" style="overflow-x:auto;">
-          <h4 class="heading is-size-4">{{ type | headerize }}</h4>
-
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Subscribe</th>
-                <th>High Priority</th>
-                <th>Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="config in getConfigs(type)">
-                <td>
-                  <input
-                    v-model="config.isSubscribed"
-                    type="checkbox"
-                    @change="subscribeChange(config)"
-                  />
-                </td>
-                <td>
-                  <input
-                    v-model="config.isHighPriority"
-                    type="checkbox"
-                    @change="highPriorityChange(config)"
-                  />
-                </td>
-                <td>{{ config.name }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <a class="button" href="/profiles">Done</a>
-      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Subscribe</th>
+            <th>High Priority</th>
+            <th>Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="config in getConfigs(type)">
+            <td>
+              <input v-model="config.value" @change="valueChange(config)" type="checkbox" />
+            </td>
+            <td>
+              <input
+                v-model="config.is_high_priority"
+                @change="priorityChange(config)"
+                type="checkbox"
+              />
+            </td>
+            <td>{{ config.name }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="is-flex is-flex-direction-row-reverse">
+      <b-button type="is-primary" icon-left="save" @click="saveAutomationConfigs">Save</b-button>
     </div>
   </div>
 </template>
@@ -60,19 +44,15 @@ import axios from 'axios';
 export default {
   name: 'EditProfileAutomations',
 
-  props: ['id'],
+  props: ['profileId'],
 
   data() {
     return {
       automationConfigs: [],
-      profile: {},
     };
   },
 
   computed: {
-    profileId() {
-      return parseInt(this.id, 10);
-    },
     configTypes() {
       const types = [];
       for (let i = 0; i < this.automationConfigs.length; i += 1) {
@@ -96,55 +76,59 @@ export default {
   },
 
   mounted() {
-    this.getData();
+    if (this.profileId) {
+      this.getData();
+    }
+  },
+
+  watch: {
+    profileId(newValue) {
+      if (newValue) {
+        this.getData();
+      }
+    },
   },
 
   methods: {
+    valueChange(config) {
+      if (!config.value) {
+        config.is_high_priority = false;
+      }
+    },
+    priorityChange(config) {
+      if (config.is_high_priority) {
+        config.value = true;
+      }
+    },
     getConfigs(type) {
       return this.automationConfigs.filter((c) => c.type === type);
     },
 
     getData() {
-      axios.get(`/api/profiles/${this.id}`).then((response) => {
+      axios.get(`/api/profiles/${this.profileId}`).then((response) => {
         this.profile = response.data.data;
       });
-      axios.get(`/api/profiles/${this.id}/automations`).then((response) => {
+      axios.get(`/api/profiles/${this.profileId}/automations`).then((response) => {
         const configs = response.data.data;
         for (let i = 0; i < configs.length; i += 1) {
-          configs[i].isSubscribed = configs[i].detection_profile_id != null;
-          configs[i].isHighPriority = configs[i].is_high_priority === 1;
+          configs[i].value = configs[i].detection_profile_id != null;
+          configs[i].is_high_priority = configs[i].is_high_priority === 1;
         }
         this.automationConfigs = configs;
       });
     },
 
-    subscribeChange(config) {
-      if (!config.isSubscribed) {
-        config.isHighPriority = false;
-      }
-      this.updateAutomationConfig(config);
-    },
-
-    highPriorityChange(config) {
-      if (config.isHighPriority) {
-        config.isSubscribed = true;
-      }
-      this.updateAutomationConfig(config);
-    },
-
-    updateAutomationConfig(config) {
+    saveAutomationConfigs(config) {
       axios
-        .put(`/api/profiles/${this.id}/automations`, {
-          id: config.id,
-          type: config.type,
-          value: config.isSubscribed,
-          is_high_priority: config.isHighPriority,
+        .put(`/api/profiles/${this.profileId}/automations`, {
+          automations: this.automationConfigs,
         })
         .then(() => {
           this.$buefy.toast.open({
-            message: 'Automations saved!',
-            type: 'is-success',
+            message: 'Automations saved.',
+            type: 'is-primary',
           });
+          this.$router.push('/profiles');
         })
         .catch(() => {
           this.$buefy.toast.open({
