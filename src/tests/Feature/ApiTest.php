@@ -327,6 +327,27 @@ class ApiTest extends TestCase
         }
     }
 
+    protected function add_latest_event(DetectionProfile $profile): DetectionEvent
+    {
+        // add a latest event
+        $event = factory(DetectionEvent::class)->create([
+            'occurred_at' => Date::tomorrow(),
+        ]);
+
+        $event->aiPredictions()->createMany(
+            factory(AiPrediction::class, 3)->make()->toArray()
+        );
+
+        $event->patternMatchedProfiles()->attach($profile->id);
+
+        $prediction = $event->aiPredictions()->first();
+        $prediction->detectionProfiles()->attach($profile->id, [
+            'is_relevant' => true,
+        ]);
+
+        return $event;
+    }
+
     /**
      * @test
      */
@@ -376,21 +397,7 @@ class ApiTest extends TestCase
         $profile = factory(DetectionProfile::class)->create();
         $this->setUpEvents($profile);
 
-        // add a latest event
-        $event = factory(DetectionEvent::class)->create([
-            'occurred_at' => Date::tomorrow(),
-        ]);
-
-        $event->aiPredictions()->createMany(
-            factory(AiPrediction::class, 3)->make()->toArray()
-        );
-
-        $event->patternMatchedProfiles()->attach($profile->id);
-
-        $prediction = $event->aiPredictions()->first();
-        $prediction->detectionProfiles()->attach($profile->id, [
-            'is_relevant' => true,
-        ]);
+        $this->add_latest_event($profile);
 
         $response = $this->get('/api/events/latest');
 
@@ -2012,6 +2019,158 @@ class ApiTest extends TestCase
 
         $profile->refresh();
         $this->assertEquals(0, $profile->profileGroups()->count());
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_event_viewer_default()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+        $this->setUpEvents($profile);
+        
+        $profile_2 = factory(DetectionProfile::class)->create();
+        $event = $this->add_latest_event($profile_2);
+
+        $this->get('/api/events/viewer')
+            ->assertStatus(200)
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'image_file_name',
+                    'image_file_path',
+                    'image_width',
+                    'image_height',
+                    'thumbnail_path',
+                    'ai_predictions',
+                ],
+            ])
+            ->assertJson([
+                'data' => [
+                    'id' => $event->id,
+                    'ai_predictions' => [0 => [
+                        'detection_profiles' => [0 => [
+                            'id' => $profile_2->id,
+                            'slug' => $profile_2->slug,
+                        ]]
+                    ]]
+                ],
+            ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_event_viewer_for_profile()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+        $this->setUpEvents($profile);
+        
+        $profile_2 = factory(DetectionProfile::class)->create();
+        $event = $this->add_latest_event($profile_2);
+
+        $this->get('/api/events/viewer?profile='.$profile->slug)
+            ->assertStatus(200)
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'image_file_name',
+                    'image_file_path',
+                    'image_width',
+                    'image_height',
+                    'thumbnail_path',
+                    'ai_predictions',
+                ],
+            ])
+            ->assertJson([
+                'data' => [
+                    'ai_predictions' => [0 => [
+                        'detection_profiles' => [0 => [
+                            'id' => $profile->id,
+                            'slug' => $profile->slug,
+                        ]]
+                    ]]
+                ],
+            ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_event_viewer_for_event()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+        $this->setUpEvents($profile);
+        
+        $profile_2 = factory(DetectionProfile::class)->create();
+        $event = $this->add_latest_event($profile_2);
+
+        $this->get('/api/events/viewer?event='.$event->id)
+            ->assertStatus(200)
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'image_file_name',
+                    'image_file_path',
+                    'image_width',
+                    'image_height',
+                    'thumbnail_path',
+                    'ai_predictions',
+                ],
+            ])
+            ->assertJson([
+                'data' => [
+                    'id' => $event->id,
+                    'ai_predictions' => [0 => [
+                        'detection_profiles' => [0 => [
+                            'id' => $profile_2->id,
+                            'slug' => $profile_2->slug,
+                        ]]
+                    ]]
+                ],
+            ]);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_get_event_viewer_for_group()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+        $this->setUpEvents($profile);
+        
+        $profile_2 = factory(DetectionProfile::class)->create();
+        $profile_2_event = $this->add_latest_event($profile_2);
+
+        $profile_3 = factory(DetectionProfile::class)->create();
+        $profile_3_event = $this->add_latest_event($profile_2);
+
+        $group = ProfileGroup::create(['name' => 'test group']);
+        $group->detectionProfiles()->save($profile);
+
+        $this->get('/api/events/viewer?group='.$group->slug)
+            ->assertStatus(200)
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'image_file_name',
+                    'image_file_path',
+                    'image_width',
+                    'image_height',
+                    'thumbnail_path',
+                    'ai_predictions',
+                ],
+            ])
+            ->assertJson([
+                'data' => [
+                    'ai_predictions' => [0 => [
+                        'detection_profiles' => [0 => [
+                            'id' => $profile->id,
+                            'slug' => $profile->slug,
+                        ]]
+                    ]]
+                ],
+            ]);
     }
 
     /**

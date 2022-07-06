@@ -158,29 +158,33 @@ class DetectionEvent extends Model
         return null;
     }
 
-    public function getNextEventId($relevantProfileId, $ascending = true)
-    {
-      $query = DetectionEvent::where('occurred_at', $ascending ? '>=' : '<=', $this->occurred_at)
-        ->where('id', '!=', $this->id);
-      
-      if ($ascending) {
-        $query = $query->orderBy('occurred_at');
-      } else {
-        $query = $query->orderBy('occurred_at', 'desc');
-      }
+    public function getNextEventId($relevantProfileId, $groupId, $ascending = true)
+    { 
+        $query = DetectionEvent::where('occurred_at', $ascending ? '>=' : '<=', $this->occurred_at)
+            ->where('id', '!=', $this->id);
         
+        if ($ascending) {
+            $query = $query->orderBy('occurred_at');
+        } else {
+            $query = $query->orderBy('occurred_at', 'desc');
+        }
       
-      if ($relevantProfileId) {
-        $query = $query->whereHas('detectionProfiles', function ($q) use ($relevantProfileId) {
-          return 
-          $q->where('detection_profile_id', $relevantProfileId)
-            ->where('ai_prediction_detection_profile.is_relevant', '=', true);
+        $query = $query->whereHas('detectionProfiles', function ($q) use ($relevantProfileId, $groupId) {
+            $q->where('ai_prediction_detection_profile.is_relevant', '=', true);
+            if ($groupId) {
+                $q->whereHas('profileGroups', function ($r) use ($groupId) {
+                    return $r->where('profile_group_id', '=', $groupId);
+                });
+            }
+            elseif ($relevantProfileId) {
+                $q->where('detection_profile_id', '=', $relevantProfileId);
+            }
+            return $q;
         });
-      }
-      
-      $next = $query->first();
 
-      return $next ? $next->id : null;
+        $next = $query->first();
+
+        return $next ? $next->id : null;
     }
 
     public function toArray()

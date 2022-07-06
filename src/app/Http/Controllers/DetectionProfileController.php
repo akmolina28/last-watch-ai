@@ -231,8 +231,6 @@ class DetectionProfileController extends Controller
             'automations.*.is_high_priority' => 'boolean'
         ]);
 
-        \Illuminate\Support\Facades\Log::error(request()->get('automations'));
-
         foreach (request()->get('automations') as $automation)
         {
             $type = $automation['type'];

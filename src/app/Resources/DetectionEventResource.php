@@ -9,9 +9,9 @@ class DetectionEventResource extends JsonResource
     public $nextEventId;
     public $prevEventId;
 
-    public function withNextEvents($request, $profileId){
-        $this->nextEventId = $request->getNextEventId($profileId);
-        $this->prevEventId = $request->getNextEventId($profileId, false);
+    public function withNextEvents($request, $profileId, $groupId = null) {
+        $this->nextEventId = $request->getNextEventId($profileId, $groupId);
+        $this->prevEventId = $request->getNextEventId($profileId, $groupId, false);
         return $this;
     }
 

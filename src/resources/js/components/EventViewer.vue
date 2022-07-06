@@ -40,7 +40,7 @@ const Facade = require('facade.js');
 
 export default {
   name: 'EventViewer',
-  props: ['event', 'profile'],
+  props: ['event', 'profile', 'group'],
   data() {
     return {
       loading: true,
@@ -49,7 +49,7 @@ export default {
     };
   },
   mounted() {
-    this.load(this.event, this.profile);
+    this.load(this.event, this.profile, this.group);
   },
   computed: {
     eventId() {
@@ -103,41 +103,43 @@ export default {
     },
   },
   methods: {
-    load(event, profile) {
+    load(event, profile, group) {
       this.loading = true;
-      this.getDataAjax(event, profile).then((response) => {
+      this.getDataAjax(event, profile, group).then((response) => {
         this.detectionEvent = response.data.data;
         this.hideUI = false;
         this.loading = false;
-        this.pushRoute(this.detectionEvent.id, this.profile);
+        this.pushRoute(this.detectionEvent.id, this.profile, this.group);
         this.draw();
       });
     },
-    getDataAjax(event, profile) {
+    getDataAjax(event, profile, group) {
       return axios.get('/api/events/viewer', {
         params: {
           event,
           profile,
+          group,
         },
       });
     },
     goToNext() {
       if (this.nextEventId) {
-        this.load(this.nextEventId, this.profile);
+        this.load(this.nextEventId, this.profile, this.group);
       }
     },
     goToPrev() {
       if (this.prevEventId) {
-        this.load(this.prevEventId, this.profile);
+        this.load(this.prevEventId, this.profile, this.group);
       }
     },
-    pushRoute(event, profile) {
+    pushRoute(event, profile, group) {
       this.$router
-        .push({
+        .replace({
           name: 'EventViewer',
           query: {
             event,
             profile,
+            group,
           },
         })
         .catch(() => {});
