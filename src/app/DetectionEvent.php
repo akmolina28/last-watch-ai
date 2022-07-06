@@ -104,7 +104,7 @@ class DetectionEvent extends Model
 
     public function matchEventToProfiles(Collection $profiles)
     {
-        $activeMatchedProfiles = array();
+        $activeMatchedProfiles = [];
 
         foreach ($profiles as $profile) {
             $profile_active = $profile->isActive($this->occurred_at);
@@ -159,26 +159,26 @@ class DetectionEvent extends Model
     }
 
     public function getNextEventId($relevantProfileId, $groupId, $ascending = true)
-    { 
+    {
         $query = DetectionEvent::where('occurred_at', $ascending ? '>=' : '<=', $this->occurred_at)
             ->where('id', '!=', $this->id);
-        
+
         if ($ascending) {
             $query = $query->orderBy('occurred_at');
         } else {
             $query = $query->orderBy('occurred_at', 'desc');
         }
-      
+
         $query = $query->whereHas('detectionProfiles', function ($q) use ($relevantProfileId, $groupId) {
             $q->where('ai_prediction_detection_profile.is_relevant', '=', true);
             if ($groupId) {
                 $q->whereHas('profileGroups', function ($r) use ($groupId) {
                     return $r->where('profile_group_id', '=', $groupId);
                 });
-            }
-            elseif ($relevantProfileId) {
+            } elseif ($relevantProfileId) {
                 $q->where('detection_profile_id', '=', $relevantProfileId);
             }
+
             return $q;
         });
 

@@ -2,8 +2,8 @@
 
 namespace App\Exceptions;
 
-use Exception;
 use App\DetectionEvent;
+use Exception;
 
 class DeepstackException extends Exception
 {

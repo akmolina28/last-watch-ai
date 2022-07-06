@@ -4,19 +4,19 @@ namespace Tests\Feature;
 
 use App\DetectionEvent;
 use App\DetectionProfile;
-use App\User;
 use App\Jobs\ProcessDetectionEventJob;
 use App\Jobs\ProcessEventUploadJob;
 use App\Jobs\ProcessWebhookJob;
+use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Spatie\WebhookClient\Models\WebhookCall;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
 
 class WebHookTest extends TestCase
 {
@@ -106,7 +106,7 @@ class WebHookTest extends TestCase
             return $job->event->imageFile->file_name === 'testimage.jpg';
         });
         Queue::assertPushedOn('medium', ProcessDetectionEventJob::class, function ($job) {
-          return $job->privacy_mode === false;
+            return $job->privacy_mode === false;
         });
     }
 
@@ -167,7 +167,7 @@ class WebHookTest extends TestCase
             return $job->event->imageFile->file_name === 'testimage.jpg';
         });
         Queue::assertPushedOn('medium', ProcessDetectionEventJob::class, function ($job) {
-          return $job->privacy_mode === false;
+            return $job->privacy_mode === false;
         });
     }
 
@@ -202,7 +202,7 @@ class WebHookTest extends TestCase
             return $job->event->imageFile->file_name === 'testimage.jpg';
         });
         Queue::assertPushedOn('medium', ProcessDetectionEventJob::class, function ($job) {
-          return $job->privacy_mode === false;
+            return $job->privacy_mode === false;
         });
     }
 
@@ -308,10 +308,10 @@ class WebHookTest extends TestCase
 
         // create one matching profile with privacy mode enabled
         factory(DetectionProfile::class, 1)->create([
-          'file_pattern' => 'testimage',
-          'use_regex' => false,
-          'privacy_mode' => true,
-      ]);
+            'file_pattern' => 'testimage',
+            'use_regex' => false,
+            'privacy_mode' => true,
+        ]);
 
         // hit the webhook
         $this->triggerWebhook();
@@ -328,7 +328,7 @@ class WebHookTest extends TestCase
             return $job->event->imageFile->file_name === 'testimage.jpg';
         });
         Queue::assertPushedOn('medium', ProcessDetectionEventJob::class, function ($job) {
-          return $job->privacy_mode === true;
+            return $job->privacy_mode === true;
         });
     }
 }

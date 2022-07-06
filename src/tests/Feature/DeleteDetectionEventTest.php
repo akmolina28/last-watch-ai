@@ -9,12 +9,13 @@ use App\DetectionEvent;
 use App\DetectionEventAutomationResult;
 use App\DetectionProfile;
 use App\ImageFile;
-use App\User;
 use App\Jobs\DeleteEventImageJob;
 use App\Tasks\DeleteDetectionEventsTask;
+use App\User;
 use App\WebRequestConfig;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
@@ -22,7 +23,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
 
 class DeleteDetectionEventTest extends TestCase
 {
@@ -138,8 +138,8 @@ class DeleteDetectionEventTest extends TestCase
                     'value' => 'true',
                     'id' => $config->id,
                     'is_high_priority' => true,
-                ]
-            ]
+                ],
+            ],
         ])->assertStatus(200);
 
         // create an event and attach an automation result

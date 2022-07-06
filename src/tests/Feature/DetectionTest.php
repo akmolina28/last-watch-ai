@@ -13,12 +13,11 @@ use App\Mocks\FakeDeepstackClient;
 use App\WebRequestConfig;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-
 
 class DetectionTest extends TestCase
 {
@@ -226,7 +225,7 @@ class DetectionTest extends TestCase
         $profile = factory(DetectionProfile::class)->create([
             'object_classes' => ['person', 'dog'],
             'use_mask' => false,
-            'min_object_size' => 30000 // should filter out the smallest prediction, the dog
+            'min_object_size' => 30000, // should filter out the smallest prediction, the dog
         ]);
 
         $imageFile = $this->createImageFile();
@@ -249,7 +248,7 @@ class DetectionTest extends TestCase
             ->where('ai_prediction_detection_profile.is_relevant', '=', true)
             ->get()
         );
-        
+
         // 1 filtered prediction (dog)
         $this->assertCount(1, $event->detectionProfiles()
             ->where('ai_prediction_detection_profile.is_size_filtered', '=', true)
@@ -384,7 +383,7 @@ class DetectionTest extends TestCase
 
         $this->handleDetectionJob($event, true);
         Queue::assertPushedOn('low', ProcessImageOptimizationJob::class, function ($job) {
-          return $job->privacy_mode === false;
+            return $job->privacy_mode === false;
         });
     }
 
@@ -402,7 +401,7 @@ class DetectionTest extends TestCase
         $this->handleDetectionJob($event, true, 75, true);
 
         Queue::assertPushedOn('low', ProcessImageOptimizationJob::class, function ($job) {
-          return $job->privacy_mode === true;
+            return $job->privacy_mode === true;
         });
     }
 }

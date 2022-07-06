@@ -60,10 +60,10 @@ class ProcessDetectionEventJob implements ShouldQueue
 
         $deepstackCall->response_json = $client->detection($imageFileContents);
         $deepstackCall->returned_at = Carbon::now();
-        $deepstackCall->is_error = !!!$deepstackCall->success;
+        $deepstackCall->is_error = ! (bool) $deepstackCall->success;
         $deepstackCall->save();
 
-        if (!$deepstackCall->success) {
+        if (! $deepstackCall->success) {
             throw DeepstackException::deepstackError($this->event, $deepstackCall->error);
         }
 

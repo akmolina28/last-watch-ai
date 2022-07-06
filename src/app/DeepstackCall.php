@@ -78,7 +78,7 @@ class DeepstackCall extends Model
         if ($this->response_json === null) {
             return null;
         }
-        
+
         $response = json_decode($this->response_json);
 
         return $response->error;

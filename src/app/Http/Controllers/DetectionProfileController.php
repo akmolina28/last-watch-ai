@@ -41,7 +41,6 @@ class DetectionProfileController extends Controller
             'smart_filter_precision' => 'numeric|between:0,1',
         ];
 
-
         if (request()->has('min_object_size')) {
             $rules['min_object_size'] = 'numeric|nullable';
         }
@@ -228,18 +227,17 @@ class DetectionProfileController extends Controller
         request()->validate([
             'automations' => 'array|required',
             'automations.*.id' => 'integer',
-            'automations.*.is_high_priority' => 'boolean'
+            'automations.*.is_high_priority' => 'boolean',
         ]);
 
-        foreach (request()->get('automations') as $automation)
-        {
+        foreach (request()->get('automations') as $automation) {
             $type = $automation['type'];
             $id = $automation['id'];
             $value = $automation['value'];
             $isHighPriority = $automation['is_high_priority'];
 
             $automationType = Relation::morphMap()[$type];
-    
+
             if ($value) {
                 $profile->subscribeAutomation($automationType, $id, $isHighPriority);
             } else {
@@ -254,7 +252,7 @@ class DetectionProfileController extends Controller
     {
         request()->validate([
             'group_ids' => 'array',
-            'group_ids.*' => 'integer'
+            'group_ids.*' => 'integer',
         ]);
 
         $group_ids = request()->get('group_ids');

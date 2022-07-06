@@ -11,11 +11,11 @@ use App\FolderCopyConfig;
 use App\ImageFile;
 use App\Jobs\EnableDetectionProfileJob;
 use App\MqttPublishConfig;
+use App\ProfileGroup;
 use App\SmbCifsCopyConfig;
 use App\TelegramConfig;
-use App\WebRequestConfig;
-use App\ProfileGroup;
 use App\User;
+use App\WebRequestConfig;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
@@ -1219,8 +1219,8 @@ class ApiTest extends TestCase
                     'id' => $config->id,
                     'value' => true,
                     'is_high_priority' => false,
-                ]
-            ]
+                ],
+            ],
         ])
             ->assertStatus(200);
 
@@ -1244,8 +1244,8 @@ class ApiTest extends TestCase
                     'id' => $config->id,
                     'value' => true,
                     'is_high_priority' => false,
-                ]
-            ]
+                ],
+            ],
         ])
             ->assertStatus(200);
 
@@ -1269,8 +1269,8 @@ class ApiTest extends TestCase
                     'id' => $config->id,
                     'value' => true,
                     'is_high_priority' => true,
-                ]
-            ]
+                ],
+            ],
         ])
             ->assertStatus(200);
 
@@ -1297,8 +1297,8 @@ class ApiTest extends TestCase
                     'id' => $config->id,
                     'value' => true,
                     'is_high_priority' => false,
-                ]
-            ]
+                ],
+            ],
         ])
             ->assertStatus(200);
 
@@ -1315,8 +1315,8 @@ class ApiTest extends TestCase
                     'id' => $config->id,
                     'value' => true,
                     'is_high_priority' => true,
-                ]
-            ]
+                ],
+            ],
         ])
             ->assertStatus(200);
 
@@ -1345,8 +1345,8 @@ class ApiTest extends TestCase
                     'id' => $config->id,
                     'value' => false,
                     'is_high_priority' => false,
-                ]
-            ]
+                ],
+            ],
         ])
             ->assertStatus(200);
 
@@ -1370,8 +1370,8 @@ class ApiTest extends TestCase
                     'id' => $config->id,
                     'value' => true,
                     'is_high_priority' => false,
-                ]
-            ]
+                ],
+            ],
         ])
             ->assertStatus(200);
 
@@ -1382,8 +1382,8 @@ class ApiTest extends TestCase
                     'id' => $config->id,
                     'value' => false,
                     'is_high_priority' => false,
-                ]
-            ]
+                ],
+            ],
         ])
             ->assertStatus(200);
 
@@ -1394,8 +1394,8 @@ class ApiTest extends TestCase
                     'id' => $config->id,
                     'value' => true,
                     'is_high_priority' => false,
-                ]
-            ]
+                ],
+            ],
         ])
             ->assertStatus(200);
 
@@ -1932,8 +1932,8 @@ class ApiTest extends TestCase
                         'id',
                         'name',
                         'slug',
-                        'file_pattern'
-                    ]]
+                        'file_pattern',
+                    ]],
                 ]],
             ]);
     }
@@ -1952,7 +1952,7 @@ class ApiTest extends TestCase
                     'id',
                     'name',
                     'slug',
-                ]]);
+                ], ]);
     }
 
     /**
@@ -2028,7 +2028,7 @@ class ApiTest extends TestCase
     {
         $profile = factory(DetectionProfile::class)->create();
         $this->setUpEvents($profile);
-        
+
         $profile_2 = factory(DetectionProfile::class)->create();
         $event = $this->add_latest_event($profile_2);
 
@@ -2052,8 +2052,8 @@ class ApiTest extends TestCase
                         'detection_profiles' => [0 => [
                             'id' => $profile_2->id,
                             'slug' => $profile_2->slug,
-                        ]]
-                    ]]
+                        ]],
+                    ]],
                 ],
             ]);
     }
@@ -2065,7 +2065,7 @@ class ApiTest extends TestCase
     {
         $profile = factory(DetectionProfile::class)->create();
         $this->setUpEvents($profile);
-        
+
         $profile_2 = factory(DetectionProfile::class)->create();
         $event = $this->add_latest_event($profile_2);
 
@@ -2088,8 +2088,8 @@ class ApiTest extends TestCase
                         'detection_profiles' => [0 => [
                             'id' => $profile->id,
                             'slug' => $profile->slug,
-                        ]]
-                    ]]
+                        ]],
+                    ]],
                 ],
             ]);
     }
@@ -2101,7 +2101,7 @@ class ApiTest extends TestCase
     {
         $profile = factory(DetectionProfile::class)->create();
         $this->setUpEvents($profile);
-        
+
         $profile_2 = factory(DetectionProfile::class)->create();
         $event = $this->add_latest_event($profile_2);
 
@@ -2125,8 +2125,8 @@ class ApiTest extends TestCase
                         'detection_profiles' => [0 => [
                             'id' => $profile_2->id,
                             'slug' => $profile_2->slug,
-                        ]]
-                    ]]
+                        ]],
+                    ]],
                 ],
             ]);
     }
@@ -2138,7 +2138,7 @@ class ApiTest extends TestCase
     {
         $profile = factory(DetectionProfile::class)->create();
         $this->setUpEvents($profile);
-        
+
         $profile_2 = factory(DetectionProfile::class)->create();
         $profile_2_event = $this->add_latest_event($profile_2);
 
@@ -2167,8 +2167,8 @@ class ApiTest extends TestCase
                         'detection_profiles' => [0 => [
                             'id' => $profile->id,
                             'slug' => $profile->slug,
-                        ]]
-                    ]]
+                        ]],
+                    ]],
                 ],
             ]);
     }

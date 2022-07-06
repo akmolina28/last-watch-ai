@@ -45,17 +45,13 @@ class ProcessImageOptimizationJob implements ShouldQueue
         $path = $this->imageFile->getAbsolutePath();
         $image = Image::make($path);
 
-        if ($this->privacy_mode)
-        {
+        if ($this->privacy_mode) {
             $image = Image::canvas($this->imageFile->width, $this->imageFile->height, '#333333')
                 ->save($path);
-            
+
             $this->imageFile->privacy_mode = true;
             $this->imageFile->save();
-        }
-
-        else
-        {
+        } else {
             // compress original
             if ($this->compressImage) {
                 $image->interlace(true)->save($path, $this->imageQuality);
