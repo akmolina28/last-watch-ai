@@ -11,8 +11,7 @@ class FakeDeepstackClient implements DeepstackClientInterface
 
     public function __construct($json_response = null)
     {
-        if ($json_response)
-        {
+        if ($json_response) {
             $this->json_response = $json_response;
         }
     }

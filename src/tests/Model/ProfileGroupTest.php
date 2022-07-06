@@ -2,11 +2,10 @@
 
 namespace Tests\Model;
 
-use App\ProfileGroup;
 use App\DetectionProfile;
+use App\ProfileGroup;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ProfileGroupTest extends TestCase

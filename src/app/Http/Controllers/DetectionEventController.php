@@ -4,15 +4,14 @@ namespace App\Http\Controllers;
 
 use App\DetectionEvent;
 use App\DetectionProfile;
-use App\ProfileGroup;
 use App\Jobs\ProcessEventUploadJob;
+use App\ProfileGroup;
 use App\Resources\DetectionEventResource;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
 
 class DetectionEventController extends Controller
 {
@@ -126,18 +125,17 @@ class DetectionEventController extends Controller
         if ($request->has('event')) {
             $event_id = $request->get('event');
             $event = DetectionEvent::find($event_id);
-        }
-        else {
+        } else {
             $event = DetectionEvent::whereHas('detectionProfiles', function ($q) use ($profile_id, $group_id) {
                 $q->where('ai_prediction_detection_profile.is_relevant', '=', true);
                 if ($group_id) {
                     $q->whereHas('profileGroups', function ($r) use ($group_id) {
                         return $r->where('profile_group_id', '=', $group_id);
                     });
-                }
-                elseif ($profile_id) {
+                } elseif ($profile_id) {
                     $q->where('detection_profile_id', '=', $profile_id);
                 }
+
                 return $q;
             })->orderByDesc('occurred_at')->firstOrFail();
         }

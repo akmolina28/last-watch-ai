@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\ProfileGroup;
-use App\DetectionProfile;
 use App\Resources\ProfileGroupResource;
+use Illuminate\Http\Request;
 
 class ProfileGroupController extends Controller
 {
     public function index()
     {
         $groups = ProfileGroup::with('detectionProfiles')->orderBy('name')->get();
+
         return ProfileGroupResource::collection($groups);
     }
 
@@ -23,7 +23,7 @@ class ProfileGroupController extends Controller
 
         return ProfileGroupResource::make($group);
     }
-    
+
     protected function validateRequest()
     {
         $id = 'id';

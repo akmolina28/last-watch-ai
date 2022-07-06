@@ -5,23 +5,18 @@ namespace Tests\Feature;
 use App\DeepstackClient;
 use App\DetectionEvent;
 use App\DetectionProfile;
-use App\DeepstackCall;
-use App\ImageFile;
 use App\Exceptions\DeepstackException;
-use App\Jobs\ProcessAutomationJob;
+use App\ImageFile;
 use App\Jobs\ProcessDetectionEventJob;
 use App\Jobs\ProcessImageOptimizationJob;
 use App\Mocks\FakeDeepstackClient;
-use App\WebRequestConfig;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Support\Facades\Log;
-
 
 class DetectionErrorTest extends TestCase
 {
@@ -38,7 +33,7 @@ class DetectionErrorTest extends TestCase
         Storage::fake('public');
 
         app()->bind(DeepstackClient::class, function () {
-          return new FakeDeepstackClient();
+            return new FakeDeepstackClient();
         });
     }
 
@@ -81,31 +76,28 @@ class DetectionErrorTest extends TestCase
 
         $event = factory(DetectionEvent::class)->create([
             'image_file_id' => $imageFile->id,
-            'is_processed' => false
+            'is_processed' => false,
         ]);
         $event->patternMatchedProfiles()->attach($profile->id);
 
         $this->expectException(DeepstackException::class);
         try {
-          $this->handleDetectionJob($event, '{
+            $this->handleDetectionJob($event, '{
             "success": false,
             "error": "failed to process request before timeout",
             "duration": 0
           }');
-        }
-        finally {
-          Queue::assertNotPushed(ProcessImageOptimizationJob::class);
-          $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCalls']);
-          $this->assertFalse($event->is_processed);
-          $this->assertCount(1, $event->deepstackCalls);
-          $this->assertTrue($event->deepstackCalls()->first()->is_error);
-          $this->assertFalse($event->deepstackCalls()->first()->success);
-          $this->assertCount(0, $event->aiPredictions);
-          $this->assertCount(0, $event->detectionProfiles);
+        } finally {
+            Queue::assertNotPushed(ProcessImageOptimizationJob::class);
+            $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCalls']);
+            $this->assertFalse($event->is_processed);
+            $this->assertCount(1, $event->deepstackCalls);
+            $this->assertTrue($event->deepstackCalls()->first()->is_error);
+            $this->assertFalse($event->deepstackCalls()->first()->success);
+            $this->assertCount(0, $event->aiPredictions);
+            $this->assertCount(0, $event->detectionProfiles);
         }
     }
-
-    
 
     /**
      * @test
@@ -121,30 +113,29 @@ class DetectionErrorTest extends TestCase
 
         $event = factory(DetectionEvent::class)->create([
             'image_file_id' => $imageFile->id,
-            'is_processed' => false
+            'is_processed' => false,
         ]);
         $event->patternMatchedProfiles()->attach($profile->id);
 
         $this->expectException(DeepstackException::class);
         try {
-          $this->handleDetectionJob($event, '{
+            $this->handleDetectionJob($event, '{
             "success": false,
             "error": "failed to process request before timeout",
             "duration": 0
           }');
-        }
-        finally {
-          Queue::assertNotPushed(ProcessImageOptimizationJob::class);
-          $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCalls']);
-          $this->assertFalse($event->is_processed);
-          $this->assertCount(1, $event->deepstackCalls);
-          $this->assertTrue($event->deepstackCalls()->first()->is_error);
+        } finally {
+            Queue::assertNotPushed(ProcessImageOptimizationJob::class);
+            $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCalls']);
+            $this->assertFalse($event->is_processed);
+            $this->assertCount(1, $event->deepstackCalls);
+            $this->assertTrue($event->deepstackCalls()->first()->is_error);
 
-          // retry
-          $this->handleDetectionJob($event);
-          $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCalls']);
-          $this->assertCount(3, $event->aiPredictions);
-          $this->assertCount(3, $event->detectionProfiles);
+            // retry
+            $this->handleDetectionJob($event);
+            $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCalls']);
+            $this->assertCount(3, $event->aiPredictions);
+            $this->assertCount(3, $event->detectionProfiles);
         }
     }
 }

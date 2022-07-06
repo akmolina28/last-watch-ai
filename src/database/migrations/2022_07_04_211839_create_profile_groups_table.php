@@ -13,7 +13,6 @@ class CreateProfileGroupsTable extends Migration
      */
     public function up()
     {
-        
         Schema::dropIfExists('profile_groups');
 
         Schema::create('profile_groups', function (Blueprint $table) {
