@@ -397,7 +397,7 @@ class ApiTest extends TestCase
         $profile = factory(DetectionProfile::class)->create();
         $this->setUpEvents($profile);
 
-        $this->add_latest_event($profile);
+        $event = $this->add_latest_event($profile);
 
         $response = $this->get('/api/events/latest');
 
