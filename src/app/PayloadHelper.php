@@ -31,8 +31,7 @@ class PayloadHelper
         if ($replacementString == '%object_classes%') {
             $objectClasses = $profile->aiPredictions()
                 ->where('detection_event_id', '=', $event->id)
-                ->where('ai_prediction_detection_profile.is_masked', '=', 0)
-                ->where('ai_prediction_detection_profile.is_smart_filtered', '=', 0)
+                ->where('ai_prediction_detection_profile.is_relevant', '=', 1)
                 ->pluck('object_class')
                 ->sort()
                 ->implode(',');

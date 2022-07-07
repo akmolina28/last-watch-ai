@@ -10,6 +10,7 @@ use App\ImageFile;
 use App\WebRequestConfig;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
@@ -17,6 +18,7 @@ class WebRequestAutomationTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
+    // use WithoutMiddleware;
 
     /**
      * @test

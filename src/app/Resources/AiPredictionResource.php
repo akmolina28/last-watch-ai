@@ -22,6 +22,7 @@ class AiPredictionResource extends JsonResource
             'x_max' => $this->x_max,
             'y_min' => $this->y_min,
             'y_max' => $this->y_max,
+            'area' => $this->area(),
             'detection_event' => DetectionEventResource::make($this->whenLoaded('detectionEvent')),
             'detection_profiles' => DetectionProfileResource::collection($this->whenLoaded('detectionProfiles')),
         ];

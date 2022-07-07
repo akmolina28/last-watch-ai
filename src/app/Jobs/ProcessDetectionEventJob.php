@@ -8,6 +8,7 @@ use App\DeepstackCall;
 use App\DeepstackClientInterface;
 use App\DetectionEvent;
 use App\DetectionProfile;
+use App\Exceptions\DeepstackException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -23,6 +24,7 @@ class ProcessDetectionEventJob implements ShouldQueue
 
     public DetectionEvent $event;
     public array $compressionSettings;
+    public bool $privacy_mode;
 
     /**
      * Create a new job instance.
@@ -30,10 +32,11 @@ class ProcessDetectionEventJob implements ShouldQueue
      * @param  DetectionEvent  $event
      * @param  array  $settings
      */
-    public function __construct(DetectionEvent $event, array $compressionSettings = [])
+    public function __construct(DetectionEvent $event, array $compressionSettings = [], $privacy_mode = false)
     {
         $this->event = $event;
         $this->compressionSettings = $compressionSettings;
+        $this->privacy_mode = $privacy_mode;
     }
 
     /**
@@ -53,13 +56,18 @@ class ProcessDetectionEventJob implements ShouldQueue
             'input_file' => $this->event->imageFile->file_name,
         ]);
 
-        $this->event->deepstackCall()->save($deepstackCall);
+        $this->event->deepstackCalls()->save($deepstackCall);
 
         $deepstackCall->response_json = $client->detection($imageFileContents);
         $deepstackCall->returned_at = Carbon::now();
+        $deepstackCall->is_error = ! (bool) $deepstackCall->success;
         $deepstackCall->save();
 
-        ProcessImageOptimizationJob::dispatch($this->event->imageFile, $this->compressionSettings)
+        if (! $deepstackCall->success) {
+            throw DeepstackException::deepstackError($this->event, $deepstackCall->error);
+        }
+
+        ProcessImageOptimizationJob::dispatch($this->event->imageFile, $this->compressionSettings, $this->privacy_mode)
             ->onQueue('low');
 
         $relevantProfiles = [];
@@ -88,9 +96,11 @@ class ProcessDetectionEventJob implements ShouldQueue
                 $maskPath = Storage::path('masks/'.$maskName);
                 $isMasked = $profile->use_mask && $aiPrediction->isMasked($maskPath);
 
-                $objectFiltered = false;
+                $isTooSmall = $profile->min_object_size > 0 && $aiPrediction->area() <= $profile->min_object_size;
 
-                if (! $isMasked && $profile->use_smart_filter) {
+                $isSmartFiltered = false;
+
+                if (! $isMasked && ! $isTooSmall && $profile->use_smart_filter) {
                     $profileId = $profile->id;
                     $lastDetectionEvent = DetectionEvent::where('id', '!=', $this->event->id)
                         ->whereHas('detectionProfiles', function ($q) use ($profileId) {
@@ -99,16 +109,20 @@ class ProcessDetectionEventJob implements ShouldQueue
                         })->latest()->first();
 
                     if ($lastDetectionEvent) {
-                        $objectFiltered = $profile->isPredictionSmartFiltered($aiPrediction, $lastDetectionEvent);
+                        $isSmartFiltered = $profile->isPredictionSmartFiltered($aiPrediction, $lastDetectionEvent);
                     }
                 }
 
+                $isRelevant = ! ($isMasked || $isTooSmall || $isSmartFiltered);
+
                 $profile->aiPredictions()->attach($aiPrediction->id, [
+                    'is_relevant' => $isRelevant,
                     'is_masked' => $isMasked,
-                    'is_smart_filtered' => $objectFiltered,
+                    'is_smart_filtered' => $isSmartFiltered,
+                    'is_size_filtered' => $isTooSmall,
                 ]);
 
-                if (! $isMasked && ! $objectFiltered && ! $profile->is_negative) {
+                if (! $isMasked && ! $isTooSmall && ! $isSmartFiltered && ! $profile->is_negative) {
                     if (! in_array($profile, $relevantProfiles)) {
                         array_push($relevantProfiles, $profile);
                     }
@@ -126,8 +140,7 @@ class ProcessDetectionEventJob implements ShouldQueue
             ->whereDoesntHave('detectionEvents', function ($query) {
                 $query
                     ->where('detection_events.id', '=', $this->event->id)
-                    ->where('ai_prediction_detection_profile.is_masked', '=', 0)
-                    ->where('ai_prediction_detection_profile.is_smart_filtered', '=', 0);
+                    ->where('ai_prediction_detection_profile.is_relevant', '=', 1);
             })
             ->get();
 

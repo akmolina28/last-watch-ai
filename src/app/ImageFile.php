@@ -39,6 +39,11 @@ class ImageFile extends Model
         'path',
         'width',
         'height',
+        'privacy_mode',
+    ];
+
+    protected $casts = [
+        'privacy_mode' => 'boolean',
     ];
 
     public static function findOrCreate($attributes = []): ImageFile

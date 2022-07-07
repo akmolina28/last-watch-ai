@@ -11,9 +11,11 @@ use App\DetectionProfile;
 use App\ImageFile;
 use App\Jobs\DeleteEventImageJob;
 use App\Tasks\DeleteDetectionEventsTask;
+use App\User;
 use App\WebRequestConfig;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
@@ -26,11 +28,15 @@ class DeleteDetectionEventTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
+    // use WithoutMiddleware;
 
     protected function setUp(): void
     {
         parent::setUp();
         Storage::fake();
+
+        $user = new User(['name' => 'Administrator']);
+        $this->be($user);
     }
 
     protected function createImageFile($fileName = 'testimage.jpg', $thumbFileName = 'testimage-thumb.jpg'): ImageFile
@@ -126,9 +132,14 @@ class DeleteDetectionEventTest extends TestCase
         $profile = factory(DetectionProfile::class)->create();
 
         $this->put('/api/profiles/'.$profile->id.'/automations', [
-            'type' => 'web_request_configs',
-            'value' => 'true',
-            'id' => $config->id,
+            'automations' => [
+                [
+                    'type' => 'web_request_configs',
+                    'value' => 'true',
+                    'id' => $config->id,
+                    'is_high_priority' => true,
+                ],
+            ],
         ])->assertStatus(200);
 
         // create an event and attach an automation result

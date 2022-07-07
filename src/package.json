@@ -1,33 +1,39 @@
 {
-    "private": true,
-    "scripts": {
-        "dev": "npm run development",
-        "development": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
-        "watch": "npm run development -- --watch",
-        "watch-poll": "npm run watch -- --watch-poll",
-        "hot": "cross-env NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
-        "prod": "npm run production",
-        "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
-    },
-    "devDependencies": {
-        "axios": "^0.19",
-        "cross-env": "^7.0",
-        "facade.js": "^0.3.0-beta.7",
-        "laravel-mix": "^5.0.1",
-        "laravel-vue-bulma-paginator": "^1.0.0",
-        "lodash": "^4.17.13",
-        "moment": "^2.28.0",
-        "resolve-url-loader": "^3.1.0",
-        "sass": "^1.15.2",
-        "sass-loader": "^8.0.0",
-        "typeface-nunito": "^1.1.3",
-        "vue": "^2.6.12",
-        "vue-clipboard2": "^0.3.1",
-        "vue-router": "^3.4.3",
-        "vue-template-compiler": "^2.6.12"
-    },
-    "dependencies": {
-        "@fortawesome/fontawesome-free": "^5.15.4",
-        "buefy": "^0.9.10"
-    }
+  "private": true,
+  "scripts": {
+    "dev": "npm run development",
+    "development": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "watch": "npm run development -- --watch",
+    "watch-poll": "npm run watch -- --watch-poll",
+    "hot": "cross-env NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --host 0.0.0.0 --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "prod": "npm run production",
+    "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0",
+    "eslint": "^8.15.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-vue": "^9.0.1",
+    "eslint-webpack-plugin": "^3.1.1",
+    "laravel-mix": "^5.0.1",
+    "laravel-mix-eslint": "^0.2.0",
+    "resolve-url-loader": "^3.1.0",
+    "sass": "^1.15.2",
+    "sass-loader": "^8.0.0",
+    "vue-template-compiler": "^2.6.12"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.4",
+    "axios": "^0.19",
+    "buefy": "^0.9.20",
+    "facade.js": "^0.3.0-beta.7",
+    "laravel-vue-bulma-paginator": "^1.0.0",
+    "lodash": "^4.17.13",
+    "moment": "^2.28.0",
+    "typeface-nunito": "^1.1.3",
+    "vue": "^2.6.12",
+    "vue-clipboard2": "^0.3.1",
+    "vue-router": "^3.4.3"
+  }
 }

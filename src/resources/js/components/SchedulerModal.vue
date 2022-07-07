@@ -1,11 +1,10 @@
-<template>
-
-</template>
+<template> </template>
 
 <script>
-    const ModalScheduler = {
-        props: ['profile'],
-        template: `
+// eslint-disable-next-line no-unused-vars
+const ModalScheduler = {
+  props: ['profile'],
+  template: `
             <form action="">
                 <div class="modal-card" style="width: auto">
                     <header class="modal-card-head">
@@ -43,13 +42,11 @@
                     </footer>
                 </div>
             </form>
-        `
-    }
-    export default {
-        name: "SchedulerModal"
-    }
+        `,
+};
+export default {
+  name: 'SchedulerModal',
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

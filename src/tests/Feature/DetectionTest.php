@@ -13,6 +13,7 @@ use App\Mocks\FakeDeepstackClient;
 use App\WebRequestConfig;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
@@ -22,6 +23,7 @@ class DetectionTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
+    // use WithoutMiddleware;
 
     protected function setUp(): void
     {
@@ -50,14 +52,14 @@ class DetectionTest extends TestCase
         ]);
     }
 
-    protected function handleDetectionJob(DetectionEvent $event, $compressImage = true, $imageQuality = 75)
+    protected function handleDetectionJob(DetectionEvent $event, $compressImage = true, $imageQuality = 75, $privacy_mode = false)
     {
         $compressionSettings = [
             'compress_images' => $compressImage,
             'image_quality' => $imageQuality,
         ];
 
-        $job = new ProcessDetectionEventJob($event, $compressionSettings);
+        $job = new ProcessDetectionEventJob($event, $compressionSettings, $privacy_mode);
         $job->handle(new FakeDeepstackClient());
     }
 
@@ -80,11 +82,13 @@ class DetectionTest extends TestCase
 
         $this->handleDetectionJob($event);
 
-        $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCall']);
+        $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCalls']);
 
-        $this->assertNotNull($event->deepstackCall);
+        $this->assertCount(1, $event->deepstackCalls);
         $this->assertCount(3, $event->aiPredictions);
         $this->assertCount(3, $event->detectionProfiles);
+
+        $this->assertCount(3, $event->detectionProfiles->where('ai_prediction_detection_profile.is_relevant', '=', true));
     }
 
     /**
@@ -118,9 +122,9 @@ class DetectionTest extends TestCase
 
         $this->handleDetectionJob($event);
 
-        $event->refresh()->load(['aiPredictions.detectionProfiles', 'deepstackCall']);
+        $event->refresh()->load(['aiPredictions.detectionProfiles', 'deepstackCalls']);
 
-        $this->assertNotNull($event->deepstackCall);
+        $this->assertCount(1, $event->deepstackCalls);
         $this->assertCount(3, $event->aiPredictions);
         $this->assertCount(3, $event->detectionProfiles);
     }
@@ -162,6 +166,7 @@ class DetectionTest extends TestCase
 
         foreach ($event->detectionProfiles as $profile) {
             $this->assertEquals(1, $profile->ai_prediction_detection_profile->is_smart_filtered);
+            $this->assertEquals(0, $profile->ai_prediction_detection_profile->is_relevant);
         }
     }
 
@@ -176,7 +181,7 @@ class DetectionTest extends TestCase
         $profile = factory(DetectionProfile::class)->create([
             'object_classes' => ['person', 'dog'],
             'use_mask' => true,
-            'name' => 'test-mask3',
+            'name' => 'test-mask3', // pulls mask file from storage/app/public_testing/masks
         ]);
 
         $imageFile = $this->createImageFile();
@@ -196,7 +201,62 @@ class DetectionTest extends TestCase
 
         // only 2 unmasked predictions
         $this->assertCount(2, $event->detectionProfiles()
-            ->where('ai_prediction_detection_profile.is_masked', '=', false)->get());
+            ->where('ai_prediction_detection_profile.is_masked', '=', false)
+            ->where('ai_prediction_detection_profile.is_relevant', '=', true)
+            ->get()
+        );
+
+        // only 1 masked prediction
+        $this->assertCount(1, $event->detectionProfiles()
+            ->where('ai_prediction_detection_profile.is_masked', '=', true)
+            ->where('ai_prediction_detection_profile.is_relevant', '=', false)
+            ->get()
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function detection_job_can_filter_by_min_object_size()
+    {
+        factory(DetectionProfile::class, 5)->create();
+
+        // // active match
+        $profile = factory(DetectionProfile::class)->create([
+            'object_classes' => ['person', 'dog'],
+            'use_mask' => false,
+            'min_object_size' => 30000, // should filter out the smallest prediction, the dog
+        ]);
+
+        $imageFile = $this->createImageFile();
+
+        // process an event
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile->id,
+        ]);
+        $event->patternMatchedProfiles()->attach($profile->id);
+        $this->handleDetectionJob($event);
+
+        $event = DetectionEvent::find($event->id);
+
+        // 3 total predictions
+        $this->assertCount(3, $event->aiPredictions);
+
+        // only 2 unfiltered predictions
+        $this->assertCount(2, $event->detectionProfiles()
+            ->where('ai_prediction_detection_profile.is_size_filtered', '=', false)
+            ->where('ai_prediction_detection_profile.is_relevant', '=', true)
+            ->get()
+        );
+
+        // 1 filtered prediction (dog)
+        $this->assertCount(1, $event->detectionProfiles()
+            ->where('ai_prediction_detection_profile.is_size_filtered', '=', true)
+            ->where('ai_prediction_detection_profile.is_relevant', '=', false)
+            ->get()
+        );
+
+        $this->assertEquals('dog', $profile->aiPredictions()->where('is_size_filtered', '=', true)->first()->object_class);
     }
 
     /**
@@ -269,9 +329,9 @@ class DetectionTest extends TestCase
 
         $this->handleDetectionJob($event);
 
-        $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCall']);
+        $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCalls']);
 
-        $this->assertNotNull($event->deepstackCall);
+        $this->assertCount(1, $event->deepstackCalls);
         $this->assertCount(3, $event->aiPredictions);
         $this->assertCount(3, $event->detectionProfiles);
 
@@ -301,9 +361,9 @@ class DetectionTest extends TestCase
 
         $this->handleDetectionJob($event);
 
-        $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCall']);
+        $event->refresh()->load(['aiPredictions', 'detectionProfiles', 'deepstackCalls']);
 
-        $this->assertNotNull($event->deepstackCall);
+        $this->assertCount(1, $event->deepstackCalls);
         $this->assertCount(3, $event->aiPredictions);
         $this->assertCount(3, $event->detectionProfiles);
 
@@ -322,7 +382,26 @@ class DetectionTest extends TestCase
         ]);
 
         $this->handleDetectionJob($event, true);
+        Queue::assertPushedOn('low', ProcessImageOptimizationJob::class, function ($job) {
+            return $job->privacy_mode === false;
+        });
+    }
 
-        Queue::assertPushedOn('low', ProcessImageOptimizationJob::class);
+    /**
+     * @test
+     */
+    public function detection_job_creates_private_image_compression_job()
+    {
+        $imageFile = $this->createImageFile();
+
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile->id,
+        ]);
+
+        $this->handleDetectionJob($event, true, 75, true);
+
+        Queue::assertPushedOn('low', ProcessImageOptimizationJob::class, function ($job) {
+            return $job->privacy_mode === true;
+        });
     }
 }

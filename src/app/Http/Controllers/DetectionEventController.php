@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\DetectionEvent;
+use App\DetectionProfile;
 use App\Jobs\ProcessEventUploadJob;
+use App\ProfileGroup;
 use App\Resources\DetectionEventResource;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -18,8 +20,7 @@ class DetectionEventController extends Controller
         $query = DetectionEvent::query()
             ->withCount([
                 'detectionProfiles' => function ($q) {
-                    $q->where('ai_prediction_detection_profile.is_masked', '=', false)
-                        ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false);
+                    $q->where('ai_prediction_detection_profile.is_relevant', '=', true);
                 },
                 'patternMatchedProfiles',
             ])
@@ -32,8 +33,7 @@ class DetectionEventController extends Controller
                 $query->whereHas('detectionProfiles', function ($q) use ($profileId) {
                     return $q
                         ->where('detection_profile_id', $profileId)
-                        ->where('ai_prediction_detection_profile.is_masked', '=', false)
-                        ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false);
+                        ->where('ai_prediction_detection_profile.is_relevant', '=', true);
                 });
             } else {
                 $query->whereHas('patternMatchedProfiles', function ($q) use ($profileId) {
@@ -99,7 +99,54 @@ class DetectionEventController extends Controller
             'automationResults',
         ]);
 
-        return DetectionEventResource::make($event);
+        $profileId = request()->get('profileId');
+
+        return DetectionEventResource::make($event)->withNextEvents($event, $profileId);
+    }
+
+    public function viewer(Request $request)
+    {
+        $group_id = null;
+        if ($request->has('group')) {
+            $group_slug = $request->get('group');
+            $group = ProfileGroup::where('slug', $group_slug)
+                ->firstOrFail();
+            $group_id = $group->id;
+        }
+
+        $profile_id = null;
+        if ($request->has('profile')) {
+            $profile_slug = $request->get('profile');
+            $profile = DetectionProfile::where('slug', $profile_slug)
+                ->firstOrFail();
+            $profile_id = $profile->id;
+        }
+
+        if ($request->has('event')) {
+            $event_id = $request->get('event');
+            $event = DetectionEvent::find($event_id);
+        } else {
+            $event = DetectionEvent::whereHas('detectionProfiles', function ($q) use ($profile_id, $group_id) {
+                $q->where('ai_prediction_detection_profile.is_relevant', '=', true);
+                if ($group_id) {
+                    $q->whereHas('profileGroups', function ($r) use ($group_id) {
+                        return $r->where('profile_group_id', '=', $group_id);
+                    });
+                } elseif ($profile_id) {
+                    $q->where('detection_profile_id', '=', $profile_id);
+                }
+
+                return $q;
+            })->orderByDesc('occurred_at')->firstOrFail();
+        }
+
+        $event->load([
+            'aiPredictions.detectionProfiles' => function ($query) {
+                return $query->withTrashed();
+            },
+        ]);
+
+        return DetectionEventResource::make($event)->withNextEvents($event, $profile_id, $group_id);
     }
 
     public function showImage(DetectionEvent $event)
@@ -111,8 +158,7 @@ class DetectionEventController extends Controller
     {
         try {
             $event = DetectionEvent::whereHas('detectionProfiles', function ($q) {
-                return $q->where('ai_prediction_detection_profile.is_masked', '=', false)
-                    ->where('ai_prediction_detection_profile.is_smart_filtered', '=', false);
+                return $q->where('ai_prediction_detection_profile.is_relevant', '=', true);
             })->orderByDesc('occurred_at')->firstOrFail();
         } catch (ModelNotFoundException $e) {
             return response()->json(['message' => 'Model not found.'], 204);

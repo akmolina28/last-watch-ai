@@ -8,12 +8,14 @@ use App\ImageFile;
 use App\MqttPublishConfig;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Tests\TestCase;
 
 class MqttPublishAutomationTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
+    // use WithoutMiddleware;
 
     /**
      * @test

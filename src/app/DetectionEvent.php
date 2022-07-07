@@ -45,7 +45,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @property-read int|null $automations_count
  * @property-read Collection|\App\DetectionEventAutomationResult[] $automationResults
  * @property-read int|null $automation_results_count
- * @property-read DeepstackCall|null $deepstackCall
+ * @property-read Collection|\App\DeepstackCall[] $deepstackCalls
  * @property int|null $image_file_id
  * @property-read mixed $event_url
  * @property-read mixed $image_url
@@ -73,7 +73,7 @@ class DetectionEvent extends Model
     public function detectionProfiles()
     {
         return $this->hasManyDeep('App\DetectionProfile', ['App\AiPrediction', 'ai_prediction_detection_profile'])
-            ->withPivot('ai_prediction_detection_profile', ['is_masked', 'is_smart_filtered']);
+            ->withPivot('ai_prediction_detection_profile', ['is_relevant', 'is_masked', 'is_smart_filtered', 'is_size_filtered']);
     }
 
     public function patternMatchedProfiles()
@@ -92,9 +92,9 @@ class DetectionEvent extends Model
         return $this->hasMany('App\DetectionEventAutomationResult');
     }
 
-    public function deepstackCall()
+    public function deepstackCalls()
     {
-        return $this->hasOne('App\DeepstackCall');
+        return $this->hasMany('App\DeepstackCall');
     }
 
     public function imageFile()
@@ -104,7 +104,7 @@ class DetectionEvent extends Model
 
     public function matchEventToProfiles(Collection $profiles)
     {
-        $activeMatchedProfiles = 0;
+        $activeMatchedProfiles = [];
 
         foreach ($profiles as $profile) {
             $profile_active = $profile->isActive($this->occurred_at);
@@ -112,14 +112,14 @@ class DetectionEvent extends Model
 
             if ($pattern_match) {
                 if ($profile_active) {
-                    $activeMatchedProfiles++;
+                    array_push($activeMatchedProfiles, $profile);
                 }
 
                 $this->patternMatchedProfiles()->attach($profile->id, ['is_profile_active' => $profile_active]);
             }
         }
 
-        return $activeMatchedProfiles;
+        return collect($activeMatchedProfiles);
     }
 
     public function getEventUrlAttribute()
@@ -156,6 +156,35 @@ class DetectionEvent extends Model
         }
 
         return null;
+    }
+
+    public function getNextEventId($relevantProfileId, $groupId, $ascending = true)
+    {
+        $query = DetectionEvent::where('occurred_at', $ascending ? '>=' : '<=', $this->occurred_at)
+            ->where('id', '!=', $this->id);
+
+        if ($ascending) {
+            $query = $query->orderBy('occurred_at');
+        } else {
+            $query = $query->orderBy('occurred_at', 'desc');
+        }
+
+        $query = $query->whereHas('detectionProfiles', function ($q) use ($relevantProfileId, $groupId) {
+            $q->where('ai_prediction_detection_profile.is_relevant', '=', true);
+            if ($groupId) {
+                $q->whereHas('profileGroups', function ($r) use ($groupId) {
+                    return $r->where('profile_group_id', '=', $groupId);
+                });
+            } elseif ($relevantProfileId) {
+                $q->where('detection_profile_id', '=', $relevantProfileId);
+            }
+
+            return $q;
+        });
+
+        $next = $query->first();
+
+        return $next ? $next->id : null;
     }
 
     public function toArray()

@@ -25,6 +25,7 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @property string $file_pattern
  * @property array $object_classes
  * @property string $min_confidence
+ * @property int $min_object_size
  * @property int $use_regex
  * @property int $use_mask
  * @property int $is_enabled
@@ -84,6 +85,8 @@ class DetectionProfile extends Model
         'use_smart_filter',
         'smart_filter_precision',
         'is_negative',
+        'min_object_size',
+        'privacy_mode',
     ];
 
     protected $casts = [
@@ -91,6 +94,7 @@ class DetectionProfile extends Model
         'use_regex' => 'boolean',
         'use_smart_filter' => 'boolean',
         'is_negative' => 'boolean',
+        'privacy_mode' => 'boolean',
     ];
 
     public function getStatusAttribute()
@@ -119,18 +123,23 @@ class DetectionProfile extends Model
             [null, null, 'id'],
             [null, 'ai_prediction_id', 'detection_event_id']
         )
-            ->withPivot('ai_prediction_detection_profile', ['is_masked', 'is_smart_filtered']);
+            ->withPivot('ai_prediction_detection_profile', ['is_relevant', 'is_masked', 'is_smart_filtered', 'is_size_filtered']);
     }
 
     public function aiPredictions()
     {
         return $this->belongsToMany('App\AiPrediction')
-            ->withPivot(['is_masked', 'is_smart_filtered']);
+            ->withPivot(['is_relevant', 'is_masked', 'is_smart_filtered', 'is_size_filtered']);
     }
 
     public function automations()
     {
         return $this->hasMany('App\AutomationConfig');
+    }
+
+    public function profileGroups()
+    {
+        return $this->belongsToMany('App\ProfileGroup');
     }
 
     public function setNameAttribute($value)

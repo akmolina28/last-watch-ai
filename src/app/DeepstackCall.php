@@ -62,6 +62,28 @@ class DeepstackCall extends Model
         'returned_at',
     ];
 
+    public function getSuccessAttribute()
+    {
+        if ($this->response_json === null) {
+            return false;
+        }
+
+        $response = json_decode($this->response_json);
+
+        return $response->success;
+    }
+
+    public function getErrorAttribute()
+    {
+        if ($this->response_json === null) {
+            return null;
+        }
+
+        $response = json_decode($this->response_json);
+
+        return $response->error;
+    }
+
     public function getRunTimeSecondsAttribute()
     {
         if ($this->called_at === null || $this->returned_at === null) {

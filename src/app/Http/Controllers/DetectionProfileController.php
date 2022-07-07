@@ -33,13 +33,19 @@ class DetectionProfileController extends Controller
             $id = request()->get('id');
         }
 
-        request()->validate([
+        $rules = [
             'name' => "required|unique:detection_profiles,name,{$id},id,deleted_at,NULL",
             'file_pattern' => 'required',
             'min_confidence' => 'required|numeric|between:0,1',
             'object_classes' => 'required',
             'smart_filter_precision' => 'numeric|between:0,1',
-        ]);
+        ];
+
+        if (request()->has('min_object_size')) {
+            $rules['min_object_size'] = 'numeric|nullable';
+        }
+
+        request()->validate($rules);
     }
 
     protected function saveMask($makeName)
@@ -69,6 +75,8 @@ class DetectionProfileController extends Controller
             'use_smart_filter' => $request->get('use_smart_filter', 'false') === 'true',
             'smart_filter_precision' => $request->get('use_smart_filter', 'false') === 'true' ?
                 $request->get('smart_filter_precision') : 0,
+            'min_object_size' => $request->get('min_object_size'),
+            'privacy_mode' => $request->get('privacy_mode', 'false') === 'true',
         ]);
 
         $profile->use_mask = $this->saveMask($profile->slug);
@@ -94,6 +102,8 @@ class DetectionProfileController extends Controller
             request()->get('smart_filter_precision') : 0;
         $profile->is_negative = request()->get('is_negative', 'false') === 'true';
         $profile->use_mask = request()->get('use_mask', 'false') === 'true';
+        $profile->min_object_size = request()->get('min_object_size');
+        $profile->privacy_mode = request()->get('privacy_mode', 'false') === 'true';
 
         if ($profile->use_mask) {
             $this->saveMask($profile->slug);
@@ -214,18 +224,39 @@ class DetectionProfileController extends Controller
     {
         $profile = $this->lookUpProfile($param);
 
-        $type = request()->get('type');
-        $id = request()->get('id');
-        $value = request()->get('value');
-        $isHighPriority = request()->get('is_high_priority', false);
+        request()->validate([
+            'automations' => 'array|required',
+            'automations.*.id' => 'integer',
+            'automations.*.is_high_priority' => 'boolean',
+        ]);
 
-        $automationType = Relation::morphMap()[$type];
+        foreach (request()->get('automations') as $automation) {
+            $type = $automation['type'];
+            $id = $automation['id'];
+            $value = $automation['value'];
+            $isHighPriority = $automation['is_high_priority'];
 
-        if ($value == 'true') {
-            $profile->subscribeAutomation($automationType, $id, $isHighPriority);
-        } else {
-            $profile->unsubscribeAutomation($automationType, $id);
+            $automationType = Relation::morphMap()[$type];
+
+            if ($value) {
+                $profile->subscribeAutomation($automationType, $id, $isHighPriority);
+            } else {
+                $profile->unsubscribeAutomation($automationType, $id);
+            }
         }
+
+        return true;
+    }
+
+    public function updateProfiles(DetectionProfile $profile)
+    {
+        request()->validate([
+            'group_ids' => 'array',
+            'group_ids.*' => 'integer',
+        ]);
+
+        $group_ids = request()->get('group_ids');
+        $profile->profileGroups()->sync($group_ids);
 
         return true;
     }

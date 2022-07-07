@@ -10,15 +10,7 @@
 </head>
 <body>
     <div id="app">
-        <main>
-            <navigation></navigation>
-
-            <div class="container main-container">
-                <div class="lead">
-                    <router-view></router-view>
-                </div>
-            </div>
-        </main>
+        <app></app>
     </div>
     <script src="{{ mix("js/app.js") }}" type="text/javascript"></script>
 </body>

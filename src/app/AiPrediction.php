@@ -53,7 +53,7 @@ class AiPrediction extends Model
     public function detectionProfiles()
     {
         return $this->belongsToMany('App\DetectionProfile')
-            ->withPivot(['is_masked', 'is_smart_filtered']);
+            ->withPivot(['is_relevant', 'is_masked', 'is_smart_filtered', 'is_size_filtered']);
     }
 
     public function area()
@@ -145,8 +145,10 @@ class AiPrediction extends Model
         // Detect if there is a pivot value and return that as the default value
         if (isset($attributes['pivot']['detection_profile_id'])) {
             $attributes['detection_profile_id'] = $attributes['pivot']['detection_profile_id'];
+            $attributes['is_relevant'] = $attributes['pivot']['is_relevant'];
             $attributes['is_masked'] = $attributes['pivot']['is_masked'];
             $attributes['is_smart_filtered'] = $attributes['pivot']['is_smart_filtered'];
+            $attributes['is_size_filtered'] = $attributes['pivot']['is_size_filtered'];
             unset($attributes['pivot']);
         }
 
