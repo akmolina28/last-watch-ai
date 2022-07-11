@@ -100,6 +100,27 @@ const routes = [
     }),
   },
   {
+    name: 'ProfileGroups',
+    path: '/profileGroups',
+    component: require('./components/ProfileGroups.vue').default,
+    meta: () => ({
+      breadcrumbs: [
+        {
+          name: 'Home',
+          link: '/',
+        },
+        {
+          name: 'Detection Profiles',
+          link: '/profiles',
+        },
+        {
+          name: 'Profile Groups',
+          link: '/profileGroups',
+        },
+      ],
+    }),
+  },
+  {
     name: 'DetectionEvents',
     path: '/events',
     component: require('./components/DetectionEvents.vue').default,

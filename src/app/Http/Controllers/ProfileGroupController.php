@@ -24,6 +24,30 @@ class ProfileGroupController extends Controller
         return ProfileGroupResource::make($group);
     }
 
+    public function attachProfile(ProfileGroup $group)
+    {
+        request()->validate([
+            'profileId' => 'required|integer',
+            'detach' => 'boolean',
+        ]);
+        $detection_profile_id = request()->get('profileId');
+        $detach = request()->get('detach', false);
+        if ($detach)
+        {
+            $group->detectionProfiles()->detach([$detection_profile_id]);
+        } else
+        {
+            $group->detectionProfiles()->attach([$detection_profile_id]);
+        }
+        return true;
+    }
+
+    public function destroy(ProfileGroup $group)
+    {
+        $group->delete();
+        return response()->json(['message' => 'OK'], 200);
+    }
+
     protected function validateRequest()
     {
         $id = 'id';

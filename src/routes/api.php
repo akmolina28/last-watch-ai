@@ -97,4 +97,8 @@ Route::get('/profileGroups', 'ProfileGroupController@index')->middleware('auth.b
 
 Route::post('/profileGroups', 'ProfileGroupController@make')->middleware('auth.basic');
 
+Route::put('/profileGroups/{group}/attachProfile', 'ProfileGroupController@attachProfile')->middleware('auth.basic');
+
+Route::delete('/profileGroups/{group}', 'ProfileGroupController@destroy')->middleware('auth.basic');
+
 Route::any('/{any}', 'ErrorController@catchAll')->where('any', '.*')->middleware('auth.basic');

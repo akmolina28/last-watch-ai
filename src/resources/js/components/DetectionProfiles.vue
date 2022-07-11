@@ -5,18 +5,23 @@
         Detection Profiles
       </template>
       <template v-slot:subtitle>
-        Configure the AI to run when certain image files are created
+        Configure the AI to trigger automations
       </template>
     </title-header>
 
-    <div class="mb-3">
-      <a class="button is-primary" href="/profiles/create">
-        <span>New Profile</span>
-        <span class="icon">
-          <b-icon icon="plus"></b-icon>
-        </span>
-      </a>
-    </div>
+    <b-field grouped class="mb-3">
+      <b-button
+        tag="router-link"
+        to="/profiles/create"
+        type="is-primary"
+        icon-left="plus"
+        class="mr-2"
+        >New Profile</b-button
+      >
+      <b-button tag="router-link" icon-left="layer-group" to="/profileGroups"
+        >Manage Groups</b-button
+      >
+    </b-field>
 
     <b-table
       hoverable
@@ -42,7 +47,7 @@
       </b-table-column>
 
       <b-table-column field="object_classes" label="Object Classes" v-slot="props">
-        {{ props.row.is_negative ? 'NEG: ' : '' }}{{ props.row.object_classes.join(' | ') }}
+        {{ props.row.is_negative ? 'NOT: ' : '' }}{{ props.row.object_classes.join(' | ') }}
       </b-table-column>
 
       <b-table-column field="min_confidence" label="Min Confidence" v-slot="props">
@@ -93,7 +98,11 @@
       <b-table-column label="" v-slot="props">
         <b-dropdown aria-role="list" position="is-bottom-left">
           <template #trigger="{ active }">
-            <b-button type="is-primary is-outlined" icon-right="cog" />
+            <b-button
+              type="is-primary is-outlined"
+              icon-right="cog"
+              :loading="props.row.isDeleting"
+            />
           </template>
 
           <router-link :to="`/profiles/${props.row.id}/edit`">
@@ -106,34 +115,21 @@
           </router-link>
 
           <a href="javascript:void(0);">
-            <b-dropdown-item aria-role="listitem" @click="copySlug(props.row)">
-              <b-icon icon="copy"></b-icon>
+            <b-dropdown-item aria-role="listitem" @click="deleteProfile(props.row)">
+              <b-icon icon="trash-alt"></b-icon>
               <span>
-                Copy API Slug
+                Delete Profile
               </span>
             </b-dropdown-item>
           </a>
-
-          <router-link :to="`/profiles/${props.row.id}/automations`">
-            <b-dropdown-item aria-role="listitem">
-              <b-icon icon="robot"></b-icon>
-              <span>
-                Profile Automations
-              </span>
-            </b-dropdown-item>
-          </router-link>
         </b-dropdown>
       </b-table-column>
-      <b-table-column field="delete" label="" v-slot="props">
-        <button
-          @click="deleteProfile(props.row)"
-          :class="'button is-danger is-outlined' + (props.row.isDeleting ? ' is-loading' : '')"
-        >
-          <span class="icon is-small">
-            <b-icon icon="trash"></b-icon>
-          </span>
-        </button>
-      </b-table-column>
+      <template #empty>
+        <div class="has-text-centered">
+          <router-link to="/profiles/create">Add a profile</router-link> to trigger automations when
+          objects are detected.
+        </div>
+      </template>
     </b-table>
 
     <b-modal
@@ -298,15 +294,24 @@ export default {
     },
 
     deleteProfile(profile) {
-      profile.isDeleting = true;
-      axios
-        .delete(`/api/profiles/${profile.id}`)
-        .then(() => {
-          this.profiles = this.profiles.filter((p) => p.id !== profile.id);
-        })
-        .catch(() => {
-          profile.isDeleting = false;
-        });
+      this.$buefy.dialog.confirm({
+        title: 'Delete Profile',
+        message: `Delete the profile <strong>${profile.name}</strong>?`,
+        confirmText: 'Delete',
+        type: 'is-danger',
+        hasIcon: true,
+        onConfirm: () => {
+          profile.isDeleting = true;
+          axios
+            .delete(`/api/profiles/${profile.id}`)
+            .then(() => {
+              this.profiles = this.profiles.filter((p) => p.id !== profile.id);
+            })
+            .catch(() => {
+              profile.isDeleting = false;
+            });
+        },
+      });
     },
 
     getTime(date) {

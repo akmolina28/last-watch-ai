@@ -2024,6 +2024,58 @@ class ApiTest extends TestCase
     /**
      * @test
      */
+    public function api_can_attach_a_profile_to_a_group()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+        $group = factory(ProfileGroup::class)->create();
+
+        $this->assertFalse($group->detectionProfiles()->where('detection_profiles.id', '=', $profile->id)->exists());
+
+        $this->json('PUT', '/api/profileGroups/'.$group->id.'/attachProfile?profileId='.$profile->id)
+            ->assertStatus(200);
+        
+        $this->assertTrue($group->detectionProfiles()->where('detection_profiles.id', '=', $profile->id)->exists());
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_detach_a_profile_from_a_group()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+        $group = factory(ProfileGroup::class)->create();
+        $group->detectionProfiles()->save($profile);
+
+        $this->assertTrue($group->detectionProfiles()->where('detection_profiles.id', '=', $profile->id)->exists());
+
+        $this->json('PUT', '/api/profileGroups/'.$group->id.'/attachProfile', [
+            'profileId' => $profile->id,
+            'detach' => true,
+        ])
+            ->assertStatus(200);
+        
+        $this->assertFalse($group->detectionProfiles()->where('detection_profiles.id', '=', $profile->id)->exists());
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_destroy_a_profile_group()
+    {
+        $profile = factory(DetectionProfile::class)->create();
+        $group = factory(ProfileGroup::class)->create();
+        $group->detectionProfiles()->save($profile);
+
+        $this->json('DELETE', '/api/profileGroups/'.$group->id)
+            ->assertStatus(200);
+        
+        $group->refresh();
+        $this->assertTrue($group->trashed());
+    }
+
+    /**
+     * @test
+     */
     public function api_can_get_event_viewer_default()
     {
         $profile = factory(DetectionProfile::class)->create();

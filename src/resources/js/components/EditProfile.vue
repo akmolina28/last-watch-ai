@@ -2,7 +2,15 @@
   <div class="form-wrapper" style="position:relative">
     <b-loading :is-full-page="false" v-model="profileLoading"></b-loading>
     <form @submit.prevent="processForm">
-      <b-field label="Name">
+      <p class="heading is-size-4">Profile Settings</p>
+
+      <b-field>
+        <template #label>
+          Name
+          <b-tooltip type="is-white" label="Unique name, e.g. 'Driveway Human'">
+            <b-icon size="is-small" icon="question-circle"></b-icon>
+          </b-tooltip>
+        </template>
         <b-input
           v-model="name"
           placeholder="Unique name"
@@ -12,7 +20,16 @@
         ></b-input>
       </b-field>
 
-      <b-field label="File Pattern" class="" grouped>
+      <b-field>
+        <template #label>
+          File Pattern
+          <b-tooltip
+            type="is-white"
+            label="Image files containing this string will be matched to this profile."
+          >
+            <b-icon size="is-small" icon="question-circle"></b-icon>
+          </b-tooltip>
+        </template>
         <b-input
           v-model="file_pattern"
           placeholder="Pattern match string"
@@ -20,27 +37,68 @@
           expanded
           required
         ></b-input>
-        <b-switch v-model="use_regex">Use Regex</b-switch>
+      </b-field>
+      <b-field>
+        <b-switch v-model="use_regex">
+          Use Regex
+          <b-tooltip type="is-white" label="Match image files using regular expressions.">
+            <b-icon size="is-small" icon="question-circle"></b-icon>
+          </b-tooltip>
+        </b-switch>
       </b-field>
 
       <b-field class="mb-6">
-        <b-switch v-model="privacy_mode">Privacy Mode</b-switch>
+        <b-switch v-model="privacy_mode">
+          Privacy Mode
+          <b-tooltip type="is-white" label="Do not save images after running the AI.">
+            <b-icon size="is-small" icon="question-circle"></b-icon>
+          </b-tooltip>
+        </b-switch>
       </b-field>
 
       <p class="heading is-size-4">AI Settings</p>
 
-      <b-field label="Relevant Objects">
-        <b-select required multiple native-size="8" v-model="object_classes">
+      <b-field>
+        <template #label>
+          Relevant Objects
+          <b-tooltip
+            type="is-white"
+            label="Select at least one object class to trigger this profile."
+          >
+            <b-icon size="is-small" icon="question-circle"></b-icon>
+          </b-tooltip>
+        </template>
+        <div class="is-hidden-touch mb-2 is-italic has-text-grey">
+          Ctrl+click to select multiple.
+        </div>
+        <b-select required multiple native-size="4" expanded v-model="object_classes">
           <option v-for="objectClass in allObjectClasses" :value="objectClass">{{
             objectClass
           }}</option>
         </b-select>
-        <div class="ml-2">
-          <b-switch v-model="is_negative">Negative Relevance</b-switch>
-        </div>
+      </b-field>
+      <b-field>
+        <b-switch v-model="is_negative">
+          Opposite Mode
+          <b-tooltip
+            type="is-white"
+            label="Trigger this profile when the objects selected above are NOT present."
+          >
+            <b-icon size="is-small" icon="question-circle"></b-icon>
+          </b-tooltip>
+        </b-switch>
       </b-field>
 
-      <b-field label="AI Confidence">
+      <b-field>
+        <template #label>
+          AI Confidence
+          <b-tooltip
+            type="is-white"
+            label="Minimum confidence threshold for objects to trigger this profile."
+          >
+            <b-icon size="is-small" icon="question-circle"></b-icon>
+          </b-tooltip>
+        </template>
         <b-input v-model="min_confidence" type="number" :min="0.01" :max="1" :step="0.01"></b-input>
       </b-field>
 
@@ -50,7 +108,15 @@
 
       <p class="heading is-size-4">Advanced Filtering</p>
 
-      <label class="label">Mask File</label>
+      <label class="label">
+        Mask File
+        <b-tooltip
+          type="is-white"
+          label="Upload a bitmap to create zones where objects are ignored."
+        >
+          <b-icon size="is-small" icon="question-circle"></b-icon>
+        </b-tooltip>
+      </label>
 
       <div class="box" v-if="display_mask">
         <img :src="`/storage/masks/${slug}.png`" :alt="`${slug}.png`" />
@@ -71,24 +137,40 @@
         </b-upload>
       </b-field>
 
-      <b-field label="Smart Filter" grouped>
-        <b-switch v-model="use_smart_filter"> </b-switch>
+      <b-field>
+        <template #label>
+          Smart Filter
+          <b-tooltip type="is-white" label="Ignore objects which have not moved significantly.">
+            <b-icon size="is-small" icon="question-circle"></b-icon>
+          </b-tooltip>
+        </template>
 
-        <b-field grouped label="Precision" label-position="on-border">
-          <b-input
-            v-model="smart_filter_precision"
-            type="number"
-            :min="0.01"
-            :max="0.99"
-            :step="0.01"
-            name="smart_filter_precision"
-            :disabled="!use_smart_filter"
-          >
-          </b-input>
-        </b-field>
+        <b-switch v-model="use_smart_filter">Enabled</b-switch>
       </b-field>
 
-      <b-field class="mb-6">
+      <b-field>
+        <template #label>
+          Smart Filter Precision
+          <b-tooltip
+            type="is-white"
+            label="Increase or decrease the sensitivity of the smart filter."
+          >
+            <b-icon size="is-small" icon="question-circle"></b-icon>
+          </b-tooltip>
+        </template>
+        <b-input
+          v-model="smart_filter_precision"
+          type="number"
+          :min="0.01"
+          :max="0.99"
+          :step="0.01"
+          name="smart_filter_precision"
+          :disabled="!use_smart_filter"
+        >
+        </b-input>
+      </b-field>
+
+      <b-field>
         <b-slider
           v-model="smart_filter_precision"
           :min="0.01"
@@ -99,8 +181,21 @@
         </b-slider>
       </b-field>
 
-      <b-field label="Minimum Object Size">
-        <b-input v-model="min_object_size" type="number"></b-input>
+      <b-field>
+        <template #label>
+          Minimum Object Size
+          <b-tooltip
+            type="is-white"
+            label="Filter out objects below a certain size, in square-pixels."
+          >
+            <b-icon size="is-small" icon="question-circle"></b-icon>
+          </b-tooltip>
+        </template>
+        <b-input
+          v-model="min_object_size"
+          type="number"
+          placeholder="Size in square-pixels"
+        ></b-input>
       </b-field>
 
       <b-field position="is-right" grouped>
