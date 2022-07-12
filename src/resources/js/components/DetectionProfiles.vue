@@ -98,11 +98,7 @@
       <b-table-column label="" v-slot="props">
         <b-dropdown aria-role="list" position="is-bottom-left">
           <template #trigger="{ active }">
-            <b-button
-              type="is-primary is-outlined"
-              icon-right="cog"
-              :loading="props.row.isDeleting"
-            />
+            <b-button icon-right="cog" :loading="props.row.isDeleting" />
           </template>
 
           <router-link :to="`/profiles/${props.row.id}/edit`">

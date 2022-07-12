@@ -440,7 +440,7 @@ class ApiTest extends TestCase
 
         $this->setUpEvents($profile);
 
-        $response = $this->get('/api/events?relevant&profileId='.$profile->id);
+        $response = $this->get('/api/events?relevant&profile='.$profile->slug);
 
         $response
             ->assertStatus(200)
@@ -463,7 +463,7 @@ class ApiTest extends TestCase
 
         $this->setUpEvents($profile);
 
-        $response = $this->get('/api/events?profileId='.$profile->id);
+        $response = $this->get('/api/events?profile='.$profile->slug);
 
         $response
             ->assertStatus(200)
@@ -475,6 +475,36 @@ class ApiTest extends TestCase
                 ]],
             ])
             ->assertJsonCount(6, 'data');
+    }
+
+    
+
+    /**
+     * @test
+     */
+    public function api_can_get_relevant_events_by_group()
+    {
+        $profile_1 = factory(DetectionProfile::class)->create();
+        $this->setUpEvents($profile_1);
+
+        $profile_2 = factory(DetectionProfile::class)->create();
+        $this->setUpEvents($profile_2);
+
+        $group = factory(ProfileGroup::class)->create();
+        $group->detectionProfiles()->save($profile_1);
+
+        $response = $this->get('/api/events?relevant&group='.$group->slug);
+
+        $response
+            ->assertStatus(200)
+            ->assertJsonStructure([
+                'data' => [0 => [
+                    'id',
+                    'image_file_name',
+                    'detection_profiles_count',
+                ]],
+            ])
+            ->assertJsonCount(2, 'data');
     }
 
     /**

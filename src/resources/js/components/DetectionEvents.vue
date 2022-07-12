@@ -18,15 +18,30 @@
         </div>
         <div class="mr-2 mb-2">
           <b-select
-            v-model="filterProfileId"
+            v-model="filterValue"
             @input="getEvents()"
             class="is-primary is-outlined"
-            icon="eye"
+            icon="filter"
           >
             <option :value="null" :key="-1">Any Profile</option>
-            <option v-for="profile in allProfiles" :value="profile.id" :key="profile.id">
-              {{ profile.name }}
-            </option>
+            <optgroup label="Profiles">
+              <option
+                v-for="profile in allProfiles"
+                :value="{ key: 'profile', value: profile.slug }"
+                :key="profile.id"
+              >
+                {{ profile.name }}
+              </option>
+            </optgroup>
+            <optgroup label="Groups">
+              <option
+                v-for="group in allProfileGroups"
+                :value="{ key: 'group', value: group.slug }"
+                :key="group.id"
+              >
+                {{ group.name }}
+              </option>
+            </optgroup>
           </b-select>
         </div>
         <div class="mr-2 mb-2">
@@ -78,12 +93,7 @@
       </b-table-column>
 
       <b-table-column v-slot="props">
-        <router-link
-          v-if="filterProfileId"
-          :to="`/events/${props.row.id}?profileId=${filterProfileId}`"
-          >Details</router-link
-        >
-        <router-link v-else :to="`/events/${props.row.id}`">Details</router-link>
+        <router-link :to="`/events/${props.row.id}`">Details</router-link>
       </b-table-column>
     </b-table>
 
@@ -97,7 +107,7 @@ import axios from 'axios';
 export default {
   name: 'DetectionEvents',
 
-  props: ['relevant', 'profileId', 'page'],
+  props: ['relevant', 'profile', 'group', 'page'],
 
   data() {
     return {
@@ -105,14 +115,11 @@ export default {
       eventsLoading: false,
       meta: {},
       relevantOnly: this.relevant !== 'false',
-      filterProfileId: this.profileId,
+      filterValue: this.getFilterValueFromProps(),
       allProfiles: [],
+      allProfileGroups: [],
       selectedPage: this.page,
     };
-  },
-
-  mounted() {
-    this.getData();
   },
 
   activated() {
@@ -123,9 +130,22 @@ export default {
 
   computed: {
     query() {
+      if (this.filterValue && this.filterValue.key === 'profile') {
+        return {
+          relevant: this.relevantOnly,
+          profile: this.filterValue.value,
+          page: this.selectedPage,
+        };
+      }
+      if (this.filterValue && this.filterValue.key === 'group') {
+        return {
+          relevant: this.relevantOnly,
+          group: this.filterValue.value,
+          page: this.selectedPage,
+        };
+      }
       return {
         relevant: this.relevantOnly,
-        profileId: this.filterProfileId,
         page: this.selectedPage,
       };
     },
@@ -135,11 +155,34 @@ export default {
     getData() {
       this.getEvents(this.selectedPage);
       this.getProfiles();
+      this.getGroups();
+    },
+
+    getFilterValueFromProps() {
+      if (this.group) {
+        return {
+          key: 'group',
+          value: this.group,
+        };
+      }
+      if (this.profile) {
+        return {
+          key: 'profile',
+          value: this.profile,
+        };
+      }
+      return null;
     },
 
     getProfiles() {
       axios.get('/api/profiles').then((response) => {
         this.allProfiles = response.data.data;
+      });
+    },
+
+    getGroups() {
+      axios.get('/api/profileGroups').then((response) => {
+        this.allProfileGroups = response.data.data;
       });
     },
 
@@ -150,8 +193,12 @@ export default {
       if (this.relevantOnly) {
         url += '&relevant';
       }
-      if (this.filterProfileId) {
-        url += `&profileId=${this.filterProfileId}`;
+      if (this.filterValue) {
+        if (this.filterValue.key === 'profile') {
+          url += `&profile=${this.filterValue.value}`;
+        } else {
+          url += `&group=${this.filterValue.value}`;
+        }
       }
       this.$router.replace({ query: this.query }).catch(() => {});
       axios

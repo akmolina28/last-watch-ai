@@ -14,6 +14,13 @@ class ProfileGroup extends Model
         'name',
     ];
 
+    public static function findByUnique($unique)
+    {
+        return ProfileGroup::where('id', $unique)
+            ->orWhere('slug', $unique)
+            ->firstOrFail();
+    }
+
     public function detectionProfiles()
     {
         return $this->belongsToMany('App\DetectionProfile');

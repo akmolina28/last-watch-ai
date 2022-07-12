@@ -26,18 +26,40 @@ class DetectionEventController extends Controller
             ])
             ->where('is_processed', '=', 1);
 
-        if ($request->has('profileId')) {
-            $profileId = $request->get('profileId');
+        if ($request->has('group'))
+        {
+            $unique = $request->get('group');
+            $group_id = ProfileGroup::findByUnique($unique)->id;
 
             if ($request->has('relevant')) {
-                $query->whereHas('detectionProfiles', function ($q) use ($profileId) {
+                $query->whereHas('detectionProfiles', function ($q) use ($group_id) {
                     return $q
-                        ->where('detection_profile_id', $profileId)
+                        ->where('ai_prediction_detection_profile.is_relevant', '=', true)
+                        ->whereHas('profileGroups', function ($r) use ($group_id) {
+                            return $r->where('profile_group_id', '=', $group_id);
+                        });
+                });
+            } else {
+                $query->whereHas('patternMatchedProfiles', function ($q) use ($group_id) {
+                    return $q->whereHas('profileGroups', function ($r) use ($group_id) {
+                        return $r->where('profile_group_id', '=', $group_id);
+                    });
+                });
+            }
+
+        } elseif ($request->has('profile')) {
+            $unique = $request->get('profile');
+            $profile_id = DetectionProfile::findByUnique($unique)->id;
+
+            if ($request->has('relevant')) {
+                $query->whereHas('detectionProfiles', function ($q) use ($profile_id) {
+                    return $q
+                        ->where('detection_profile_id', $profile_id)
                         ->where('ai_prediction_detection_profile.is_relevant', '=', true);
                 });
             } else {
-                $query->whereHas('patternMatchedProfiles', function ($q) use ($profileId) {
-                    return $q->where('detection_profile_id', $profileId);
+                $query->whereHas('patternMatchedProfiles', function ($q) use ($profile_id) {
+                    return $q->where('detection_profile_id', $profile_id);
                 });
             }
         } elseif ($request->has('relevant')) {

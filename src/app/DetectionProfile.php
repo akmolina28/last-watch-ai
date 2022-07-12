@@ -97,6 +97,13 @@ class DetectionProfile extends Model
         'privacy_mode' => 'boolean',
     ];
 
+    public static function findByUnique($unique)
+    {
+        return DetectionProfile::where('id', $unique)
+            ->orWhere('slug', $unique)
+            ->firstOrFail();
+    }
+
     public function getStatusAttribute()
     {
         if ($this->is_enabled) {
