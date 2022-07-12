@@ -21,6 +21,18 @@
             <span class="tag is-danger">Privacy Mode</span>
           </div>
         </div>
+        <div class="control">
+          <div class="tags has-addons">
+            <span class="tag">Automations Run</span>
+            <span class="tag is-primary">{{ automationsRun.length }}</span>
+          </div>
+        </div>
+        <div class="control" v-if="automationsFailed.length > 0">
+          <div class="tags has-addons">
+            <span class="tag">Automations Failed</span>
+            <span class="tag is-danger">{{ automationsFailed.length }}</span>
+          </div>
+        </div>
       </template>
     </title-header>
     <b-tabs
@@ -32,7 +44,7 @@
     >
       <b-tab-item value="all">
         <template #header>
-          <span class="has-text-weight-bold">All ({{ predictions.length }})</span>
+          <span class="has-text-weight-bold">All Predictions</span>
         </template>
         <div v-if="event">
           <b-field grouped group-multiline>
@@ -89,6 +101,14 @@
     <div class="columns">
       <div class="column is-half">
         <canvas id="event-snapshot" ref="event-snapshot" style="width:100%;"></canvas>
+        <b-button
+          v-if="event"
+          tag="a"
+          :href="`/api/events/${event.id}/img`"
+          size="is-small"
+          icon-left="download"
+          >Download Image</b-button
+        >
       </div>
       <div class="column is-half">
         <b-table
@@ -254,6 +274,17 @@ export default {
       if (this.selectedPrediction) {
         return this.selectedPrediction.detection_profiles;
       }
+      if (!this.selectedPrediction && this.event && this.event.pattern_matched_profiles) {
+        return this.event.pattern_matched_profiles.map((prof) => ({
+          ...prof,
+          is_relevant: this.event.ai_predictions.some(
+            (pred) =>
+              // eslint-disable-next-line implicit-arrow-linebreak
+              pred.detection_profiles.some((p) => p.is_relevant && p.id === prof.id),
+            // eslint-disable-next-line function-paren-newline
+          ),
+        }));
+      }
       return null;
     },
     imageWidth() {
@@ -282,6 +313,18 @@ export default {
         return this.selectedProfile.mask_file_name;
       }
       return null;
+    },
+    automationsRun() {
+      if (this.event && this.event.automationResults) {
+        return this.event.automationResults.filter((a) => a.is_error);
+      }
+      return [];
+    },
+    automationsFailed() {
+      if (this.event && this.event.automationResults) {
+        return this.event.automationResults.filter((a) => a.is_error);
+      }
+      return [];
     },
   },
   watch: {
