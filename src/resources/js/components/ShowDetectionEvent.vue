@@ -136,7 +136,7 @@
                   </b-tag>
                 </b-taglist>
               </div>
-              <div v-if="props.row.is_masked" class="control">
+              <div v-else-if="props.row.is_masked" class="control">
                 <b-taglist>
                   <b-tag type="is-warning" icon="ban"
                     ><b-tooltip
@@ -148,7 +148,20 @@
                   >
                 </b-taglist>
               </div>
-              <div v-if="props.row.is_smart_filtered" class="control">
+              <div v-else-if="props.row.is_confidence_filtered" class="control">
+                <b-taglist>
+                  <b-tag type="is-warning" icon="percent"
+                    ><b-tooltip multiline type="is-warning">
+                      <template v-slot:content>
+                        AI confidence is below the configured threshold of
+                        {{ props.row.min_confidence | percentage }}.
+                      </template>
+                      Below Confidence</b-tooltip
+                    ></b-tag
+                  >
+                </b-taglist>
+              </div>
+              <div v-else-if="props.row.is_smart_filtered" class="control">
                 <b-taglist>
                   <b-tag type="is-warning" icon="ban">
                     <b-tooltip
@@ -162,7 +175,7 @@
                   >
                 </b-taglist>
               </div>
-              <div v-if="props.row.is_size_filtered" class="control">
+              <div v-else-if="props.row.is_size_filtered" class="control">
                 <b-taglist>
                   <b-tag type="is-warning" icon="ban">
                     <b-tooltip

@@ -44,6 +44,9 @@ class DetectionProfileResource extends JsonResource
             'is_size_filtered' => $this->whenPivotLoaded('ai_prediction_detection_profile', function () {
                 return $this->pivot->is_size_filtered;
             }),
+            'is_confidence_filtered' => $this->whenPivotLoaded('ai_prediction_detection_profile', function () {
+                return $this->pivot->is_confidence_filtered;
+            }),
             'is_profile_active' => $this->whenPivotLoaded('pattern_match', function () {
                 return $this->pivot->is_profile_active;
             }),

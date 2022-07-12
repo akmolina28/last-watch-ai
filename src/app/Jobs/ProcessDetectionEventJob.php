@@ -88,7 +88,6 @@ class ProcessDetectionEventJob implements ShouldQueue
                         ->where('is_profile_active', '=', 1);
             })
                 ->whereJsonContains('object_classes', $prediction->label)
-                ->where('min_confidence', '<=', $prediction->confidence)
                 ->get();
 
             foreach ($matchedProfiles as $profile) {
@@ -98,9 +97,11 @@ class ProcessDetectionEventJob implements ShouldQueue
 
                 $isTooSmall = $profile->min_object_size > 0 && $aiPrediction->area() <= $profile->min_object_size;
 
+                $is_confidence_filtered = $prediction->confidence <= $profile->min_confidence;
+
                 $isSmartFiltered = false;
 
-                if (! $isMasked && ! $isTooSmall && $profile->use_smart_filter) {
+                if (! $isMasked && ! $isTooSmall && !$is_confidence_filtered && $profile->use_smart_filter) {
                     $profileId = $profile->id;
                     $lastDetectionEvent = DetectionEvent::where('id', '!=', $this->event->id)
                         ->whereHas('detectionProfiles', function ($q) use ($profileId) {
@@ -113,16 +114,17 @@ class ProcessDetectionEventJob implements ShouldQueue
                     }
                 }
 
-                $isRelevant = ! ($isMasked || $isTooSmall || $isSmartFiltered);
+                $isRelevant = ! ($isMasked || $isTooSmall || $isSmartFiltered || $is_confidence_filtered);
 
                 $profile->aiPredictions()->attach($aiPrediction->id, [
                     'is_relevant' => $isRelevant,
                     'is_masked' => $isMasked,
                     'is_smart_filtered' => $isSmartFiltered,
                     'is_size_filtered' => $isTooSmall,
+                    'is_confidence_filtered' => $is_confidence_filtered,
                 ]);
 
-                if (! $isMasked && ! $isTooSmall && ! $isSmartFiltered && ! $profile->is_negative) {
+                if (! $isMasked && ! $isTooSmall && ! $isSmartFiltered && ! $is_confidence_filtered && ! $profile->is_negative) {
                     if (! in_array($profile, $relevantProfiles)) {
                         array_push($relevantProfiles, $profile);
                     }

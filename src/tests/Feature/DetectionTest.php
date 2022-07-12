@@ -173,6 +173,47 @@ class DetectionTest extends TestCase
     /**
      * @test
      */
+    public function detection_job_can_confidence_filter_predictions()
+    {
+        factory(DetectionProfile::class, 5)->create();
+
+        // active match
+        $profile = factory(DetectionProfile::class)->create([
+            'object_classes' => ['person', 'dog'],
+            'use_mask' => false,
+            'use_smart_filter' => false,
+            'min_confidence' => '1.00',
+        ]);
+
+        $imageFile = $this->createImageFile();
+
+        // process an event
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile->id,
+        ]);
+        $event->patternMatchedProfiles()->attach($profile->id);
+        $this->handleDetectionJob($event);
+
+        // process another event with the same predictions
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile->id,
+        ]);
+        $event->patternMatchedProfiles()->attach($profile->id);
+        $this->handleDetectionJob($event);
+
+        $event = DetectionEvent::find($event->id);
+        $this->assertCount(3, $event->aiPredictions);
+        $this->assertCount(3, $event->detectionProfiles);
+
+        foreach ($event->detectionProfiles as $profile) {
+            $this->assertEquals(1, $profile->ai_prediction_detection_profile->is_confidence_filtered);
+            $this->assertEquals(0, $profile->ai_prediction_detection_profile->is_relevant);
+        }
+    }
+
+    /**
+     * @test
+     */
     public function detection_job_can_mask_predictions()
     {
         factory(DetectionProfile::class, 5)->create();
