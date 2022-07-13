@@ -163,7 +163,7 @@
               </div>
               <div v-else-if="props.row.is_smart_filtered" class="control">
                 <b-taglist>
-                  <b-tag type="is-warning" icon="ban">
+                  <b-tag type="is-warning" icon="filter">
                     <b-tooltip
                       multiline
                       type="is-warning"
@@ -177,7 +177,7 @@
               </div>
               <div v-else-if="props.row.is_size_filtered" class="control">
                 <b-taglist>
-                  <b-tag type="is-warning" icon="ban">
+                  <b-tag type="is-warning" icon="compress">
                     <b-tooltip
                       type="is-warning"
                       multilined
