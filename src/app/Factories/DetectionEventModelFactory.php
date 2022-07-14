@@ -24,7 +24,7 @@ class DetectionEventModelFactory
 
         return DetectionEvent::create([
             'image_file_name' => $storage_name,
-            'image_dimensions' => $width.'x'.$height,
+            'image_dimensions' => $width . 'x' . $height,
             'occurred_at' => $occurred_at ?? Date::now(),
         ]);
     }
