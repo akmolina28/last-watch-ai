@@ -16,6 +16,7 @@
   "[php]": {
       "editor.tabSize": 4,
       "editor.insertSpaces": true,
+      "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
   },
   "[json]": {
       "editor.tabSize": 2,
@@ -39,5 +40,8 @@
       "**/*.vue": "{name}",
   },
   "fontAwesomeAutocomplete.enableElevatedSortPriority": true,
-  "files.associations": { "*.module": "php" }
+"files.associations": {
+    "*.module": "php"
+},
+"intelephense.environment.phpVersion": "7.4"
 }
