@@ -23,7 +23,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             return redirect()->intended('/')
-                        ->withSuccess('Signed in');
+                ->withSuccess('Signed in');
         }
 
         return redirect('login')->withSuccess('Login details are not valid');

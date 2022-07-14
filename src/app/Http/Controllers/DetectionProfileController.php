@@ -20,8 +20,8 @@ class DetectionProfileController extends Controller
     protected function lookUpProfile($param): DetectionProfile
     {
         $profile = DetectionProfile::where('id', $param)
-                    ->orWhere('slug', $param)
-                    ->firstOrFail();
+            ->orWhere('slug', $param)
+            ->firstOrFail();
 
         return $profile;
     }
@@ -53,7 +53,7 @@ class DetectionProfileController extends Controller
         $file = request()->file('mask');
 
         if ($file) {
-            $file->storeAs('masks', $makeName.'.png', 'public');
+            $file->storeAs('masks', $makeName . '.png', 'public');
 
             return true;
         }
@@ -166,7 +166,7 @@ class DetectionProfileController extends Controller
                 $profile->is_enabled = true;
             } else {
                 return response()
-                    ->json(['message' => 'Invalid status "'.$status.'"'], 422);
+                    ->json(['message' => 'Invalid status "' . $status . '"'], 422);
             }
 
             $profile->save();
@@ -191,29 +191,27 @@ class DetectionProfileController extends Controller
             }
         }
 
-        $union = false;
         $query = null;
 
         foreach ($configTypes as $type) {
             $q = Relation::$morphMap[$type]::leftJoin('automation_configs as ac', function ($join) use ($type, $profile) {
-                $join->on('ac.automation_config_id', '=', $type.'.id');
+                $join->on('ac.automation_config_id', '=', $type . '.id');
                 $join->where('ac.automation_config_type', '=', $type);
                 $join->whereNull('ac.deleted_at');
                 $join->where('ac.detection_profile_id', '=', $profile->id);
             })
                 ->select(
-                    $type.'.id as id',
-                    DB::raw("'".$type."' as type"),
+                    $type . '.id as id',
+                    DB::raw("'" . $type . "' as type"),
                     'ac.detection_profile_id as detection_profile_id',
                     'name',
                     'ac.is_high_priority'
                 );
 
-            if ($union) {
+            if ($query) {
                 $query = $query->unionAll($q);
             } else {
                 $query = $q;
-                $union = true;
             }
         }
 
