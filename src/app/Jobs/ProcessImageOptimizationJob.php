@@ -59,11 +59,11 @@ class ProcessImageOptimizationJob implements ShouldQueue
         }
 
         // generate thumbnail
-        $thumbName = $image->filename.'-thumb.'.$image->extension;
+        $thumbName = $image->filename . '-thumb.' . $image->extension;
         $thumb = $image->resize(300, 200)
             ->interlace(true)
             ->encode('jpg', $jpegQuality = $this->imageQuality);
-        Storage::disk('public')->put('events/'.$thumbName, $thumb);
+        Storage::disk('public')->put('events/' . $thumbName, $thumb);
 
         // mark processing completed
         $events = DetectionEvent::where('image_file_id', $this->imageFile->id)->get();

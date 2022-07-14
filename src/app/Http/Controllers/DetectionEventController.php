@@ -87,9 +87,6 @@ class DetectionEventController extends Controller
         if ($request->has('image_file')) {
             $file = $request->file('image_file');
 
-//            $client = resolve(DeepstackClientInterface::class);
-//            $s = $client->detection($file->get());
-
             $path = $file->store('events', 'public');
             $fileName = $file->getClientOriginalName();
 

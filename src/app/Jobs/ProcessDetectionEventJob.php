@@ -85,14 +85,14 @@ class ProcessDetectionEventJob implements ShouldQueue
 
             $matchedProfiles = DetectionProfile::whereHas('patternMatchedEvents', function ($query) {
                 $query->where('detection_event_id', '=', $this->event->id)
-                        ->where('is_profile_active', '=', 1);
+                    ->where('is_profile_active', '=', 1);
             })
                 ->whereJsonContains('object_classes', $prediction->label)
                 ->get();
 
             foreach ($matchedProfiles as $profile) {
-                $maskName = $profile->slug.'.png';
-                $maskPath = Storage::path('masks/'.$maskName);
+                $maskName = $profile->slug . '.png';
+                $maskPath = Storage::path('masks/' . $maskName);
                 $isMasked = $profile->use_mask && $aiPrediction->isMasked($maskPath);
 
                 $isTooSmall = $profile->min_object_size > 0 && $aiPrediction->area() <= $profile->min_object_size;
