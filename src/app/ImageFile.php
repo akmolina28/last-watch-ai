@@ -87,7 +87,7 @@ class ImageFile extends Model
     public function getStoragePath($thumbnail = false)
     {
         if ($this->path) {
-            return '/storage/'.$this->getPath($thumbnail);
+            return '/storage/' . $this->getPath($thumbnail);
         }
 
         return null;
@@ -98,8 +98,8 @@ class ImageFile extends Model
         $path = $this->path;
 
         if ($thumbnail) {
-            $path = $this->getStoredDirectoryName().'/'
-                .$this->getStoredFilename().'-thumb.'.$this->getStoredExtension();
+            $path = $this->getStoredDirectoryName() . '/'
+                . $this->getStoredFilename() . '-thumb.' . $this->getStoredExtension();
         }
 
         return $path;

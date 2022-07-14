@@ -51,7 +51,7 @@ class PayloadHelper
             return str_replace('%image_download_link%', $event->imageDownload, $payload);
         }
 
-        throw new Exception('Unrecognized replacement string '.$replacementString);
+        throw new Exception('Unrecognized replacement string ' . $replacementString);
     }
 
     public static function doReplacements(

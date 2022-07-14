@@ -125,7 +125,7 @@ class DetectionEvent extends Model
     public function getEventUrlAttribute()
     {
         if ($this->id) {
-            return url('/events/'.$this->id);
+            return url('/events/' . $this->id);
         }
 
         return null;
@@ -152,7 +152,7 @@ class DetectionEvent extends Model
     public function getImageDownloadAttribute()
     {
         if ($this->id) {
-            return url('/api/events/'.$this->id.'/img');
+            return url('/api/events/' . $this->id . '/img');
         }
 
         return null;

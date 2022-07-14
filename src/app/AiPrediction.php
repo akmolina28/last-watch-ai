@@ -68,7 +68,7 @@ class AiPrediction extends Model
     {
         $intersectingArea =
             max(0, min($this->x_max, $prediction->x_max) - max($this->x_min, $prediction->x_min))
-          * max(0, min($this->y_max, $prediction->y_max) - max($this->y_min, $prediction->y_min));
+            * max(0, min($this->y_max, $prediction->y_max) - max($this->y_min, $prediction->y_min));
 
         $unionArea = $this->area() + $prediction->area() - $intersectingArea;
 

@@ -12,8 +12,8 @@ class DeleteDetectionEventsTask
     {
         if ($retentionDays > 0) {
             $deleteEvents = DetectionEvent::where('occurred_at', '<', Date::now()
-                    ->addDays(-1 * $retentionDays)->format('Y-m-d H:i:s'))
-                    ->cursor();
+                ->addDays(-1 * $retentionDays)->format('Y-m-d H:i:s'))
+                ->cursor();
 
             foreach ($deleteEvents as $event) {
                 if ($event->imageFile) {

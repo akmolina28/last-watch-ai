@@ -11,13 +11,13 @@ class DeepstackServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/../config/deepstack.php' => config_path('deepstack.php'),
+            __DIR__ . '/../config/deepstack.php' => config_path('deepstack.php'),
         ], 'config');
     }
 
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/deepstack.php', 'deepstack');
+        $this->mergeConfigFrom(__DIR__ . '/../config/deepstack.php', 'deepstack');
 
         $this->app->bind(DeepstackClientInterface::class, function () {
             $config = config('deepstack');

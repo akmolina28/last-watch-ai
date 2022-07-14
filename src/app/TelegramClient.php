@@ -26,7 +26,7 @@ class TelegramClient
     {
         $this->error = null;
 
-        $url = 'https://api.telegram.org/bot'.$this->token.'/sendPhoto?chat_id='.$this->chat_id;
+        $url = 'https://api.telegram.org/bot' . $this->token . '/sendPhoto?chat_id=' . $this->chat_id;
 
         $post_fields = [
             'chat_id' => $this->chat_id,
@@ -53,7 +53,7 @@ class TelegramClient
         $responseJson = json_decode($response);
 
         if (!$responseJson->ok) {
-            $this->error = 'The telegram service did not return successfully: '.$response;
+            $this->error = 'The telegram service did not return successfully: ' . $response;
 
             return false;
         }

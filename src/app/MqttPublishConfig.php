@@ -119,7 +119,7 @@ class MqttPublishConfig extends Model implements AutomationConfigInterface
     protected static function booted()
     {
         static::deleted(function ($config) {
-            $config->update(['name' => time().'::'.$config->name]);
+            $config->update(['name' => time() . '::' . $config->name]);
         });
     }
 }

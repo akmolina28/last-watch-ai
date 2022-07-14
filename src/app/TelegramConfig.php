@@ -73,7 +73,7 @@ class TelegramConfig extends Model implements AutomationConfigInterface
         $imageExists = Storage::exists($event->imageFile->path);
 
         if (!$imageExists) {
-            throw new FileNotFoundException('File not found at '.$path);
+            throw new FileNotFoundException('File not found at ' . $path);
         }
 
         $success = $client->sendPhoto($path);
@@ -88,7 +88,7 @@ class TelegramConfig extends Model implements AutomationConfigInterface
     protected static function booted()
     {
         static::deleted(function ($config) {
-            $config->update(['name' => time().'::'.$config->name]);
+            $config->update(['name' => time() . '::' . $config->name]);
         });
     }
 }

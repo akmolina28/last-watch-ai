@@ -148,7 +148,7 @@ class WebRequestConfig extends Model implements AutomationConfigInterface
         $isError = intval($response->status() / 200) !== 1; // check status is 2XX
 
         if ($isError) {
-            $message = $response->status().' | '.$response->body();
+            $message = $response->status() . ' | ' . $response->body();
             throw AutomationException::automationFailure($message);
         }
     }
@@ -156,7 +156,7 @@ class WebRequestConfig extends Model implements AutomationConfigInterface
     protected static function booted()
     {
         static::deleted(function ($config) {
-            $config->update(['name' => time().'::'.$config->name]);
+            $config->update(['name' => time() . '::' . $config->name]);
         });
     }
 }

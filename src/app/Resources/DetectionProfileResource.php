@@ -22,7 +22,7 @@ class DetectionProfileResource extends JsonResource
             'object_classes' => $this->object_classes,
             'min_confidence' => $this->min_confidence,
             'use_mask' => $this->use_mask,
-            'mask_file_name' => $this->use_mask ? $this->slug.'.png' : null,
+            'mask_file_name' => $this->use_mask ? $this->slug . '.png' : null,
             'use_regex' => $this->use_regex,
             'is_negative' => $this->is_negative,
             'use_smart_filter' => $this->use_smart_filter,

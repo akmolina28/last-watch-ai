@@ -20,7 +20,7 @@ class DeepstackClient implements DeepstackClientInterface
 
     public function detection($imageFileContents)
     {
-        $url = $this->api_base_url.'/v1/vision/detection';
+        $url = $this->api_base_url . '/v1/vision/detection';
 
         $response = Http::attach(
             'image',

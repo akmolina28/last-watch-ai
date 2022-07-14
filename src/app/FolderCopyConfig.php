@@ -68,16 +68,16 @@ class FolderCopyConfig extends Model implements AutomationConfigInterface
         $ext = pathinfo($event->imageFile->file_name, PATHINFO_EXTENSION);
 
         if ($this->overwrite) {
-            $basename = $profile->slug.'.'.$ext;
+            $basename = $profile->slug . '.' . $ext;
         }
 
         $src = $event->imageFile->path;
-        $dest = $this->copy_to.$basename;
+        $dest = $this->copy_to . $basename;
 
         $success = copy($src, $dest);
 
         if (!$success) {
-            throw new AutomationException('Unable to copy image to '.$dest);
+            throw new AutomationException('Unable to copy image to ' . $dest);
         }
 
         return true;
@@ -86,7 +86,7 @@ class FolderCopyConfig extends Model implements AutomationConfigInterface
     protected static function booted()
     {
         static::deleted(function ($config) {
-            $config->update(['name' => time().'::'.$config->name]);
+            $config->update(['name' => time() . '::' . $config->name]);
         });
     }
 }

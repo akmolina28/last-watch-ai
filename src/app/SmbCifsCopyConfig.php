@@ -73,7 +73,7 @@ class SmbCifsCopyConfig extends Model implements AutomationConfigInterface
 
         if ($this->overwrite) {
             $ext = pathinfo($event->imageFile->file_name, PATHINFO_EXTENSION);
-            $destPath = $profile->slug.'.'.$ext;
+            $destPath = $profile->slug . '.' . $ext;
         }
 
         return $destPath;
@@ -104,7 +104,7 @@ class SmbCifsCopyConfig extends Model implements AutomationConfigInterface
         $response = shell_exec($cmd);
 
         if ($response) {
-            throw new AutomationException('smbclient did not return successfully: '.$response);
+            throw new AutomationException('smbclient did not return successfully: ' . $response);
         }
 
         return true;
@@ -113,7 +113,7 @@ class SmbCifsCopyConfig extends Model implements AutomationConfigInterface
     protected static function booted()
     {
         static::deleted(function ($config) {
-            $config->update(['name' => time().'::'.$config->name]);
+            $config->update(['name' => time() . '::' . $config->name]);
         });
     }
 }
