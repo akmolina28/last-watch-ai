@@ -56,7 +56,7 @@ class WebHookTest extends TestCase
 
     protected function triggerWebhook($fileName = 'testimage.jpg', $occurredAt = null)
     {
-        if (! $occurredAt) {
+        if (!$occurredAt) {
             $occurredAt = Carbon::now();
         }
 

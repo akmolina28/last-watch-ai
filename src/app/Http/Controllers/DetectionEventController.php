@@ -26,8 +26,7 @@ class DetectionEventController extends Controller
             ])
             ->where('is_processed', '=', 1);
 
-        if ($request->has('group'))
-        {
+        if ($request->has('group')) {
             $unique = $request->get('group');
             $group_id = ProfileGroup::findByUnique($unique)->id;
 
@@ -46,7 +45,6 @@ class DetectionEventController extends Controller
                     });
                 });
             }
-
         } elseif ($request->has('profile')) {
             $unique = $request->get('profile');
             $profile_id = DetectionProfile::findByUnique($unique)->id;
@@ -193,7 +191,7 @@ class DetectionEventController extends Controller
     {
         $matchedProfile = $event->patternMatchedProfiles()->first();
 
-        if (! $matchedProfile) {
+        if (!$matchedProfile) {
             return response()->json(['message' => 'Not Found.'], 404);
         }
 
@@ -206,7 +204,7 @@ class DetectionEventController extends Controller
             ->where('id', '!=', $event->id)
             ->orderBy('occurred_at')->first();
 
-        if (! $next) {
+        if (!$next) {
             return response()->json(['message' => 'Not Found.'], 404);
         }
 
@@ -217,7 +215,7 @@ class DetectionEventController extends Controller
     {
         $matchedProfile = $event->patternMatchedProfiles()->first();
 
-        if (! $matchedProfile) {
+        if (!$matchedProfile) {
             return response()->json(['message' => 'Not Found.'], 404);
         }
 
@@ -230,7 +228,7 @@ class DetectionEventController extends Controller
             ->where('id', '!=', $event->id)
             ->orderByDesc('occurred_at')->first();
 
-        if (! $prev) {
+        if (!$prev) {
             return response()->json(['message' => 'Not Found.'], 404);
         }
 

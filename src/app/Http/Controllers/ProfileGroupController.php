@@ -32,19 +32,19 @@ class ProfileGroupController extends Controller
         ]);
         $detection_profile_id = request()->get('profileId');
         $detach = request()->get('detach', false);
-        if ($detach)
-        {
+        if ($detach) {
             $group->detectionProfiles()->detach([$detection_profile_id]);
-        } else
-        {
+        } else {
             $group->detectionProfiles()->attach([$detection_profile_id]);
         }
+
         return true;
     }
 
     public function destroy(ProfileGroup $group)
     {
         $group->delete();
+
         return response()->json(['message' => 'OK'], 200);
     }
 

@@ -295,8 +295,6 @@ class EventsApiTest extends TestCase
             ->assertJsonCount(6, 'data');
     }
 
-
-
     /**
      * @test
      */

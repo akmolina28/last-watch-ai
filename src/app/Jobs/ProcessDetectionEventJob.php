@@ -60,10 +60,10 @@ class ProcessDetectionEventJob implements ShouldQueue
 
         $deepstackCall->response_json = $client->detection($imageFileContents);
         $deepstackCall->returned_at = Carbon::now();
-        $deepstackCall->is_error = ! (bool) $deepstackCall->success;
+        $deepstackCall->is_error = !(bool) $deepstackCall->success;
         $deepstackCall->save();
 
-        if (! $deepstackCall->success) {
+        if (!$deepstackCall->success) {
             throw DeepstackException::deepstackError($this->event, $deepstackCall->error);
         }
 
@@ -101,7 +101,7 @@ class ProcessDetectionEventJob implements ShouldQueue
 
                 $isSmartFiltered = false;
 
-                if (! $isMasked && ! $isTooSmall && !$is_confidence_filtered && $profile->use_smart_filter) {
+                if (!$isMasked && !$isTooSmall && !$is_confidence_filtered && $profile->use_smart_filter) {
                     $profileId = $profile->id;
                     $lastDetectionEvent = DetectionEvent::where('id', '!=', $this->event->id)
                         ->whereHas('detectionProfiles', function ($q) use ($profileId) {
@@ -114,7 +114,7 @@ class ProcessDetectionEventJob implements ShouldQueue
                     }
                 }
 
-                $isRelevant = ! ($isMasked || $isTooSmall || $isSmartFiltered || $is_confidence_filtered);
+                $isRelevant = !($isMasked || $isTooSmall || $isSmartFiltered || $is_confidence_filtered);
 
                 $profile->aiPredictions()->attach($aiPrediction->id, [
                     'is_relevant' => $isRelevant,
@@ -124,8 +124,8 @@ class ProcessDetectionEventJob implements ShouldQueue
                     'is_confidence_filtered' => $is_confidence_filtered,
                 ]);
 
-                if (! $isMasked && ! $isTooSmall && ! $isSmartFiltered && ! $is_confidence_filtered && ! $profile->is_negative) {
-                    if (! in_array($profile, $relevantProfiles)) {
+                if (!$isMasked && !$isTooSmall && !$isSmartFiltered && !$is_confidence_filtered && !$profile->is_negative) {
+                    if (!in_array($profile, $relevantProfiles)) {
                         array_push($relevantProfiles, $profile);
                     }
                 }

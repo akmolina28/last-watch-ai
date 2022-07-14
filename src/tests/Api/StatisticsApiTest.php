@@ -41,8 +41,6 @@ class StatisticsApiTest extends TestCase
         $this->be($user);
     }
 
-
-
     protected function setUpEvents(DetectionProfile $profile)
     {
         // make 3 unmatched, irrelevant events
