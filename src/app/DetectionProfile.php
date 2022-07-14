@@ -233,7 +233,7 @@ class DetectionProfile extends Model
     {
         $precision = $this->smart_filter_precision ?? 0.80;
 
-        if (! $this->use_smart_filter) {
+        if (!$this->use_smart_filter) {
             return false;
         }
 

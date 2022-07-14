@@ -83,7 +83,7 @@ class MqttPublishConfig extends Model implements AutomationConfigInterface
         if ($this->is_custom_payload) {
             $payload = PayloadHelper::doReplacements($payload, $event, $profile);
         }
-        if (! $this->is_custom_payload) {
+        if (!$this->is_custom_payload) {
             $payload = PayloadHelper::getEventPayload($event, $profile);
         }
 
