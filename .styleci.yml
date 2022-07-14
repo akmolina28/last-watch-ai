@@ -1,0 +1,10 @@
+preset: laravel
+disabled:
+  - unused_use
+  - concat_without_spaces
+  - not_operator_with_successor_space
+finder:
+  not-name:
+    - _ide_helper.php
+    - index.php
+    - server.php

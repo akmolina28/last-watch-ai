@@ -4,6 +4,9 @@
          bootstrap="vendor/autoload.php"
          colors="true">
     <testsuites>
+        <testsuite name="Api">
+            <directory suffix="Test.php">./tests/Api</directory>
+        </testsuite>
         <testsuite name="Model">
             <directory suffix="Test.php">./tests/Model</directory>
         </testsuite>
