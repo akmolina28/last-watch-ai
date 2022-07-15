@@ -101,4 +101,6 @@ Route::put('/profileGroups/{group}/attachProfile', 'ProfileGroupController@attac
 
 Route::delete('/profileGroups/{group}', 'ProfileGroupController@destroy')->middleware('auth.basic');
 
+Route::put('/profiles/{param}/ignoreZone', 'DetectionProfileController@ignoreZone')->middleware('auth.basic');
+
 Route::any('/{any}', 'ErrorController@catchAll')->where('any', '.*')->middleware('auth.basic');

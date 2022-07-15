@@ -16,7 +16,6 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * DetectionProfile.
  *
  * @mixin Eloquent
- *
  * @property int $id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -41,7 +40,6 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @property-read mixed $status
  * @property-read Collection|DetectionEvent[] $patternMatchedEvents
  * @property-read int|null $pattern_matched_events_count
- *
  * @method static Builder|DetectionProfile newModelQuery()
  * @method static Builder|DetectionProfile newQuery()
  * @method static Builder|DetectionProfile onlyTrashed()
@@ -65,11 +63,16 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @method static Builder|DetectionProfile whereUseSmartFilter($value)
  * @method static Builder|DetectionProfile withTrashed()
  * @method static Builder|DetectionProfile withoutTrashed()
- *
  * @property-read Collection|AutomationConfig[] $automations
  * @property-read int|null $automations_count
- *
  * @method static Builder|DetectionProfile whereIsNegative($value)
+ * @property bool $privacy_mode
+ * @property-read Collection|\App\IgnoreZone[] $ignoreZones
+ * @property-read int|null $ignore_zones_count
+ * @property-read Collection|\App\ProfileGroup[] $profileGroups
+ * @property-read int|null $profile_groups_count
+ * @method static Builder|DetectionProfile whereMinObjectSize($value)
+ * @method static Builder|DetectionProfile wherePrivacyMode($value)
  */
 class DetectionProfile extends Model
 {
@@ -130,13 +133,27 @@ class DetectionProfile extends Model
             [null, null, 'id'],
             [null, 'ai_prediction_id', 'detection_event_id']
         )
-            ->withPivot('ai_prediction_detection_profile', ['is_relevant', 'is_masked', 'is_smart_filtered', 'is_size_filtered', 'is_confidence_filtered']);
+            ->withPivot('ai_prediction_detection_profile', [
+                'is_relevant',
+                'is_masked',
+                'is_smart_filtered',
+                'is_size_filtered',
+                'is_confidence_filtered',
+                'is_zone_ignored',
+            ]);
     }
 
     public function aiPredictions()
     {
         return $this->belongsToMany('App\AiPrediction')
-            ->withPivot(['is_relevant', 'is_masked', 'is_smart_filtered', 'is_size_filtered', 'is_confidence_filtered']);
+            ->withPivot([
+                'is_relevant',
+                'is_masked',
+                'is_smart_filtered',
+                'is_size_filtered',
+                'is_confidence_filtered',
+                'is_zone_ignored',
+            ]);
     }
 
     public function automations()
@@ -147,6 +164,11 @@ class DetectionProfile extends Model
     public function profileGroups()
     {
         return $this->belongsToMany('App\ProfileGroup');
+    }
+
+    public function ignoreZones()
+    {
+        return $this->hasMany('App\IgnoreZone');
     }
 
     public function setNameAttribute($value)
@@ -205,6 +227,24 @@ class DetectionProfile extends Model
         return false;
     }
 
+    /**
+     * Set up an ignore zone using an existing prediction.
+     * @param AiPrediction $prediction 
+     * @param mixed $expires_at 
+     * @return void 
+     */
+    public function ignoreSimilarPredictions(AiPrediction $prediction, $expires_at = null)
+    {
+        $this->ignoreZones()->create([
+            'object_class' => $prediction->object_class,
+            'x_min' => $prediction->x_min,
+            'x_max' => $prediction->x_max,
+            'y_min' => $prediction->y_min,
+            'y_max' => $prediction->y_max,
+            'expires_at' => $expires_at,
+        ]);
+    }
+
     public function subscribeAutomation($automationClass, $automationId, $isHighPriority = false)
     {
         $this->morphedByMany($automationClass, 'automation_config')
@@ -256,6 +296,36 @@ class DetectionProfile extends Model
         // see if any of the predictions overlap with the new prediction
         foreach ($filterCandidates as $candidate) {
             if ($candidate->percentageOverlap($prediction) >= $precision) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if prediction is ignored by an IgnoreZone.
+     * @param AiPrediction $prediction 
+     * @return bool 
+     */
+    public function isPredictionIgnored(AiPrediction $prediction)
+    {
+        $ignore_zones = $this->ignoreZones()
+            ->where(function ($q) {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            })
+            ->where(function ($q) use ($prediction) {
+                $q->whereNull('object_class')->orWhere('object_class', '=', $prediction->object_class);
+            });
+
+        if ($ignore_zones->count() == 0) return false;
+
+        $precision = 0.75;
+
+        foreach ($ignore_zones->get() as $ignore_zone) {
+            $ignored_prediction = AiPrediction::make($ignore_zone->toArray());
+
+            if ($ignored_prediction->percentageOverlap($prediction) >= $precision) {
                 return true;
             }
         }

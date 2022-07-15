@@ -99,9 +99,11 @@ class ProcessDetectionEventJob implements ShouldQueue
 
                 $is_confidence_filtered = $prediction->confidence <= $profile->min_confidence;
 
+                $is_zone_ignored = $profile->isPredictionIgnored($aiPrediction);
+
                 $isSmartFiltered = false;
 
-                if (!$isMasked && !$isTooSmall && !$is_confidence_filtered && $profile->use_smart_filter) {
+                if (!$isMasked && !$isTooSmall && !$is_confidence_filtered && !$is_zone_ignored && $profile->use_smart_filter) {
                     $profileId = $profile->id;
                     $lastDetectionEvent = DetectionEvent::where('id', '!=', $this->event->id)
                         ->whereHas('detectionProfiles', function ($q) use ($profileId) {
@@ -114,7 +116,7 @@ class ProcessDetectionEventJob implements ShouldQueue
                     }
                 }
 
-                $isRelevant = !($isMasked || $isTooSmall || $isSmartFiltered || $is_confidence_filtered);
+                $isRelevant = !($isMasked || $isTooSmall || $isSmartFiltered || $is_confidence_filtered || $is_zone_ignored);
 
                 $profile->aiPredictions()->attach($aiPrediction->id, [
                     'is_relevant' => $isRelevant,
@@ -122,9 +124,10 @@ class ProcessDetectionEventJob implements ShouldQueue
                     'is_smart_filtered' => $isSmartFiltered,
                     'is_size_filtered' => $isTooSmall,
                     'is_confidence_filtered' => $is_confidence_filtered,
+                    'is_zone_ignored' => $is_zone_ignored,
                 ]);
 
-                if (!$isMasked && !$isTooSmall && !$isSmartFiltered && !$is_confidence_filtered && !$profile->is_negative) {
+                if ($isRelevant && !$profile->is_negative) {
                     if (!in_array($profile, $relevantProfiles)) {
                         array_push($relevantProfiles, $profile);
                     }

@@ -12,7 +12,6 @@ use Illuminate\Support\Carbon;
  * AiPrediction.
  *
  * @mixin Eloquent
- *
  * @property int $id
  * @property int $detection_event_id
  * @property string $object_class
@@ -26,7 +25,6 @@ use Illuminate\Support\Carbon;
  * @property-read DetectionEvent $detectionEvent
  * @property-read Collection|DetectionProfile[] $detectionProfiles
  * @property-read int|null $detection_profiles_count
- *
  * @method static Builder|AiPrediction newModelQuery()
  * @method static Builder|AiPrediction newQuery()
  * @method static Builder|AiPrediction query()
@@ -53,7 +51,14 @@ class AiPrediction extends Model
     public function detectionProfiles()
     {
         return $this->belongsToMany('App\DetectionProfile')
-            ->withPivot(['is_relevant', 'is_masked', 'is_smart_filtered', 'is_size_filtered', 'is_confidence_filtered']);
+            ->withPivot([
+                'is_relevant',
+                'is_masked',
+                'is_smart_filtered',
+                'is_size_filtered',
+                'is_confidence_filtered',
+                'is_zone_ignored',
+            ]);
     }
 
     public function area()
@@ -64,6 +69,11 @@ class AiPrediction extends Model
         return $x_len * $y_len;
     }
 
+    /**
+     * Calculate how much this prediction overlaps with another, as a percentage of total area.
+     * @param AiPrediction $prediction 
+     * @return float 
+     */
     public function percentageOverlap(AiPrediction $prediction)
     {
         $intersectingArea =
@@ -148,6 +158,7 @@ class AiPrediction extends Model
             $attributes['is_relevant'] = $attributes['pivot']['is_relevant'];
             $attributes['is_masked'] = $attributes['pivot']['is_masked'];
             $attributes['is_smart_filtered'] = $attributes['pivot']['is_smart_filtered'];
+            $attributes['is_zone_ignored'] = $attributes['pivot']['is_zone_ignored'];
             $attributes['is_size_filtered'] = $attributes['pivot']['is_size_filtered'];
             $attributes['is_confidence_filtered'] = $attributes['pivot']['is_confidence_filtered'];
             unset($attributes['pivot']);

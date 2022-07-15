@@ -13,7 +13,6 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * DetectionEvent.
  *
  * @mixin Eloquent
- *
  * @property int $id
  * @property string $image_file_name
  * @property string|null $deepstack_response
@@ -29,7 +28,6 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @property-read int|null $ai_predictions_count
  * @property-read Collection|DetectionProfile[] $patternMatchedProfiles
  * @property-read int|null $pattern_matched_profiles_count
- *
  * @method static Builder|DetectionEvent newModelQuery()
  * @method static Builder|DetectionEvent newQuery()
  * @method static Builder|DetectionEvent query()
@@ -40,7 +38,6 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @method static Builder|DetectionEvent whereImageFileName($value)
  * @method static Builder|DetectionEvent whereOccurredAt($value)
  * @method static Builder|DetectionEvent whereUpdatedAt($value)
- *
  * @property-read Collection|\App\DetectionEventAutomationResult[] $automations
  * @property-read int|null $automations_count
  * @property-read Collection|\App\DetectionEventAutomationResult[] $automationResults
@@ -50,8 +47,12 @@ use Staudenmeir\EloquentHasManyDeep\HasRelationships;
  * @property-read mixed $event_url
  * @property-read mixed $image_url
  * @property-read ImageFile|null $imageFile
- *
  * @method static Builder|DetectionEvent whereImageFileId($value)
+ * @property bool $is_processed
+ * @property-read int|null $deepstack_calls_count
+ * @property-read mixed $image_download
+ * @property-read mixed $thumb_url
+ * @method static Builder|DetectionEvent whereIsProcessed($value)
  */
 class DetectionEvent extends Model
 {
@@ -73,7 +74,14 @@ class DetectionEvent extends Model
     public function detectionProfiles()
     {
         return $this->hasManyDeep('App\DetectionProfile', ['App\AiPrediction', 'ai_prediction_detection_profile'])
-            ->withPivot('ai_prediction_detection_profile', ['is_relevant', 'is_masked', 'is_smart_filtered', 'is_size_filtered', 'is_confidence_filtered']);
+            ->withPivot('ai_prediction_detection_profile', [
+                'is_relevant',
+                'is_masked',
+                'is_smart_filtered',
+                'is_size_filtered',
+                'is_confidence_filtered',
+                'is_zone_ignored',
+            ]);
     }
 
     public function patternMatchedProfiles()

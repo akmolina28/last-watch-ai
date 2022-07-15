@@ -1,47 +1,42 @@
 {
   "[vue]": {
-      "editor.tabSize": 2,
-      "editor.defaultFormatter": "esbenp.prettier-vscode",
-      "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.insertSpaces": true
   },
   "[javascript]": {
-      "editor.tabSize": 2,
-      "editor.defaultFormatter": "esbenp.prettier-vscode",
-      "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.insertSpaces": true
   },
   "[html]": {
-      "editor.tabSize": 2,
-      "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
   },
   "[php]": {
-      "editor.tabSize": 4,
-      "editor.insertSpaces": true,
-      "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
   },
   "[json]": {
-      "editor.tabSize": 2,
-      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "phpunit.command": "docker-compose run --rm phpunit",
   "phpunit.paths": {
-      "${workspaceFolder}/src": "."
+    "${workspaceFolder}/src": "."
   },
   "phpunit.phpunit": "./vendor/phpunit/phpunit/phpunit",
   "fontAwesomeAutocomplete.version": "5",
-  "fontAwesomeAutocomplete.patterns": [
-      "**/*.html",
-      "**/*.vue"
-  ],
-  "fontAwesomeAutocomplete.disableTriggerWordAutoClearPatterns": [
-      "**/*.html",
-  ],
+  "fontAwesomeAutocomplete.patterns": ["**/*.html", "**/*.vue"],
+  "fontAwesomeAutocomplete.disableTriggerWordAutoClearPatterns": ["**/*.html"],
   "fontAwesomeAutocomplete.insertionTemplate": {
-      "**/*.html": "{style} {prefix}{name}",
-      "**/*.vue": "{name}",
+    "**/*.html": "{style} {prefix}{name}",
+    "**/*.vue": "{name}"
   },
   "fontAwesomeAutocomplete.enableElevatedSortPriority": true,
-"files.associations": {
+  "files.associations": {
     "*.module": "php"
-},
-"intelephense.environment.phpVersion": "7.4"
+  },
+  "intelephense.environment.phpVersion": "7.4"
 }

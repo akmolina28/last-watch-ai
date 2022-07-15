@@ -489,4 +489,82 @@ class ProfilesApiTest extends TestCase
                 'message' => 'Not Found.',
             ]);
     }
+
+    /**
+     * @test
+     */
+    public function api_can_add_ignore_zone_to_profile()
+    {
+
+        /**
+         * @var DetectionProfile
+         */
+        $profile = factory(DetectionProfile::class)->create();
+        $profile->refresh();
+
+        /**
+         * @var DetectionEvent
+         */
+        $event = factory(DetectionEvent::class)->create();
+
+        /**
+         * @var AiPrediction
+         */
+        $prediction = factory(AiPrediction::class)->create([
+            'detection_event_id' => $event->id,
+        ]);
+
+        $this->json('PUT', '/api/profiles/' . $profile->slug . '/ignoreZone', [
+            'ai_prediction_id' => $prediction->id
+        ])->assertStatus(200);
+
+        $this->assertEquals(1, $profile->ignoreZones()->count());
+        $this->assertEquals($prediction->x_min, $profile->ignoreZones()->first()->x_min);
+        $this->assertEquals($prediction->x_max, $profile->ignoreZones()->first()->x_max);
+        $this->assertEquals($prediction->y_min, $profile->ignoreZones()->first()->y_min);
+        $this->assertEquals($prediction->y_max, $profile->ignoreZones()->first()->y_max);
+        $this->assertEquals($prediction->object_class, $profile->ignoreZones()->first()->object_class);
+        $this->assertNull($profile->ignoreZones()->first()->expires_at);
+    }
+
+    /**
+     * @test
+     */
+    public function api_can_add_ignore_zone_to_profile_with_expiry()
+    {
+
+        /**
+         * @var DetectionProfile
+         */
+        $profile = factory(DetectionProfile::class)->create();
+        $profile->refresh();
+
+        /**
+         * @var DetectionEvent
+         */
+        $event = factory(DetectionEvent::class)->create();
+
+        /**
+         * @var AiPrediction
+         */
+        $prediction = factory(AiPrediction::class)->create([
+            'detection_event_id' => $event->id,
+        ]);
+
+        $this->json('PUT', '/api/profiles/' . $profile->slug . '/ignoreZone', [
+            'ai_prediction_id' => $prediction->id,
+            'expiration_days' => 7
+        ])->assertStatus(200);
+
+        $this->assertEquals(1, $profile->ignoreZones()->count());
+        $this->assertEquals($prediction->x_min, $profile->ignoreZones()->first()->x_min);
+        $this->assertEquals($prediction->x_max, $profile->ignoreZones()->first()->x_max);
+        $this->assertEquals($prediction->y_min, $profile->ignoreZones()->first()->y_min);
+        $this->assertEquals($prediction->y_max, $profile->ignoreZones()->first()->y_max);
+        $this->assertEquals($prediction->object_class, $profile->ignoreZones()->first()->object_class);
+        $this->assertEquals(
+            now()->addDays(7)->format('Y-m-d h:m:s'),
+            $profile->ignoreZones()->first()->expires_at->format('Y-m-d h:m:s')
+        );
+    }
 }

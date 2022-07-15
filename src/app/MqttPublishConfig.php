@@ -17,7 +17,6 @@ use PhpMqtt\Client\MqttClient;
  * AiPrediction.
  *
  * @mixin Eloquent
- *
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -35,7 +34,6 @@ use PhpMqtt\Client\MqttClient;
  * @property Carbon|null $deleted_at
  * @property-read Collection|DetectionProfile[] $detectionProfiles
  * @property-read int|null $detection_profiles_count
- *
  * @method static Builder|MqttPublishConfig newModelQuery()
  * @method static Builder|MqttPublishConfig newQuery()
  * @method static \Illuminate\Database\Query\Builder|MqttPublishConfig onlyTrashed()

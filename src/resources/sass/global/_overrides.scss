@@ -88,3 +88,7 @@ button.dropdown-item.is-active .icon {
 .field.is-grouped.is-grouped-multiline>.control:not(:last-child) {
     margin-bottom: .75rem;
 }
+
+.table tr.is-selected a.dropdown-item {
+    color: $text;
+}

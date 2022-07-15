@@ -20,7 +20,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
- *
  * @method static Builder|AutomationConfig newModelQuery()
  * @method static Builder|AutomationConfig newQuery()
  * @method static Builder|AutomationConfig query()
@@ -32,13 +31,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static Builder|AutomationConfig whereId($value)
  * @method static Builder|AutomationConfig whereUpdatedAt($value)
  * @mixin Eloquent
- *
  * @method static Builder|AutomationConfig onlyTrashed()
  * @method static Builder|AutomationConfig withTrashed()
  * @method static Builder|AutomationConfig withoutTrashed()
- *
  * @property bool $is_high_priority
- *
  * @method static Builder|AutomationConfig whereIsHighPriority($value)
  */
 class AutomationConfig extends Model

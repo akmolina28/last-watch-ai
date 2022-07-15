@@ -22,7 +22,6 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property-read DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
  * @property-read int|null $notifications_count
- *
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
  * @method static Builder|User query()

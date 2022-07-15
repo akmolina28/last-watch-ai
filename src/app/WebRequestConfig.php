@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Http;
  * WebRequestConfig.
  *
  * @mixin Eloquent
- *
  * @property int $id
  * @property string $name
  * @property string $url
@@ -28,7 +27,6 @@ use Illuminate\Support\Facades\Http;
  * @property Carbon|null $updated_at
  * @property-read Collection|\App\DetectionProfile[] $detectionProfiles
  * @property-read int|null $detection_profiles_count
- *
  * @method static Builder|WebRequestConfig newModelQuery()
  * @method static Builder|WebRequestConfig newQuery()
  * @method static Builder|WebRequestConfig query()
@@ -40,9 +38,7 @@ use Illuminate\Support\Facades\Http;
  * @method static Builder|WebRequestConfig whereBodyJson($value)
  * @method static Builder|WebRequestConfig whereHeadersJson($value)
  * @method static Builder|WebRequestConfig whereIsPost($value)
- *
  * @property Carbon|null $deleted_at
- *
  * @method static Builder|WebRequestConfig onlyTrashed()
  * @method static Builder|WebRequestConfig whereDeletedAt($value)
  * @method static Builder|WebRequestConfig withTrashed()

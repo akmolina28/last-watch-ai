@@ -15,7 +15,6 @@ use Illuminate\Support\Carbon;
  * DetectionProfile.
  *
  * @mixin Eloquent
- *
  * @property int $id
  * @property string $name
  * @property string $copy_to
@@ -24,7 +23,6 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property-read Collection|DetectionProfile[] $detectionProfiles
  * @property-read int|null $detection_profiles_count
- *
  * @method static Builder|FolderCopyConfig newModelQuery()
  * @method static Builder|FolderCopyConfig newQuery()
  * @method static Builder|FolderCopyConfig query()
@@ -34,9 +32,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder|FolderCopyConfig whereName($value)
  * @method static Builder|FolderCopyConfig whereOverwrite($value)
  * @method static Builder|FolderCopyConfig whereUpdatedAt($value)
- *
  * @property Carbon|null $deleted_at
- *
  * @method static Builder|FolderCopyConfig onlyTrashed()
  * @method static Builder|FolderCopyConfig whereDeletedAt($value)
  * @method static Builder|FolderCopyConfig withTrashed()

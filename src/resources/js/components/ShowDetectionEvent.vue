@@ -148,6 +148,20 @@
                   >
                 </b-taglist>
               </div>
+              <div v-else-if="props.row.is_zone_ignored" class="control">
+                <b-taglist>
+                  <b-tag type="is-warning" icon="ban"
+                    ><b-tooltip
+                      multiline
+                      type="is-warning"
+                      :label="
+                        `${selectedPrediction.object_class} objects are ignored in this area.`
+                      "
+                      >Ignored</b-tooltip
+                    ></b-tag
+                  >
+                </b-taglist>
+              </div>
               <div v-else-if="props.row.is_confidence_filtered" class="control">
                 <b-taglist>
                   <b-tag type="is-warning" icon="percent"
@@ -192,6 +206,20 @@
               </div>
             </b-field>
           </b-table-column>
+          <b-table-column v-if="selectedPrediction" field="name" v-slot="props">
+            <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
+              <template #trigger>
+                <b-icon icon="ellipsis-v"></b-icon>
+              </template>
+              <b-dropdown-item
+                aria-role="listitem"
+                @click="ignorePrediction(props.row, selectedPrediction)"
+              >
+                <b-icon icon="ban"></b-icon>
+                Ignore Prediction
+              </b-dropdown-item>
+            </b-dropdown>
+          </b-table-column>
           <template #empty>
             <span><i>No matched profiles for this prediction.</i></span>
           </template>
@@ -203,12 +231,16 @@
 
 <script>
 import axios from 'axios';
+import IgnorePredictionForm from './IgnorePredictionForm.vue';
 
 const Facade = require('facade.js');
 
 export default {
   name: 'ShowDetectionEvent',
   props: ['id'],
+  components: {
+    IgnorePredictionForm,
+  },
   data() {
     return {
       event: null,
@@ -429,6 +461,18 @@ export default {
         for (let i = 0; i < rects.length; i += 1) {
           this.addToStage(rects[i]);
         }
+      });
+    },
+    ignorePrediction(profile, aiPrediction) {
+      this.$buefy.modal.open({
+        parent: this,
+        hasModalCard: true,
+        fullScreen: false,
+        component: IgnorePredictionForm,
+        props: {
+          profile,
+          aiPrediction,
+        },
       });
     },
   },

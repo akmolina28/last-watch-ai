@@ -5,9 +5,11 @@ namespace Tests\Model;
 use App\AiPrediction;
 use App\DetectionEvent;
 use App\DetectionProfile;
+use App\IgnoreZone;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 class DetectionProfileTest extends TestCase
@@ -436,5 +438,187 @@ class DetectionProfileTest extends TestCase
         $event = DetectionEvent::latest()->first();
 
         $this->assertTrue($profile->isPredictionSmartFiltered($testPrediction, $event));
+    }
+
+    /**
+     * @test
+     */
+    public function detection_profile_can_add_ignore_zones()
+    {
+        /**
+         * @var DetectionProfile
+         */
+        $profile = factory(DetectionProfile::class)->create();
+        $profile->refresh();
+
+        /**
+         * @var DetectionEvent
+         */
+        $event = factory(DetectionEvent::class)->create();
+
+        /**
+         * @var AiPrediction
+         */
+        $prediction = factory(AiPrediction::class)->create([
+            'detection_event_id' => $event->id,
+        ]);
+
+        $expires_at = Carbon::now();
+
+        $profile->ignoreSimilarPredictions($prediction, $expires_at);
+
+        $this->assertEquals(1, $profile->ignoreZones()->count());
+        $this->assertEquals($prediction->x_min, $profile->ignoreZones()->first()->x_min);
+        $this->assertEquals($prediction->x_max, $profile->ignoreZones()->first()->x_max);
+        $this->assertEquals($prediction->y_min, $profile->ignoreZones()->first()->y_min);
+        $this->assertEquals($prediction->y_max, $profile->ignoreZones()->first()->y_max);
+        $this->assertEquals($prediction->object_class, $profile->ignoreZones()->first()->object_class);
+        $this->assertEquals($expires_at->getTimestamp(), $profile->ignoreZones()->first()->expires_at->getTimestamp());
+    }
+
+    /**
+     * @test
+     */
+    public function detection_profile_can_add_ignore_zones_with_null_expiry()
+    {
+        /**
+         * @var DetectionProfile
+         */
+        $profile = factory(DetectionProfile::class)->create();
+        $profile->refresh();
+
+        /**
+         * @var DetectionEvent
+         */
+        $event = factory(DetectionEvent::class)->create();
+
+        /**
+         * @var AiPrediction
+         */
+        $prediction = factory(AiPrediction::class)->create([
+            'detection_event_id' => $event->id,
+        ]);
+
+        $profile->ignoreSimilarPredictions($prediction);
+
+        $this->assertEquals(1, $profile->ignoreZones()->count());
+        $this->assertEquals($prediction->x_min, $profile->ignoreZones()->first()->x_min);
+        $this->assertEquals($prediction->x_max, $profile->ignoreZones()->first()->x_max);
+        $this->assertEquals($prediction->y_min, $profile->ignoreZones()->first()->y_min);
+        $this->assertEquals($prediction->y_max, $profile->ignoreZones()->first()->y_max);
+        $this->assertEquals($prediction->object_class, $profile->ignoreZones()->first()->object_class);
+        $this->assertNull($profile->ignoreZones()->first()->expires_at);
+    }
+
+    /**
+     * @test
+     */
+    public function a_profile_can_ignore_exact_predictions()
+    {
+        /**
+         * @var DetectionProfile
+         */
+        $profile = factory(DetectionProfile::class)->create();
+        $profile->refresh();
+
+        /**
+         * @var DetectionEvent
+         */
+        $event = factory(DetectionEvent::class)->create();
+
+        /**
+         * @var AiPrediction
+         */
+        $prediction = factory(AiPrediction::class)->create([
+            'detection_event_id' => $event->id,
+        ]);
+
+        $profile->ignoreSimilarPredictions($prediction);
+
+        $exact_prediction = AiPrediction::create($prediction->toArray());
+
+        $this->assertTrue($profile->isPredictionIgnored($exact_prediction));
+
+        $similar_prediction = AiPrediction::create([
+            'object_class' => $prediction->object_class,
+            'x_min' => $prediction->x_min + 1,
+            'x_max' => $prediction->x_max + 2,
+            'y_min' => $prediction->y_min + 2,
+            'y_max' => $prediction->y_max + 1,
+            'confidence' => $prediction->confidence,
+            'detection_event_id' => $event->id,
+        ]);
+
+        $this->assertTrue($profile->isPredictionIgnored($similar_prediction));
+    }
+
+    /**
+     * @test
+     */
+    public function a_profile_does_not_ignore_other_object_classes()
+    {
+        /**
+         * @var DetectionProfile
+         */
+        $profile = factory(DetectionProfile::class)->create();
+        $profile->refresh();
+
+        /**
+         * @var DetectionEvent
+         */
+        $event = factory(DetectionEvent::class)->create();
+
+        /**
+         * @var AiPrediction
+         */
+        $prediction = factory(AiPrediction::class)->create([
+            'detection_event_id' => $event->id,
+            'object_class' => 'person',
+        ]);
+
+        $profile->ignoreSimilarPredictions($prediction);
+
+        $prediction_different_object_class = AiPrediction::create([
+            'object_class' => 'truck',
+            'x_min' => $prediction->x_min,
+            'x_max' => $prediction->x_max,
+            'y_min' => $prediction->y_min,
+            'y_max' => $prediction->y_max,
+            'confidence' => $prediction->confidence,
+            'detection_event_id' => $event->id,
+        ]);
+
+        $this->assertFalse($profile->isPredictionIgnored($prediction_different_object_class));
+    }
+
+    /**
+     * @test
+     */
+    public function a_profile_does_not_ignore_when_zone_expired()
+    {
+        /**
+         * @var DetectionProfile
+         */
+        $profile = factory(DetectionProfile::class)->create();
+        $profile->refresh();
+
+        /**
+         * @var DetectionEvent
+         */
+        $event = factory(DetectionEvent::class)->create();
+
+        /**
+         * @var AiPrediction
+         */
+        $prediction = factory(AiPrediction::class)->create([
+            'detection_event_id' => $event->id,
+        ]);
+
+        $past_date = now()->addDays(-1);
+        $profile->ignoreSimilarPredictions($prediction, $past_date);
+
+        $exact_prediction = AiPrediction::create($prediction->toArray());
+
+        $this->assertFalse($profile->isPredictionIgnored($exact_prediction));
     }
 }

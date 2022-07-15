@@ -11,12 +11,10 @@ use Illuminate\Support\Carbon;
  * App\DeepstackCall.
  *
  * @property-read mixed $run_time_seconds
- *
  * @method static Builder|DeepstackCall newModelQuery()
  * @method static Builder|DeepstackCall newQuery()
  * @method static Builder|DeepstackCall query()
  * @mixin Eloquent
- *
  * @property int $id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -27,7 +25,6 @@ use Illuminate\Support\Carbon;
  * @property int $is_error
  * @property int $runTimeSeconds
  * @property array $predictions
- *
  * @method static Builder|DeepstackCall whereCalledAt($value)
  * @method static Builder|DeepstackCall whereCreatedAt($value)
  * @method static Builder|DeepstackCall whereId($value)
@@ -36,10 +33,10 @@ use Illuminate\Support\Carbon;
  * @method static Builder|DeepstackCall whereResponseJson($value)
  * @method static Builder|DeepstackCall whereReturnedAt($value)
  * @method static Builder|DeepstackCall whereUpdatedAt($value)
- *
  * @property int $detection_event_id
- *
  * @method static Builder|DeepstackCall whereDetectionEventId($value)
+ * @property-read mixed $error
+ * @property-read mixed $success
  */
 class DeepstackCall extends Model
 {

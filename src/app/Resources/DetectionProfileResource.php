@@ -41,6 +41,9 @@ class DetectionProfileResource extends JsonResource
             'is_smart_filtered' => $this->whenPivotLoaded('ai_prediction_detection_profile', function () {
                 return $this->pivot->is_smart_filtered;
             }),
+            'is_zone_ignored' => $this->whenPivotLoaded('ai_prediction_detection_profile', function () {
+                return $this->pivot->is_zone_ignored;
+            }),
             'is_size_filtered' => $this->whenPivotLoaded('ai_prediction_detection_profile', function () {
                 return $this->pivot->is_size_filtered;
             }),

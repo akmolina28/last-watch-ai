@@ -15,6 +15,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -241,17 +242,21 @@ class DetectionTest extends TestCase
         $this->assertCount(3, $event->detectionProfiles);
 
         // only 2 unmasked predictions
-        $this->assertCount(2, $event->detectionProfiles()
-            ->where('ai_prediction_detection_profile.is_masked', '=', false)
-            ->where('ai_prediction_detection_profile.is_relevant', '=', true)
-            ->get()
+        $this->assertCount(
+            2,
+            $event->detectionProfiles()
+                ->where('ai_prediction_detection_profile.is_masked', '=', false)
+                ->where('ai_prediction_detection_profile.is_relevant', '=', true)
+                ->get()
         );
 
         // only 1 masked prediction
-        $this->assertCount(1, $event->detectionProfiles()
-            ->where('ai_prediction_detection_profile.is_masked', '=', true)
-            ->where('ai_prediction_detection_profile.is_relevant', '=', false)
-            ->get()
+        $this->assertCount(
+            1,
+            $event->detectionProfiles()
+                ->where('ai_prediction_detection_profile.is_masked', '=', true)
+                ->where('ai_prediction_detection_profile.is_relevant', '=', false)
+                ->get()
         );
     }
 
@@ -284,17 +289,21 @@ class DetectionTest extends TestCase
         $this->assertCount(3, $event->aiPredictions);
 
         // only 2 unfiltered predictions
-        $this->assertCount(2, $event->detectionProfiles()
-            ->where('ai_prediction_detection_profile.is_size_filtered', '=', false)
-            ->where('ai_prediction_detection_profile.is_relevant', '=', true)
-            ->get()
+        $this->assertCount(
+            2,
+            $event->detectionProfiles()
+                ->where('ai_prediction_detection_profile.is_size_filtered', '=', false)
+                ->where('ai_prediction_detection_profile.is_relevant', '=', true)
+                ->get()
         );
 
         // 1 filtered prediction (dog)
-        $this->assertCount(1, $event->detectionProfiles()
-            ->where('ai_prediction_detection_profile.is_size_filtered', '=', true)
-            ->where('ai_prediction_detection_profile.is_relevant', '=', false)
-            ->get()
+        $this->assertCount(
+            1,
+            $event->detectionProfiles()
+                ->where('ai_prediction_detection_profile.is_size_filtered', '=', true)
+                ->where('ai_prediction_detection_profile.is_relevant', '=', false)
+                ->get()
         );
 
         $this->assertEquals('dog', $profile->aiPredictions()->where('is_size_filtered', '=', true)->first()->object_class);
@@ -444,5 +453,55 @@ class DetectionTest extends TestCase
         Queue::assertPushedOn('low', ProcessImageOptimizationJob::class, function ($job) {
             return $job->privacy_mode === true;
         });
+    }
+
+    /**
+     * @test
+     */
+    public function detection_job_can_zone_ignore_predictions()
+    {
+        factory(DetectionProfile::class, 5)->create();
+
+        // active match
+        $profile = factory(DetectionProfile::class)->create([
+            'object_classes' => ['person', 'dog'],
+            'use_mask' => false,
+            'use_smart_filter' => false,
+        ]);
+
+        $imageFile = $this->createImageFile();
+
+        // process an event
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile->id,
+        ]);
+        $event->patternMatchedProfiles()->attach($profile->id);
+        $this->handleDetectionJob($event);
+
+        $ignore_prediction = $event->aiPredictions()->first();
+        $profile->ignoreSimilarPredictions($ignore_prediction);
+
+        // process another event with the same predictions
+        $event = factory(DetectionEvent::class)->create([
+            'image_file_id' => $imageFile->id,
+        ]);
+        $event->patternMatchedProfiles()->attach($profile->id);
+        $this->handleDetectionJob($event);
+
+        $event = DetectionEvent::find($event->id);
+        $this->assertCount(3, $event->aiPredictions);
+        $this->assertCount(3, $event->detectionProfiles);
+
+        Log::info($event->detectionProfiles()->get());
+
+        $this->assertEquals(1, $event->detectionProfiles()
+            ->where('ai_prediction_detection_profile.is_zone_ignored', '=', true)
+            ->where('ai_prediction_detection_profile.is_relevant', '=', false)
+            ->count());
+
+        $this->assertEquals(2, $event->detectionProfiles()
+            ->where('ai_prediction_detection_profile.is_zone_ignored', '=', false)
+            ->where('ai_prediction_detection_profile.is_relevant', '=', true)
+            ->count());
     }
 }

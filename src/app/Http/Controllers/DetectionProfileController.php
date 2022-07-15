@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\AiPrediction;
 use App\DetectionProfile;
 use App\Jobs\EnableDetectionProfileJob;
 use App\Resources\DetectionProfileResource;
@@ -257,5 +258,24 @@ class DetectionProfileController extends Controller
         $profile->profileGroups()->sync($group_ids);
 
         return true;
+    }
+
+    public function ignoreZone($param)
+    {
+        $profile = $this->lookUpProfile($param);
+
+        request()->validate([
+            'ai_prediction_id' => 'integer|required',
+            'expiration_days' => 'integer',
+        ]);
+
+        $ignorePrediction = AiPrediction::findOrFail(request()->get('ai_prediction_id'));
+        $expires_at = null;
+        if (request()->has('expiration_days')) {
+            $expires_at = now()->addDays(request()->get('expiration_days'));
+        }
+        $profile->ignoreSimilarPredictions($ignorePrediction, $expires_at);
+
+        return response()->json(['message' => 'OK'], 200);
     }
 }
