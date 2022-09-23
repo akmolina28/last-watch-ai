@@ -41,7 +41,7 @@ Route::post('/events', 'DetectionEventController@make');
 
 Route::get('/events/latest', 'DetectionEventController@showLatest')->middleware('auth.basic');
 
-Route::get('/events/viewer', 'DetectionEventController@viewer')->middleware('auth.basic');
+Route::get('/events/viewer', 'DetectionEventController@viewer')->middleware('localip', 'auth.basic');
 
 Route::get('/events/{event}', 'DetectionEventController@show')->middleware('auth.basic');
 
